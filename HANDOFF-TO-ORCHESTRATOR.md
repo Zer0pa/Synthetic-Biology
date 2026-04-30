@@ -35,8 +35,9 @@ The research-agent handover note proposes three explicit cross-workstream substr
 
 - Build Synthetic Biology end-to-end as an independent pipeline with its own ZPE adapter, its own MFMO BoTorch implementation, its own LangGraph + Prefect + Parsl deployment, its own Pydantic dossier factory, its own Phase 0 literature extraction, its own MACE-OFF deployment, its own TxGemma instance, its own PathGym corpus.
 - Do not propose cross-workstream substrate sharing in your PRD.
-- Do not depend on `Zer0pa/Health`, `Zer0pa/Materials`, or `Zer0pa/Energy` for any architectural component.
-- Cross-pollination is allowed at the *fresh-eyes* level — you may *read* the sibling repos as reference for how parallel orchestrators approached comparable engineering problems — but the Synthetic Biology pipeline is an independent build.
+- Do not depend on `Zer0pa/Health`, `Zer0pa/Materials`, or `Zer0pa/Energy` for any architectural component **at runtime**.
+- **Fork-and-own is explicitly permitted (operator clarification, 2026-05-01).** You may copy any implementation pattern, falsifier-registry shape, audit-log schema, plug-replaceability harness, runpod-cutover scaffold, KG-node taxonomy, code structure, test pattern, or architectural detail from a sibling workstream and reimplement it inside Synthetic Biology. You may steal tools, datasets, components, and design patterns freely. **What is rejected is runtime co-dependency** — two workstreams sharing one running instance of any service, two workstreams writing to one shared database or corpus, two workstreams importing from one shared git repo. Read the sibling repos as fresh-eyes reference, fork the patterns that work, and build your own deployment.
+- Each workstream is sacrosanct as if it were its own thing — independently runnable, independently auditable, independently shippable. Convergence (if any) happens in a separate, named merge step after all parallel workstreams are complete.
 - The deliberate redundancy across Health, Materials, Energy, and Synthetic Biology is the point. Premature convergence is the more expensive mistake.
 
 This has now happened in the Materials, Energy, and Synthetic Biology handoffs — three captured-and-overridden cross-workstream recommendations from three separate research-agent or synthesis-agent passes. The pattern is consistent.
