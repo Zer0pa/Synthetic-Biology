@@ -111,3 +111,20 @@ Every PRD should pass three gates before overnight execution begins:
 3. **Brain-functionality gate** — next-agent state is fully reconstructible from the repo plus KG plus audit log; no conversation history needed.
 
 These are pattern-level defaults. Stream-specific gates can be added but not subtracted. **Synthetic Biology adds a fourth gate at the orchestrator's discretion: a license-clean corpus gate** — every reaction in the LIRC (License-Clean Integrated Reaction Corpus per Report 2 §4.1) carries a verifiable Class A/B license attestation; BKMS-react and KEGG bulk are excluded by construction; BioTRY is gated on commercial-license verification before training-corpus inclusion.
+
+## Operator refinements (binding for all workstreams; captured 2026-05-01)
+
+Recorded for every future synthesis pass. These constraints apply to every Zer0pa workstream that follows this modus operandi — whether or not it is a pipeline vertical. The role chain may compress (synthesis+orchestrator collapsed for smaller projects) or expand (multiple orchestrators per super-project), but the discipline below does not change.
+
+- **Anti-MVP / anti-toy.** The target is never an MVP, never a first paying customer. Zer0pa is R&D pushing boundaries with science and evidence. The orchestrator's PRD specifies the most overdesigned, best-in-class system the technology landscape supports — not a minimum viable wedge.
+- **110% pre-Runpod.** The overnight executor must do 110% of what they can without GPU access. The Runpod cutover is a config-flag stub-swap, not a re-architecture step.
+- **Overnight long-horizon, autonomous, no interim reporting.** Once the brief is received, the executor runs end-to-end through the night without check-ins. Strip all process theater. The operator is asleep; the agent is working.
+- **GitHub + Hugging Face are the review surface.** Code, schemas, tests, audit trails, decision logs, KG nodes, and the PRD itself commit to GitHub. Large datasets and AI model artifacts go to Hugging Face — under the **Architect-Prime user, not the Zer0pa org**. HF token at `~/.cache/huggingface/token` on the originating machine. When execution completes, both stores must be up to date so the cross-workstream synthesis agent (on a different machine) can review without conversation context.
+- **PRD self-contained in the repo.** The orchestrator's PRD plus everything the executor needs lives in the GitHub repo. The executor can and must augment the PRD as they learn — augmentations commit back to GitHub.
+- **Fork-and-own across workstreams.** Pipelines/projects can steal parts, datasets, code patterns, harnesses, schemas, and ideas freely. They cannot be runtime co-dependent. Each workstream is sacrosanct as if it were its own thing — independently runnable, independently auditable, independently shippable.
+- **RESISTANCE.md doctrine.** Every executor locates and reads `RESISTANCE.md` (in the repo and on the originating machine) before starting work. The named corruptions — `fp-shapematchRE`, `fp-rushtoend`, `fp-NULLasout`, `fp-approvalseek`, `fp-flatteryasfreedom`, efficiency-as-corner-cutting — are binding constraints. The discipline IS the resistance.
+- **Operator delegates engineering / science / commercial decisions** to the synthesis and orchestrator agents. Surface only strategic decisions or boundary-evolution questions to the operator.
+
+## Beyond pipeline verticals
+
+Some incoming projects will not be pipeline verticals (no L1–L7 substrate, no domain-specific falsification ledger shape, no PRD-equivalent in the prior pattern's strict sense). The modus operandi above still applies. The role chain compresses or expands per project scope; the discipline does not.
