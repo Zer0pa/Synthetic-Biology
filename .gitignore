@@ -1,0 +1,41 @@
+# macOS
+.DS_Store
+._*
+
+# Python virtual envs and caches
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Local runtime artifacts (will be added by overnight executor)
+audit_log/
+audit/runtime/
+kg_store/
+runtime/cache/
+*.sqlite
+*.duckdb
+*.lock
+
+# Bulk data — must not be vendored (per MODUS-OPERANDI.md Constraints)
+*.parquet
+*.h5
+*.hdf5
+*.feather
+data/raw/
+data/bulk/
+
+# IDE
+.idea/
+.vscode/
+
+# Editor swap files
+*.swp
+*.swo
