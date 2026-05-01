@@ -108,6 +108,10 @@ phase 50_esm2_real_l1          "Real ESM-2 batched embeddings (L1)"    bash "$PH
 phase 60_hmo_2pfl              "HMO seed: 2'-FL (scientific mode)"     bash "$PHASES/60_hmo_seed.sh" 2pFL
 phase 60_hmo_3psl              "HMO seed: 3'-SL (scientific mode)"     bash "$PHASES/60_hmo_seed.sh" 3pSL
 phase 60_hmo_dslnt             "HMO seed: DSLNT (scientific mode)"     bash "$PHASES/60_hmo_seed.sh" DSLNT
+phase 100_esmfold_real         "L4.5 ESMFold real inference (FutC, α-2,3-Lst, α-2,6-Lst)" bash "$PHASES/100_esmfold_real.sh"
+phase 110_mace_off_real        "L4.5 MACE-OFF binding energy (3 HMO complexes)" bash "$PHASES/110_mace_off_real.sh"
+phase 200_cekm_smoke           "CEKM data + model build smoke (1 forward pass on H100)" bash "$PHASES/200_cekm_smoke.sh"
+phase 210_cekm_train           "CEKM mini training (2000 steps; H100 saturation)" bash "$PHASES/210_cekm_train.sh"
 phase 70_audit_verify          "Audit conformance verify all 3 seeds"  bash "$PHASES/70_audit_verify.sh"
 phase 80_hf_smoke              "HF Architect-Prime smoke push"         bash "$PHASES/80_hf_smoke.sh"
 phase 90_final_report          "Write FINAL-REPORT-RUNPOD.md"          bash "$PHASES/90_final_report.sh"

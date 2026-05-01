@@ -197,6 +197,11 @@ class RunpodESMFoldRunner:
 
             model = EsmForProteinFolding.from_pretrained(self.model_id, **model_kwargs)
             model = model.to(device)
+            if device == "cuda":
+                # ESMFold uses fp16 for the ESM-2 language-model backbone.
+                # The folding trunk stays in bf16; only esm sub-module goes fp16.
+                model.esm = model.esm.half()
+                logger.info("RunpodESMFoldRunner: ESM-2 backbone cast to fp16")
             model.eval()
 
             self._tokenizer = tokenizer
@@ -213,21 +218,32 @@ class RunpodESMFoldRunner:
 
     # ── public API ───────────────────────────────────────────────────────────
 
-    def predict_batch(self, sequences: list[str]) -> list[StructurePrediction]:
+    def predict_batch(
+        self, sequences: list[str], batch_size: int = 4
+    ) -> list[StructurePrediction]:
         """Run ESMFold on a list of amino-acid sequences.
+
+        Sequences are processed in micro-batches of ``batch_size`` (default 4)
+        to saturate H100 SM occupancy while staying within VRAM limits.
+        Sequences within a micro-batch are padded to the longest sequence in
+        that batch via the tokenizer's padding logic.
 
         Returns one :class:`StructurePrediction` per sequence.  The
         ``stub_mode`` flag is True when real inference was not performed.
 
         Args:
-            sequences: List of single-letter amino-acid sequences.
+            sequences:  List of single-letter amino-acid sequences.
+            batch_size: Number of sequences per GPU micro-batch (default 4).
+                        Set to 1 for sequences > 800 residues to avoid OOM.
 
         Returns:
             List of :class:`StructurePrediction` with ``stub_mode=False`` on
             success, ``stub_mode=True`` on fallback.
         """
         if not self._ensure_loaded():
-            logger.debug("RunpodESMFoldRunner.predict_batch: stub fallback for %d seqs", len(sequences))
+            logger.debug(
+                "RunpodESMFoldRunner.predict_batch: stub fallback for %d seqs", len(sequences)
+            )
             return [
                 StructurePrediction(sequence=seq, pdb_string=None, plddt_mean=None, stub_mode=True)
                 for seq in sequences
@@ -238,44 +254,63 @@ class RunpodESMFoldRunner:
         results: list[StructurePrediction] = []
         device = self._device or "cpu"
 
-        # Process in batches of 1 (ESMFold is memory-intensive; callers can
-        # pass batches and the runner handles chunking internally when needed).
-        for seq in sequences:
+        # Process in micro-batches of `batch_size` to saturate H100 SMs.
+        for batch_start in range(0, len(sequences), batch_size):
+            batch_seqs = sequences[batch_start : batch_start + batch_size]
             try:
                 tokenized = self._tokenizer(
-                    [seq],
+                    batch_seqs,
                     return_tensors="pt",
                     add_special_tokens=False,
+                    padding=True,        # pad shorter seqs in the batch
+                    truncation=False,    # never silently truncate
                 )
                 tokenized = {k: v.to(device) for k, v in tokenized.items()}
 
                 with torch.no_grad():
                     output = self._model(**tokenized)
 
-                # Convert structure to PDB string.
-                pdb_string = self._model.output_to_pdb(output)[0]
+                # output_to_pdb returns one PDB string per sequence in the batch.
+                pdb_strings: list[str] = self._model.output_to_pdb(output)
 
-                plddt_all: list[float] = (
-                    output.plddt[0, :, 1].cpu().float().tolist()
-                    if hasattr(output, "plddt")
-                    else []
-                )
-                plddt_mean = float(sum(plddt_all) / len(plddt_all)) if plddt_all else None
+                for i, seq in enumerate(batch_seqs):
+                    pdb_string = pdb_strings[i] if i < len(pdb_strings) else None
 
-                results.append(
-                    StructurePrediction(
-                        sequence=seq,
-                        pdb_string=pdb_string,
-                        plddt_mean=plddt_mean,
-                        plddt_per_residue=plddt_all,
-                        stub_mode=False,
+                    # plddt tensor: [batch, seq_len, n_atoms]; index 1 = Cα.
+                    if hasattr(output, "plddt") and output.plddt is not None:
+                        plddt_all: list[float] = (
+                            output.plddt[i, :len(seq), 1].cpu().float().tolist()
+                        )
+                    else:
+                        plddt_all = []
+
+                    plddt_mean = (
+                        float(sum(plddt_all) / len(plddt_all)) if plddt_all else None
                     )
-                )
+
+                    results.append(
+                        StructurePrediction(
+                            sequence=seq,
+                            pdb_string=pdb_string,
+                            plddt_mean=plddt_mean,
+                            plddt_per_residue=plddt_all,
+                            stub_mode=False,
+                        )
+                    )
+
             except Exception as exc:  # noqa: BLE001
-                logger.warning("RunpodESMFoldRunner: inference failed for seq %r: %s", seq[:20], exc)
-                results.append(
-                    StructurePrediction(sequence=seq, pdb_string=None, plddt_mean=None, stub_mode=True)
+                logger.warning(
+                    "RunpodESMFoldRunner: batch inference failed (seqs %d-%d): %s",
+                    batch_start,
+                    batch_start + len(batch_seqs) - 1,
+                    exc,
                 )
+                for seq in batch_seqs:
+                    results.append(
+                        StructurePrediction(
+                            sequence=seq, pdb_string=None, plddt_mean=None, stub_mode=True
+                        )
+                    )
 
         return results
 
@@ -294,24 +329,37 @@ class RunpodMACEOFFRunner:
     The binding energy is reported in kJ/mol per protein–ligand complex.  A
     more negative value indicates tighter binding.
 
+    Unit convention:
+      ASE returns energies in eV.  1 eV = 96.485 kJ/mol.
+
     Attributes:
-        model: MACE-OFF model identifier (e.g. ``"MACE-OFF23"`` — the default
-            pretrained model from the ``mace-torch`` package).
+        model: MACE-OFF model size identifier.  ``"medium"`` is the recommended
+            default (MACE-OFF23(M) — ~7 M parameters, good balance of speed
+            and accuracy).  Accepted values: ``"small"``, ``"medium"``,
+            ``"large"``.  May also accept legacy identifier ``"MACE-OFF23"``.
         device: ``"cuda"`` or ``"cpu"``; inferred when None.
+        default_dtype: Floating-point precision for ASE/MACE computations.
+            ``"float64"`` (default) is required for chemistry-grade energy
+            accuracy; ``"float32"`` is faster but less precise.
         dispersion: Whether to include D3 dispersion correction (default True).
     """
 
     # Canonical canned stub energy (same as existing adapter stub).
     _STUB_ENERGY_KJ_MOL: float = -45.2
 
+    # eV → kJ/mol conversion factor (NIST 2018 CODATA).
+    _EV_TO_KJ_MOL: float = 96.485
+
     def __init__(
         self,
-        model: str = "MACE-OFF23",
+        model: str = "medium",
         device: str | None = None,
+        default_dtype: str = "float64",
         dispersion: bool = True,
     ) -> None:
         self.model = model
         self._device: str | None = device
+        self.default_dtype = default_dtype
         self.dispersion = dispersion
         self._calculator: Any = None
         self._load_error: str | None = None
@@ -340,9 +388,16 @@ class RunpodMACEOFFRunner:
             self._device = device
 
             logger.info(
-                "RunpodMACEOFFRunner: loading MACE-OFF model=%r on %s", self.model, device
+                "RunpodMACEOFFRunner: loading MACE-OFF model=%r dtype=%s on %s",
+                self.model,
+                self.default_dtype,
+                device,
             )
-            self._calculator = mace_off(model=self.model, device=device, dispersion=self.dispersion)
+            self._calculator = mace_off(
+                model=self.model,
+                device=device,
+                default_dtype=self.default_dtype,
+            )
             logger.info("RunpodMACEOFFRunner: calculator loaded successfully")
             return True
 
@@ -390,7 +445,7 @@ class RunpodMACEOFFRunner:
 
                 # energy() in eV; convert to kJ/mol (1 eV = 96.485 kJ/mol).
                 energy_ev = atoms.get_potential_energy()
-                energy_kj_mol = float(energy_ev) * 96.485
+                energy_kj_mol = float(energy_ev) * self._EV_TO_KJ_MOL
                 results.append(energy_kj_mol)
 
             except Exception as exc:  # noqa: BLE001

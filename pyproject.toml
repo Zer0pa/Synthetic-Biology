@@ -76,6 +76,7 @@ markers = [
     "hmo_seed: 2'-FL / 3'-SL / DSLNT validation packet tests (Wave 9)",
     "integration: cross-layer integration tests",
     "slow: tests that take more than ~5s; not run on every invocation",
+    "gpu: requires CUDA + heavy ML deps (transformers, mace-torch, ase); skipped on CPU CI",
 ]
 filterwarnings = [
     "ignore::DeprecationWarning",

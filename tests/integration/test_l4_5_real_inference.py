@@ -112,7 +112,7 @@ def test_mace_off_runner_instantiates():
 
     runner = RunpodMACEOFFRunner()
     assert runner is not None
-    assert runner.model == "MACE-OFF23"
+    assert runner.model == "medium"
     assert runner._calculator is None
 
 
