@@ -1,0 +1,27 @@
+schema_version: synbio.source_manifest.v0.1
+source_id: mace_off
+uri: https://github.com/ACEsuit/mace
+retrieval_method: git
+retrieved_at: "2026-05-01T00:00:00Z"
+license_spdx_or_text: MIT
+license_class: A
+allowed_use: research
+geography_restrictions: null
+checksum: "sha256:placeholder-mace-off-bootstrap"
+local_slice_size_mb: 0.0
+hf_mirror_uri: null
+bulk_data_stored_locally: false
+citation: |
+  Batatia, I. et al. MACE: Higher Order Equivariant Message Passing Neural
+  Networks for Fast and Accurate Force Fields. NeurIPS 2022.
+  MACE-OFF: Kovacs, D. P. et al. Transferable Machine-Learning Force Fields
+  for Equilibrium and Non-Equilibrium Molecular Dynamics. arXiv:2312.15211 (2023).
+rights_notes: |
+  MIT licence — mace-torch PyPI package (https://pypi.org/project/mace-torch/).
+  MACE-OFF23 pretrained model weights are released under MIT licence by the
+  ACEsuit consortium.  No geography restrictions observed.  Runpod workers
+  install via: pip install "mace-torch>=0.3".  If mace-torch is not installed
+  the adapter stays in gpu_rest_stub mode and does not claim scientific_valid.
+  PRD §6.6: MACE-OFF is used for SE(3)-equivariant binding-energy estimation
+  of novel enzyme–substrate complexes in L4.5 Tier-1/2/3 novelty sub-pipeline.
+excluded_from_training_corpus: false

@@ -6,6 +6,9 @@
     synbio falsifiers run <id> # run a falsifier against a JSON evidence file
     synbio hmo run <seed>      # run the L1-L7 chain on a single HMO seed
     synbio audit verify <campaign>   # verify a campaign's audit chain (stub)
+    synbio cekm train --config <yaml> [--resume]   # train CEKM (Wave 4)
+    synbio cekm smoke                               # CPU data-pipeline smoke test
+    synbio cekm eval --config <yaml> --checkpoint <meta.json>  # calibration audit
 """
 
 from __future__ import annotations
@@ -97,6 +100,25 @@ def audit_verify(campaign_id: str, as_json: bool) -> None:
     else:
         click.echo(report.summary())
     sys.exit(0 if report.passed else 1)
+
+
+@cli.group()
+def cekm() -> None:
+    """CEKM (Conditional Enzyme Kinetics Model) commands — PRD §12."""
+
+
+# Attach the sub-commands from zer0pa_synbio.cekm.train.  This indirection
+# keeps the train module importable standalone (the cekm_group click.Group
+# object) while also registering it under the top-level `synbio cekm` group
+# here in the canonical CLI entrypoint.
+def _register_cekm_subcommands() -> None:
+    from zer0pa_synbio.cekm.train import cekm_group
+
+    for cmd_name, cmd_obj in cekm_group.commands.items():
+        cekm.add_command(cmd_obj, name=cmd_name)
+
+
+_register_cekm_subcommands()
 
 
 def main() -> None:  # pragma: no cover
