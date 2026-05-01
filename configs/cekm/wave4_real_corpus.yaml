@@ -1,0 +1,56 @@
+# CEKM Wave-4 real-corpus training config.
+#
+# Per HANDOFF-CPU-CONTINUATION.md item D and PRD §12.1.
+#
+# Usage on the H100 pod:
+#   1. Pre-download the four corpora to the paths below
+#      (see src/zer0pa_synbio/cekm/loaders/*.py docstrings for download
+#      instructions).
+#   2. synbio cekm train --config configs/cekm/wave4_real_corpus.yaml
+#
+# All four sources are Class A (CC BY 4.0 or MIT) per
+# audit/source_manifests/*.yaml. No license-grant additions needed.
+
+campaign_id: "cekm_wave4_real_corpus"
+seed: 42
+
+# Real corpus loader paths — populated by the pod-prep step.
+brenda_tsv_path:        "/workspace/data/brenda/brenda_data.tsv"
+enzyextract_tsv_path:   "/workspace/data/enzyextract/parameters.tsv"
+gotenzymes2_jsonl_path: "/workspace/data/gotenzymes2/gotenzymes2_bulk.jsonl"
+proteingym_csv_path:    "/workspace/data/proteingym/DMS_substitutions.csv"
+
+# Decoy pool: built from the assembled corpus by default
+# (decoy_pool_path: null means "use intra-corpus substrate keys").
+decoy_pool_path: null
+
+# Held-out partition discipline (PRD §12.3).
+holdout_fraction: 0.15
+enzyextract_holdout_full: true   # Full EnzyExtract dark-matter held out
+
+# Training loop. Tuned for an 8h H100 saturation run; raise max_steps
+# proportionally with available wallclock.
+batch_size: 64
+gradient_accumulation_steps: 4
+learning_rate: 3.0e-4
+weight_decay: 1.0e-2
+warmup_steps: 500
+max_steps: 20000
+eval_every_steps: 500
+checkpoint_every_steps: 1000
+
+# Precision and hardware.
+use_bf16: true
+use_flash_attention_2: false   # set true if flash-attn 2 wheel is present
+
+# Output paths (pod-side; mirror to HF on completion).
+checkpoint_dir: "/workspace/checkpoints/cekm_wave4"
+tb_log_dir: "/workspace/runs/cekm_wave4"
+
+# HF push.
+hf_repo_id: "Architect-Prime/synbio-cekm-v0.1"
+hf_private: true
+
+# Submodule defaults are used unless overridden — see
+# src/zer0pa_synbio/cekm/train.py:TrainingConfig and the *_Config
+# dataclasses for tunables.

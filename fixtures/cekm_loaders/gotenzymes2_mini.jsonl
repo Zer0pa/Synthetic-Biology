@@ -1,0 +1,4 @@
+{"uniprot_id": "Q11075", "substrate_inchi_key": "GUBGYTABKSRVRQ-PICCSMPSSA-N", "organism_taxonomy_id": 562, "temperature_c": 37.0, "ph": 7.0, "kcat_per_s": 120.5, "km_mm": 0.42, "model_confidence": 0.83}
+{"uniprot_id": "P0A953", "substrate_inchi_key": "JKMHFZQWWAIEOD-UHFFFAOYSA-N", "organism_taxonomy_id": 562, "temperature_c": 30.0, "ph": 6.8, "kcat_per_s": 8.7, "km_mm": 1.2, "model_confidence": 0.71}
+{"uniprot_id": "P32660", "substrate_inchi_key": "OUYCCCASQSFEME-MRVPVSSYSA-N", "organism_taxonomy_id": 4932, "temperature_c": 30.0, "ph": 7.4, "kcat_per_s": 45.2, "km_mm": 0.6, "model_confidence": 0.65}
+{"uniprot_id": "P00350", "substrate_inchi_key": "RGJOEKWQDUBAIZ-IBOSZNHHSA-N", "organism_taxonomy_id": 562, "temperature_c": 37.0, "ph": 7.0, "kcat_per_s": 230.0, "km_mm": 0.05, "model_confidence": 0.91}

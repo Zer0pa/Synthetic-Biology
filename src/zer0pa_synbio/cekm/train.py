@@ -184,6 +184,16 @@ class TrainingConfig:
     max_corpus_rows: int | None = None  # None = use all rows
     holdout_fraction: float = 0.15
     enzyextract_holdout_full: bool = True
+    # Real corpus loader paths (per HANDOFF-CPU-CONTINUATION.md item D
+    # / PRD §12.1). Each is optional — leave as None to skip that
+    # source. See src/zer0pa_synbio/cekm/loaders/{brenda_bulk,
+    # enzyextract,gotenzymes2,proteingym}.py for the expected file
+    # formats. When all four are None, the smoke synthetic corpus is
+    # used (CPU prototype).
+    brenda_tsv_path: str | None = None
+    enzyextract_tsv_path: str | None = None
+    gotenzymes2_jsonl_path: str | None = None
+    proteingym_csv_path: str | None = None
     # Decoy pool: InChIKey strings for adversarial-negative sampling
     decoy_pool_path: str | None = None  # path to a .txt file of InChIKeys; None = intra-corpus
     # Training loop
@@ -1638,15 +1648,23 @@ def cekm_train(config_path: Path, resume: bool) -> None:
     cfg = load_config(config_path)
     click.echo(f"Loaded config: campaign={cfg.campaign_id}, max_steps={cfg.max_steps}")
 
-    # TODO(wave4): replace synthetic slices with real data loaders that
-    # construct CorpusSlice objects from BRENDA, EnzyExtract, GotEnzymes2,
-    # ProteinGym. These slices must have license_class vetted against
-    # audit/source_manifests/*.yaml before being passed here.
-    click.echo(
-        "WARNING: Using synthetic stub corpus. "
-        "Wave 4 agent must wire real CorpusSlice objects."
-    )
-    slices: list[CorpusSlice] = []
+    # Real-corpus path: any of the four loader paths in the config
+    # triggers loading via src/zer0pa_synbio/cekm/loaders/. Empty path
+    # means "skip that source." Class C/D/E sources are excluded by
+    # construction (the loaders only support Class A datasets).
+    from zer0pa_synbio.cekm.loaders import load_corpus_slices_from_config
+
+    slices: list[CorpusSlice] = load_corpus_slices_from_config(cfg)
+    if slices:
+        for s in slices:
+            click.echo(f"Loaded {s.source}: {len(s.rows)} rows (license_class={s.license_class})")
+    else:
+        click.echo(
+            "WARNING: No real-corpus loader paths set in config "
+            "(brenda_tsv_path, enzyextract_tsv_path, gotenzymes2_jsonl_path, "
+            "proteingym_csv_path). Falling back to empty corpus — set at "
+            "least one path on the GPU pod for real training."
+        )
 
     summary = train(cfg, slices, resume=resume)
     click.echo(json.dumps(summary, indent=2))
