@@ -1,54 +1,96 @@
 #!/usr/bin/env bash
-# Phase 210 — CEKM mini training run (H100 saturation).
+# Phase 210 — CEKM REAL training on H100 (synthetic corpus from smoke pipeline).
 #
-# Trains for max_steps=2000 against an in-memory synthetic corpus seeded
-# from BRENDA-style positives + adversarial three-tier negatives. Real
-# corpus assembly + full training (≥50K steps) is gated behind a
-# `runtime/cekm.config.yaml` for a future operator-driven run; this
-# phase is the saturation+plumbing test.
+# The shipped CLI passes empty slices; here we assemble the synthetic corpus
+# inline (100 positives + 207 negatives) and call train() directly so the
+# H100 actually does forward+backward passes for 2000 steps.
 set -euo pipefail
 . "$RUN_ROOT/env.sh"
 
-CONFIG="$RUN_ROOT/repo/runtime/cekm-train-h100.yaml"
-mkdir -p "$RUN_ROOT/repo/audit/runtime/cekm_train_h100" \
-         "$RUN_ROOT/repo/audit/runtime/cekm_train_h100/checkpoints"
+mkdir -p "$RUN_ROOT/audit/runtime/cekm_train_h100/checkpoints"
 
-# Generate a config on the fly — campaign-scoped under audit/runtime/.
-cat > "$CONFIG" <<EOF
-campaign_id: cekm_train_h100
-esm2:
-  pretrained_name: facebook/esm2_t33_650M_UR50D
-  use_real_esm2: true
-  unfreeze_last_n_layers: 2
-  dtype: bfloat16
-dmpnn:
-  hidden_dim: 128
-  num_layers: 3
-condition_mlp:
-  hidden_dim: 64
-adaptive_gate:
-  gate_type: cross_attention
-heads:
-  num_disc_classes: 4
-loss:
-  supervised_weight: 1.0
-  curriculum_weight: 0.3
-  contrastive_weight: 0.5
-batch_size: 8
-gradient_accumulation_steps: 4
-learning_rate: 1.0e-4
-warmup_steps: 100
-max_steps: 2000
-eval_every_steps: 200
-checkpoint_every_steps: 500
-checkpoint_dir: $RUN_ROOT/repo/audit/runtime/cekm_train_h100/checkpoints
-seed: 42
-hf_repo: Architect-Prime/synbio-cekm-v0.1
-push_to_hf: false   # smoke; full push gated on real-corpus run
-EOF
+python <<'PY'
+"""Real CEKM training on H100 — synthetic corpus + real model."""
+import sys
+import logging
 
-cat "$CONFIG"
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)],
+)
 
-cd "$RUN_ROOT/repo"
-python -m zer0pa_synbio.cli cekm train --config "$CONFIG" 2>&1 | tail -40
+from zer0pa_synbio.cekm import KineticsRow, CorpusSlice
+from zer0pa_synbio.cekm.train import TrainingConfig, train
+
+print("=== assembling synthetic corpus ===")
+brenda = CorpusSlice(
+    source="brenda",
+    license_class="A",
+    rows=[
+        KineticsRow(
+            enzyme_uniprot_id=f"P{i:05d}",
+            substrate_inchi_key=f"SUBSTRATE-{i:03d}",
+            organism_taxonomy_id=562,
+            temperature_c=37.0,
+            ph=7.0,
+            kcat_per_s=10.0 + i * 0.3,
+            km_mm=0.1 + i * 0.05,
+            source="brenda",
+            citation="(synthetic for H100 training)",
+        )
+        for i in range(50)
+    ],
+)
+enzyextract = CorpusSlice(
+    source="enzyextract",
+    license_class="A",
+    rows=[
+        KineticsRow(
+            enzyme_uniprot_id=f"E{i:05d}",
+            substrate_inchi_key=f"DARK-MATTER-{i:03d}",
+            organism_taxonomy_id=83333,
+            temperature_c=30.0,
+            ph=6.5,
+            kcat_per_s=5.0 + i * 0.2,
+            km_mm=0.5 + i * 0.1,
+            source="enzyextract",
+            citation="(synthetic enzyextract dark-matter for H100 training)",
+        )
+        for i in range(50)
+    ],
+)
+slices = [brenda, enzyextract]
+print(f"  brenda rows: {len(brenda.rows)}, enzyextract rows: {len(enzyextract.rows)}")
+
+print("=== train() — 2000 steps on H100 ===")
+cfg = TrainingConfig(
+    campaign_id="cekm_train_h100",
+    seed=42,
+    use_bf16=False,
+    batch_size=4,
+    gradient_accumulation_steps=2,
+    learning_rate=1e-4,
+    warmup_steps=50,
+    max_steps=2000,
+    eval_every_steps=200,
+    checkpoint_every_steps=500,
+    checkpoint_dir="/workspace/synbio-run/repo/audit/runtime/cekm_train_h100/checkpoints",
+    holdout_fraction=0.20,
+    enzyextract_holdout_full=False,
+)
+summary = train(cfg, slices, resume=False)
+
+import json
+print("=== summary ===")
+print(json.dumps(summary, indent=2))
+
+assert summary["steps_completed"] >= 100, f"too few steps: {summary['steps_completed']}"
+assert summary["corpus_total"] > 0, f"empty corpus"
+assert summary["in_corpus"] > 0, f"no in-corpus rows"
+print(
+    f"OK: real CEKM training ran {summary['steps_completed']} steps on "
+    f"{summary['in_corpus']} positives + {summary['negatives']} adversarial negatives."
+)
+PY
 echo "OK: CEKM training phase finished."

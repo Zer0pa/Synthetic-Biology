@@ -1143,6 +1143,17 @@ def train(cfg: TrainingConfig, slices: list[CorpusSlice], *, resume: bool = Fals
 
     # --- 2. Model + optimiser factory ------------------------------------
     model = build_model(cfg)
+    # Move model to CUDA when available — without this, training silently
+    # runs on CPU at glacial pace (967M params on Intel = hours per step).
+    if model is not None:
+        try:
+            import torch as _t
+
+            if _t.cuda.is_available():
+                model = model.cuda()
+                log.info("train(): model moved to CUDA: %s", _t.cuda.get_device_name(0))
+        except Exception as _exc:  # pragma: no cover
+            log.warning("train(): model.cuda() failed: %s", _exc)
     optimiser = build_optimiser(model, cfg)
     scheduler = build_scheduler(optimiser, cfg)
 
@@ -1321,6 +1332,14 @@ def train(cfg: TrainingConfig, slices: list[CorpusSlice], *, resume: bool = Fals
 
                 seq_ids, substrate_inp, conds, kcat_t, km_t = _rows_to_batch(batch_rows)
 
+                # Move inputs to the same device as the model.
+                _dev = next(model.parameters()).device
+                seq_ids = seq_ids.to(_dev)
+                substrate_inp = substrate_inp.to(_dev)
+                conds = conds.to(_dev)
+                kcat_t = kcat_t.to(_dev)
+                km_t = km_t.to(_dev)
+
                 # --- Forward pass (with optional amp) ----------------------
                 try:
                     if use_amp and scaler is not None:
@@ -1345,7 +1364,11 @@ def train(cfg: TrainingConfig, slices: list[CorpusSlice], *, resume: bool = Fals
                             curriculum_rows, min(batch_size, len(curriculum_rows))
                         )
                         _, curr_sub, curr_conds, curr_kcat, curr_km = _rows_to_batch(curr_batch)
-                        curr_seq = _torch.zeros(len(curr_batch), 1, dtype=_torch.long)
+                        curr_seq = _torch.zeros(len(curr_batch), 1, dtype=_torch.long, device=_dev)
+                        curr_sub = curr_sub.to(_dev)
+                        curr_conds = curr_conds.to(_dev)
+                        curr_kcat = curr_kcat.to(_dev)
+                        curr_km = curr_km.to(_dev)
                         curr_out = model(curr_seq, curr_sub, curr_conds)
                         _l = compute_curriculum_loss(
                             curr_out["kcat_log"], curr_out["km_log"],
@@ -1369,9 +1392,10 @@ def train(cfg: TrainingConfig, slices: list[CorpusSlice], *, resume: bool = Fals
                             neg_sub = _torch.tensor(
                                 [hash(neg_item.decoy_substrate_inchi_key) % (2**20)],
                                 dtype=_torch.long,
+                                device=_dev,
                             )
                             neg_cond = conds[batch_rows.index(row): batch_rows.index(row) + 1]
-                            neg_seq = _torch.zeros(1, 1, dtype=_torch.long)
+                            neg_seq = _torch.zeros(1, 1, dtype=_torch.long, device=_dev)
                             neg_out = model(neg_seq, neg_sub, neg_cond)
                             if neg_item.tier == "alpha":
                                 neg_alpha_emb.append(neg_out["fused"])
