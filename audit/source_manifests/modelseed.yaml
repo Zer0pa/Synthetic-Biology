@@ -1,0 +1,16 @@
+schema_version: synbio.source_manifest.v0.1
+source_id: modelseed
+uri: https://modelseed.org/
+retrieval_method: api
+retrieved_at: "2026-05-01T00:00:00Z"
+license_spdx_or_text: MIT
+license_class: A
+allowed_use: research
+geography_restrictions: null
+checksum: "sha256:placeholder-modelseed-bootstrap"
+local_slice_size_mb: 0.0
+hf_mirror_uri: null
+bulk_data_stored_locally: false
+citation: "Henry, C. S. et al. High-throughput generation, optimization and analysis of genome-scale metabolic models. Nat. Biotechnol. (2010)."
+rights_notes: "MIT — used as a reconstruction reference and FBA-disagreement member per PRD §6.5 L4A."
+excluded_from_training_corpus: false

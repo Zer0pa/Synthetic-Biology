@@ -1,0 +1,23 @@
+schema_version: synbio.source_manifest.v0.1
+source_id: atlas_of_biochemistry_BLOCKED
+uri: https://lcsb-databases.epfl.ch/atlas2/
+retrieval_method: manual
+retrieved_at: "2026-05-01T00:00:00Z"
+license_spdx_or_text: "Academic-use subscription; downloads login-gated; redistribution / training-corpus permission not granted in public terms reviewed."
+license_class: D
+allowed_use: noncommercial
+geography_restrictions: null
+checksum: "sha256:never-pulled"
+local_slice_size_mb: 0.0
+hf_mirror_uri: null
+bulk_data_stored_locally: false
+citation: "Hadadi, N. et al. ATLAS of Biochemistry: a repository of all possible biochemical reactions for synthetic biology and metabolic engineering studies. ACS Synth. Biol. (2016)."
+rights_notes: |
+  **NEVER EMBEDDED.** Per PRD §22 and synthesis §6: ATLAS is read-only
+  cross-reference. URL/DOI references only — never bulk download, never
+  training-corpus inclusion. Falsifier f018_license_drift fires on any
+  embedding attempt.
+  PRD locks this stricter than the synthesis recommendation: ATLAS is
+  Class D (academic-use, redistribution not granted in reviewed terms),
+  not Class C with possible academic-redistribution.
+excluded_from_training_corpus: true

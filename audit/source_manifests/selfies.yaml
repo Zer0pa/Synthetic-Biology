@@ -1,0 +1,16 @@
+schema_version: synbio.source_manifest.v0.1
+source_id: selfies
+uri: https://github.com/aspuru-guzik-group/selfies
+retrieval_method: git
+retrieved_at: "2026-05-01T00:00:00Z"
+license_spdx_or_text: Apache-2.0
+license_class: A
+allowed_use: research
+geography_restrictions: null
+checksum: "sha256:placeholder-selfies-bootstrap"
+local_slice_size_mb: 0.0
+hf_mirror_uri: null
+bulk_data_stored_locally: false
+citation: "Krenn, M. et al. Self-Referencing Embedded Strings (SELFIES): A 100% robust molecular string representation. Mach. Learn.: Sci. Technol. (2020)."
+rights_notes: "Apache 2.0 — used in L1 ZPE adapter per PRD §6.1."
+excluded_from_training_corpus: false

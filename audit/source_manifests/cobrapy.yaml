@@ -1,0 +1,16 @@
+schema_version: synbio.source_manifest.v0.1
+source_id: cobrapy
+uri: https://github.com/opencobra/cobrapy
+retrieval_method: git
+retrieved_at: "2026-05-01T00:00:00Z"
+license_spdx_or_text: LGPL-2.1-or-later
+license_class: B
+allowed_use: research
+geography_restrictions: null
+checksum: "sha256:placeholder-cobrapy-bootstrap"
+local_slice_size_mb: 0.0
+hf_mirror_uri: null
+bulk_data_stored_locally: false
+citation: "Ebrahim, A. et al. COBRApy: COnstraints-Based Reconstruction and Analysis for Python. BMC Syst. Biol. (2013)."
+rights_notes: "LGPL-2.1+ (Class B). Used in L4A FBA + L4G competing-pathway simulation per PRD §6.5. LGPL is library-link-permitted (no subprocess isolation needed); license_class=B is the correct categorisation. GLPK solver bundled is also LGPL."
+excluded_from_training_corpus: false

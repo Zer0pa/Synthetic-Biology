@@ -1,0 +1,16 @@
+schema_version: synbio.source_manifest.v0.1
+source_id: ripser
+uri: https://github.com/scikit-tda/ripser.py
+retrieval_method: git
+retrieved_at: "2026-05-01T00:00:00Z"
+license_spdx_or_text: LGPL-3.0-or-later
+license_class: B
+allowed_use: research
+geography_restrictions: null
+checksum: "sha256:placeholder-ripser-bootstrap"
+local_slice_size_mb: 0.0
+hf_mirror_uri: null
+bulk_data_stored_locally: false
+citation: "Tralie, C. et al. Ripser.py: A Lean Persistent Homology Library for Python. JOSS (2018)."
+rights_notes: "LGPL-3.0+ (Class B). Used in TDA early-warning per PRD §5.3 alongside persim. **giotto-tda is AGPL and explicitly excluded from product code per PRD §5.3.**"
+excluded_from_training_corpus: false

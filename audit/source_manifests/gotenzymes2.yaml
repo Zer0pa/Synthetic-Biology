@@ -1,0 +1,16 @@
+schema_version: synbio.source_manifest.v0.1
+source_id: gotenzymes2
+uri: https://gotenzymes.io/
+retrieval_method: api
+retrieved_at: "2026-05-01T00:00:00Z"
+license_spdx_or_text: CC-BY-4.0
+license_class: A
+allowed_use: research
+geography_restrictions: null
+checksum: "sha256:placeholder-gotenzymes2-bootstrap"
+local_slice_size_mb: 0.0
+hf_mirror_uri: "Architect-Prime/synbio-cekm-corpus-v0.1"
+bulk_data_stored_locally: false
+citation: "GotEnzymes2: 59.6M predicted enzyme-substrate-condition entries; CC BY 4.0."
+rights_notes: "CC BY 4.0 — used as a curriculum pre-training dataset for CEKM per PRD §12.1. Soft pseudo-labels are weighted lower than BRENDA + EnzyExtract during CEKM training."
+excluded_from_training_corpus: false

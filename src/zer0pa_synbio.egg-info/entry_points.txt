@@ -1,2 +1,0 @@
-[console_scripts]
-synbio = zer0pa_synbio.cli.__main__:cli

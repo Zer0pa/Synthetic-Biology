@@ -1,0 +1,16 @@
+schema_version: synbio.source_manifest.v0.1
+source_id: bigg
+uri: http://bigg.ucsd.edu/
+retrieval_method: api
+retrieved_at: "2026-05-01T00:00:00Z"
+license_spdx_or_text: CC-BY-4.0
+license_class: A
+allowed_use: research
+geography_restrictions: null
+checksum: "sha256:placeholder-bigg-bootstrap"
+local_slice_size_mb: 0.0
+hf_mirror_uri: null
+bulk_data_stored_locally: false
+citation: "King, Z. A. et al. BiGG Models: A platform for integrating, standardizing and sharing genome-scale models. Nucleic Acids Res. (2016)."
+rights_notes: "CC BY 4.0 — attribution required. iML1515 (E. coli) is the host GEM for the HMO scientific validation triple per PRD §3.2."
+excluded_from_training_corpus: false

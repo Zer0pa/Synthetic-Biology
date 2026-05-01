@@ -1,0 +1,21 @@
+schema_version: synbio.source_manifest.v0.1
+source_id: q003_l5_amplitude_amplification_qnehvi_BLOCKED
+uri: "(quantum hardware; not yet allocated)"
+retrieval_method: manual
+retrieved_at: "2026-05-01T00:00:00Z"
+license_spdx_or_text: "n/a — hardware-gated"
+license_class: E
+allowed_use: research
+geography_restrictions: null
+checksum: "sha256:never-allocated"
+local_slice_size_mb: 0.0
+hf_mirror_uri: null
+bulk_data_stored_locally: false
+citation: "PRD §18 quantum slot q003."
+rights_notes: |
+  **PERMANENT BLOCKED — far horizon.** Quantum amplitude amplification on
+  the qNEHVI acquisition function; Grover-style speedup on Pareto frontier
+  search. Hardware required: fault-tolerant. Promotion gate: theoretical
+  justification + hardware + benchmark vs classical qNEHVI. No
+  critical-path implication.
+excluded_from_training_corpus: true

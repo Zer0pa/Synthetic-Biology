@@ -39,3 +39,9 @@ data/bulk/
 # Editor swap files
 *.swp
 *.swo
+
+# Python build artefacts
+*.egg-info/
+build/
+dist/
+.eggs/

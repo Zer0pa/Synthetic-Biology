@@ -1,0 +1,21 @@
+schema_version: synbio.source_manifest.v0.1
+source_id: unikp_PARKED
+uri: https://github.com/HanselYu/UniKP
+retrieval_method: git
+retrieved_at: "2026-05-01T00:00:00Z"
+license_spdx_or_text: "GitHub repo reports no license metadata and no top-level LICENSE file (per PRD §22 deep-research lookup, 2026-04-30)."
+license_class: D  # unverified; conservative until LICENSE file is committed
+allowed_use: unknown
+geography_restrictions: null
+checksum: "sha256:never-pulled"
+local_slice_size_mb: 0.0
+hf_mirror_uri: null
+bulk_data_stored_locally: false
+citation: "UniKP: A Unified Framework for Kinetic Parameters Prediction. EF-UniKP did not surface in the public GitHub search."
+rights_notes: |
+  **EXCLUDED from kinetics ensemble v1** until overnight executor verifies
+  LICENSE in repo and commits explicit license SPDX in this manifest's
+  `license_spdx_or_text` field. Per PRD §22, the four-way ensemble
+  {DLKcat, CatPred, TurNuP, CEKM} is the v1 default; UniKP / EF-UniKP join
+  only after license clearance.
+excluded_from_training_corpus: true

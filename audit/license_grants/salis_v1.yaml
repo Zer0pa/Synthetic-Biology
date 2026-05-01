@@ -1,0 +1,20 @@
+grant_id: salis_v1
+source_id: salis_rbs_v1_0_GPL_subprocess
+license_class: C
+spdx: GPL-3.0-only
+granted_for: "L6 host engineering — RBS initiation rate prediction"
+isolation_mechanism: subprocess
+isolation_evidence: |
+  src/zer0pa_synbio/adapters/l6_host_engineering/salis_rbs_subprocess.py
+  invokes the Salis v1.0 binary via subprocess.run(..., capture_output=True)
+  and parses stdout. No Python `import` of any GPL module. The CLI binary's
+  output is parsed as text; only numeric initiation rates and confidence
+  values cross the boundary back into the synbio (proprietary) codebase.
+  This isolation is the standard practice for GPL-isolation in commercial
+  R&D and is documented in the audit-trail spec under § Subprocess isolation.
+audit_uri: audit/source_manifests/salis_rbs_v1_0_GPL_subprocess.yaml
+granted_at: "2026-05-01T00:00:00Z"
+notes: |
+  Operator policy (per PRD §22): Salis v1.0 is the open-source GPL version;
+  Salis v2+ is De Novo DNA's commercial product, parked behind
+  runtime/license_grants/denovodna.yaml (off by default).

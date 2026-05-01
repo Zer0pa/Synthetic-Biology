@@ -1,0 +1,16 @@
+schema_version: synbio.source_manifest.v0.1
+source_id: rhea
+uri: https://www.rhea-db.org/
+retrieval_method: api
+retrieved_at: "2026-05-01T00:00:00Z"
+license_spdx_or_text: CC0-1.0
+license_class: A
+allowed_use: research
+geography_restrictions: null
+checksum: "sha256:placeholder-rhea-bootstrap"
+local_slice_size_mb: 0.0
+hf_mirror_uri: null
+bulk_data_stored_locally: false
+citation: "Bansal, P. et al. Rhea, the reaction knowledgebase. Nucleic Acids Res. (2022)."
+rights_notes: "CC0 — public domain dedication. Reaction-level identifiers and SMARTS strings used in LIRC corpus per PRD §6.2."
+excluded_from_training_corpus: false

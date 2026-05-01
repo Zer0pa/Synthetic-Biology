@@ -1,0 +1,22 @@
+schema_version: synbio.source_manifest.v0.1
+source_id: salis_rbs_v1_0_GPL_subprocess
+uri: https://github.com/salislab/RBS_Calculator_v1
+retrieval_method: git
+retrieved_at: "2026-05-01T00:00:00Z"
+license_spdx_or_text: GPL-3.0-only
+license_class: C
+allowed_use: research
+geography_restrictions: null
+checksum: "sha256:placeholder-salis-v1-bootstrap"
+local_slice_size_mb: 0.0
+hf_mirror_uri: null
+bulk_data_stored_locally: false
+citation: "Salis, H. M. et al. Automated design of synthetic ribosome binding sites to control protein expression. Nat. Biotechnol. (2009). Salis Lab RBS Calculator v1.0."
+rights_notes: |
+  GPL-3.0 (Class C). PRD §22 resolution: **subprocess-isolated** — invoked
+  via CLI as a separate process; the synbio package does not link the GPL
+  library. This prevents GPL infection of the synbio codebase. Class C
+  requires audit/license_grants/<name>.yaml at the envelope level — this
+  manifest is paired with `audit/license_grants/salis_v1.yaml` confirming
+  the subprocess-isolation policy.
+excluded_from_training_corpus: true  # not a corpus source; runtime tool only

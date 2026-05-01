@@ -1,0 +1,16 @@
+schema_version: synbio.source_manifest.v0.1
+source_id: metanetx
+uri: https://www.metanetx.org/
+retrieval_method: api
+retrieved_at: "2026-05-01T00:00:00Z"
+license_spdx_or_text: CC-BY-4.0
+license_class: A
+allowed_use: research
+geography_restrictions: null
+checksum: "sha256:placeholder-metanetx-bootstrap"
+local_slice_size_mb: 0.0
+hf_mirror_uri: null
+bulk_data_stored_locally: false
+citation: "Moretti, S. et al. MetaNetX/MNXref: unified namespace for metabolites and biochemical reactions. Nucleic Acids Res. (2021)."
+rights_notes: "CC BY 4.0 — attribution required, redistribution allowed. MNXref 4.5 used as the reaction reconciliation namespace per PRD §6.2."
+excluded_from_training_corpus: false

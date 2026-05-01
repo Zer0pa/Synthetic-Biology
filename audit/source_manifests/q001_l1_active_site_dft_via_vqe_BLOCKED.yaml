@@ -1,0 +1,22 @@
+schema_version: synbio.source_manifest.v0.1
+source_id: q001_l1_active_site_dft_via_vqe_BLOCKED
+uri: "(quantum hardware; not yet allocated)"
+retrieval_method: manual
+retrieved_at: "2026-05-01T00:00:00Z"
+license_spdx_or_text: "n/a — hardware-gated"
+license_class: E
+allowed_use: research
+geography_restrictions: null
+checksum: "sha256:never-allocated"
+local_slice_size_mb: 0.0
+hf_mirror_uri: null
+bulk_data_stored_locally: false
+citation: "PRD §18 quantum slot q001."
+rights_notes: |
+  **PERMANENT BLOCKED — far horizon.** VQE on small enzyme active-site
+  fragments (H-, O-, N-containing motifs); DFT-equivalent ground state for
+  transition-state energies. Hardware required: 50+ qubit fault-tolerant
+  or noisy NISQ at scale. Promotion gate (per PRD §18): hardware
+  availability + dedicated QC partner + customer use case. No critical-path
+  implication; logged for frontier watch.
+excluded_from_training_corpus: true

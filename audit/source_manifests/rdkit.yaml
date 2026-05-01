@@ -1,0 +1,16 @@
+schema_version: synbio.source_manifest.v0.1
+source_id: rdkit
+uri: https://www.rdkit.org/
+retrieval_method: api
+retrieved_at: "2026-05-01T00:00:00Z"
+license_spdx_or_text: BSD-3-Clause
+license_class: A
+allowed_use: research
+geography_restrictions: null
+checksum: "sha256:placeholder-rdkit-bootstrap"
+local_slice_size_mb: 0.0
+hf_mirror_uri: null
+bulk_data_stored_locally: false
+citation: "Landrum, G. RDKit: Open-source cheminformatics. https://www.rdkit.org/"
+rights_notes: "BSD 3-Clause — used in L1 (SMILES roundtrip), L4F (toxic-intermediate QSAR), L4E (codon optimisation CAI), L4.5 (active-site geometry)."
+excluded_from_training_corpus: false

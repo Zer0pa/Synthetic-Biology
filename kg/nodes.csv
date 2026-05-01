@@ -1,0 +1,35 @@
+label,id_field,description
+Boundary,sha256,Boundary attestation node carrying the canonical hash; every other node ultimately DERIVED_FROM the Boundary for its campaign.
+Compound,inchi_key,Chemical compound identified by InChIKey; SELFIES + SMILES fields available.
+Reaction,reaction_id,Metabolic / biosynthetic reaction; sources include Rhea, MetaNetX MNXref, BiGG, ModelSEED, BRENDA core.
+Pathway,pathway_id,Composed reaction sequence from precursor to target compound.
+Enzyme,uniprot_id,Catalytic protein with UniProt accession.
+Organism,taxonomy_id,Host organism by NCBI taxonomy ID (e.g., 562 for E. coli).
+Strain,strain_id,Specific strain (e.g., E. coli MG1655, BL21-DE3).
+Modification,modification_id,Single genetic edit (knockout, knockin, upreg, downreg, cofactor balance).
+Assay,assay_id,Wet-lab or in-silico assay (BRENDA assay, eQuilibrator MDF, FBA flux, etc.).
+GeneticModificationSpec,spec_id,SBOL3-attested L6 output specifying the full design.
+CellFreeTXTLObservation,observation_id,L6_BUILD output from cell-free TX-TL adapter (stub / Strateos / Emerald).
+Dossier,dossier_id,L7 published research artifact with predicted KPIs and validation sequence.
+Envelope,envelope_id,One UniversalLayerEnvelope; sha256 of canonical-JSON serialisation.
+SBOLDocument,document_sha256,SBOL3 document attesting a GeneticModificationSpec.
+ProvActivity,activity_id,PROV-O activity (one layer execution).
+ProvAgent,agent_id,PROV-O agent (an adapter or human role).
+ProvEntity,entity_id,PROV-O entity (an input or output payload).
+ToolAdapter,adapter_id,Concrete adapter implementation (e.g., RetroPath3Adapter, CEKMAdapter).
+ModelCheckpoint,checkpoint_id,Trained model weights identified by sha256 (CEKM weights, ESM-2 weights, etc.).
+SimulationRun,run_id,A specific run of a simulator (FBA, kinetics, MDF, RFdiffusion3, etc.).
+PathwayCandidate,pathway_id,L3 retrosynthesis output candidate.
+ScoredPathway,pathway_id,L4 evaluated candidate with kinetics + FBA + MDF + falsifier results.
+RankedPathway,pathway_id,L5 BoTorch-ranked candidate with Pareto rank and KPI uncertainty bands.
+ValidationExperiment,experiment_id,Single experiment in a ValidationSequence.
+FalsifierResult,result_id,Outcome of one falsifier check.
+DisagreementRecord,record_id,CrossModelDisagreementRecord.
+EarlyWarningSignal,signal_id,SynbioTDAEarlyWarning output.
+LicenseFinding,finding_id,Verifier-produced finding about a source's license status.
+RightsPolicy,policy_id,Tier-1 / Tier-2 / Tier-3 sovereignty policy applied to a node or edge.
+SourceManifest,source_id,One YAML in audit/source_manifests/ representing a corpus / dataset / weights / paper / API.
+ReasonerTuple,tuple_id,One row in audit/reasoner_tuples.jsonl — the PathGym training point per pipeline run.
+TDADiagram,diagram_id,Persistent homology diagram (cached as artifact).
+FluxGraph,graph_id,GEM-derived flux graph used in L4 FBA.
+Embedding,embedding_id,A vector embedding (ESM-2 protein embedding, MFP molecular fingerprint, etc.).

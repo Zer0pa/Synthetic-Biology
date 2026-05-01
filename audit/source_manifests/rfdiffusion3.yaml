@@ -1,0 +1,23 @@
+schema_version: synbio.source_manifest.v0.1
+source_id: rfdiffusion3
+uri: https://github.com/RosettaCommons/RFdiffusion3
+retrieval_method: git
+retrieved_at: "2026-05-01T00:00:00Z"
+license_spdx_or_text: BSD-3-Clause
+license_class: A
+allowed_use: research
+geography_restrictions: null
+checksum: "sha256:placeholder-rfdiffusion3-bootstrap"
+local_slice_size_mb: 0.0
+hf_mirror_uri: "Architect-Prime/synbio-rfdiffusion3-cache-v0.1"
+bulk_data_stored_locally: false
+citation: "Watson, J. L. et al. De novo design of protein structure and function with RFdiffusion. Nature (2023). RFdiffusion3 is the successor; RosettaCommons Foundry distribution."
+rights_notes: |
+  BSD 3-Clause via RosettaCommons Foundry (PRD §22 resolution: cleared for v1
+  software integration). No public South-Africa-specific geo restriction
+  observed in the public repository. **Checkpoint download or Foundry
+  enrolment may gate inference on Runpod**; if so, the executor records the
+  blocker here, keeps RFD3StubAdapter active, and does not claim scientific
+  validity from stub outputs. PRD §6.6 Tier-1/2/3 novelty classification
+  drives when RFD3 is invoked.
+excluded_from_training_corpus: false

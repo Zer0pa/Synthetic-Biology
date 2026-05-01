@@ -1,0 +1,16 @@
+schema_version: synbio.source_manifest.v0.1
+source_id: brenda
+uri: https://www.brenda-enzymes.org/
+retrieval_method: api
+retrieved_at: "2026-05-01T00:00:00Z"
+license_spdx_or_text: CC-BY-4.0
+license_class: A
+allowed_use: research
+geography_restrictions: null
+checksum: "sha256:placeholder-brenda-bootstrap"
+local_slice_size_mb: 0.0
+hf_mirror_uri: "Architect-Prime/synbio-cekm-corpus-v0.1"  # bulk slices destined for HF
+bulk_data_stored_locally: false
+citation: "Chang, A. et al. BRENDA, the ELIXIR core data resource in 2021: new developments and updates. Nucleic Acids Res. (2021)."
+rights_notes: "BRENDA core CC BY 4.0 (Class A) per source-briefs/02 §1 critical correction. BRENDA bulk core ~4.3M data points used in CEKM training corpus per PRD §12.1. Survivorship bias is acknowledged and mitigated via three-tier adversarial synthetic-negatives sampler per PRD §12.2."
+excluded_from_training_corpus: false

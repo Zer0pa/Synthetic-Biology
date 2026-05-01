@@ -1,0 +1,24 @@
+schema_version: synbio.source_manifest.v0.1
+source_id: strateos_PARKED
+uri: https://strateos.com/
+retrieval_method: api
+retrieved_at: "2026-05-01T00:00:00Z"
+license_spdx_or_text: "Strateos TxPy SDK MIT; service usage commercial. Wet-lab dispatch off-platform requires customer license grant + budget approval."
+license_class: B  # SDK Class A, service Class C/E; conservative B for the manifest
+allowed_use: commercial
+geography_restrictions: null
+checksum: "sha256:strateos-txpy-sdk-bootstrap"
+local_slice_size_mb: 0.0
+hf_mirror_uri: null
+bulk_data_stored_locally: false
+citation: "Strateos TxPy SDK + myTXTL kit protocol (Arbor Biosciences myTXTL on Strateos cloud-lab)."
+rights_notes: |
+  **PHASE 0 DRY-RUN ONLY.** Per PRD §6.10 L6_BUILD: `StrateosMyTXTLAdapter`
+  default mode is dry-run, returning simulated outputs validated against
+  canned myTXTL benchmark data. **Phase 2 wet-lab activation requires
+  ALL** of (a) `runtime/cloud_lab.config.yaml` populated, (b)
+  `runtime/license_grants/strateos.yaml` present, (c) explicit operator
+  approval. Hard interlock: no wet-lab dispatch without all three.
+  Falsifier f020 (txtl_observation_without_in_vivo) flags every Phase 0
+  dry-run output that drives a host-engineering decision.
+excluded_from_training_corpus: true

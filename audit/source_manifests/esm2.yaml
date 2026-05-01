@@ -1,0 +1,16 @@
+schema_version: synbio.source_manifest.v0.1
+source_id: esm2
+uri: https://github.com/facebookresearch/esm
+retrieval_method: hf
+retrieved_at: "2026-05-01T00:00:00Z"
+license_spdx_or_text: MIT
+license_class: A
+allowed_use: research
+geography_restrictions: null
+checksum: "sha256:placeholder-esm2-bootstrap"
+local_slice_size_mb: 0.0
+hf_mirror_uri: "Architect-Prime/synbio-protein-structures-v0.1"
+bulk_data_stored_locally: false
+citation: "Lin, Z. et al. Evolutionary-scale prediction of atomic-level protein structure. Science (2023)."
+rights_notes: "MIT — ESM-2 weights used in L1 ZPE encoder for protein context embeddings (1280-dim) and in CEKM as a structural feature backbone. Quantised CPU path supported for small batches; full-batch inference on Runpod."
+excluded_from_training_corpus: false

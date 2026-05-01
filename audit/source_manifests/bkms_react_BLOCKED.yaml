@@ -1,0 +1,22 @@
+schema_version: synbio.source_manifest.v0.1
+source_id: bkms_react_BLOCKED
+uri: https://bkms-react.tu-bs.de/
+retrieval_method: manual
+retrieved_at: "2026-05-01T00:00:00Z"
+license_spdx_or_text: "Proprietary (TU Braunschweig commercial); academic-subscription only with restricted redistribution"
+license_class: E
+allowed_use: noncommercial
+geography_restrictions: null
+checksum: "sha256:never-pulled"
+local_slice_size_mb: 0.0
+hf_mirror_uri: null
+bulk_data_stored_locally: false
+citation: "BKMS-react: Biochemical Reactions Database, TU Braunschweig."
+rights_notes: |
+  **PERMANENT EXCLUSION.** BKMS-react is proprietary; PRD §22 locks Class E
+  with no license_grant possible. Falsifier f018_license_drift is hard-wired
+  to fire on any URI containing 'bkms-react' or 'bkms_react' regardless of
+  pretext. Any embedding attempt fails closed.
+  This manifest exists for traceability — to make the exclusion legible —
+  and is referenced in dossier `excluded_sources` lists.
+excluded_from_training_corpus: true

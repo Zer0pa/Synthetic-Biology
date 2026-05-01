@@ -1,0 +1,22 @@
+schema_version: synbio.source_manifest.v0.1
+source_id: biotry_PARKED
+uri: https://github.com/HanselYu/BioTRY
+retrieval_method: git
+retrieved_at: "2026-05-01T00:00:00Z"
+license_spdx_or_text: "Codebase MIT (Tian Yu, 2024). Database content 'freely available' academic; commercial-use terms not explicitly granted."
+license_class: C  # codebase Class A; data commercial-license unverified → conservative C
+allowed_use: noncommercial
+geography_restrictions: null
+checksum: "sha256:never-pulled-as-corpus"
+local_slice_size_mb: 0.0
+hf_mirror_uri: null
+bulk_data_stored_locally: false
+citation: "Yu, T. BioTRY: Biochemical Transformation Repository for Yields and TRY (titer-rate-yield) data. (2024)."
+rights_notes: |
+  **PARKED for v1.** Per PRD §22 resolution: BioTRY codebase MIT but
+  database content's commercial-use terms not explicitly granted; v1
+  excluded from training corpus; v2 inclusion gated by
+  `runtime/license_grants/biotry.yaml`. Fallback is the per-product
+  literature-titer baseline curated from published HMO papers (the
+  engine-vs-baseline harness, PRD §23).
+excluded_from_training_corpus: true

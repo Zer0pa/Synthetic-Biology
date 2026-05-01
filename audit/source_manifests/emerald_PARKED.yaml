@@ -1,0 +1,19 @@
+schema_version: synbio.source_manifest.v0.1
+source_id: emerald_PARKED
+uri: https://www.emeraldcloudlab.com/
+retrieval_method: api
+retrieved_at: "2026-05-01T00:00:00Z"
+license_spdx_or_text: "Emerald API commercial; PURExpress kit (NEB) protocol-based, not API-based."
+license_class: B
+allowed_use: commercial
+geography_restrictions: null
+checksum: "sha256:emerald-api-bootstrap"
+local_slice_size_mb: 0.0
+hf_mirror_uri: null
+bulk_data_stored_locally: false
+citation: "Emerald Cloud Lab + NEB PURExpress kit."
+rights_notes: |
+  **PHASE 0 DRY-RUN ONLY.** Same triple-gate as Strateos
+  (`runtime/cloud_lab.config.yaml`, `runtime/license_grants/emerald.yaml`,
+  operator approval). PRD §6.10 L6_BUILD `EmeraldPURExpressAdapter`.
+excluded_from_training_corpus: true

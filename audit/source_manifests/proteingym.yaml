@@ -1,0 +1,16 @@
+schema_version: synbio.source_manifest.v0.1
+source_id: proteingym
+uri: https://github.com/OATML-Markslab/ProteinGym
+retrieval_method: git
+retrieved_at: "2026-05-01T00:00:00Z"
+license_spdx_or_text: MIT
+license_class: A
+allowed_use: research
+geography_restrictions: null
+checksum: "sha256:placeholder-proteingym-bootstrap"
+local_slice_size_mb: 0.0
+hf_mirror_uri: null
+bulk_data_stored_locally: false
+citation: "Notin, P. et al. ProteinGym: large-scale benchmarks for protein design and fitness prediction. NeurIPS (2023)."
+rights_notes: "MIT — auxiliary corpus for CEKM (~2.7M missense variants, 217 DMS assays). PRD §12.1 includes ProteinGym for the protein-fitness arm of CEKM training."
+excluded_from_training_corpus: false

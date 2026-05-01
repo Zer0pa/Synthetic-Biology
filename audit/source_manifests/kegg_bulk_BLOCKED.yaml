@@ -1,0 +1,21 @@
+schema_version: synbio.source_manifest.v0.1
+source_id: kegg_bulk_BLOCKED
+uri: https://www.kegg.jp/
+retrieval_method: manual
+retrieved_at: "2026-05-01T00:00:00Z"
+license_spdx_or_text: "Proprietary (Kanehisa Labs commercial). Single-entry queries permitted via REST; bulk export requires commercial license."
+license_class: E
+allowed_use: noncommercial
+geography_restrictions: null
+checksum: "sha256:never-pulled-bulk"
+local_slice_size_mb: 0.0
+hf_mirror_uri: null
+bulk_data_stored_locally: false
+citation: "Kanehisa, M. et al. KEGG: integrating viruses and cellular organisms. Nucleic Acids Res. (2021)."
+rights_notes: |
+  **BULK EXCLUSION.** KEGG bulk content is excluded from LIRC corpus per PRD
+  §22 and source-briefs/02. Single-entry KEGG IDs may appear as
+  cross-references in source manifests (URL pointer only); bulk pulls,
+  redistribution, and training-corpus inclusion are forbidden.
+  Falsifier f018_license_drift fires on any 'kegg-bulk' / 'kegg_bulk' URI.
+excluded_from_training_corpus: true

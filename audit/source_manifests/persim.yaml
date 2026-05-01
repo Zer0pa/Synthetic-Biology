@@ -1,0 +1,16 @@
+schema_version: synbio.source_manifest.v0.1
+source_id: persim
+uri: https://github.com/scikit-tda/persim
+retrieval_method: git
+retrieved_at: "2026-05-01T00:00:00Z"
+license_spdx_or_text: MIT
+license_class: A
+allowed_use: research
+geography_restrictions: null
+checksum: "sha256:placeholder-persim-bootstrap"
+local_slice_size_mb: 0.0
+hf_mirror_uri: null
+bulk_data_stored_locally: false
+citation: "scikit-tda/persim — bottleneck distance, persistence-image, persistence landscape utilities."
+rights_notes: "MIT — used in TDA early-warning for bottleneck/landscape/persistence-image features per PRD §5.3."
+excluded_from_training_corpus: false

@@ -1,0 +1,35 @@
+type,from_label,to_label,description
+catalyses,Enzyme,Reaction,Enzyme catalyses reaction.
+requires_cofactor,Reaction,Compound,Reaction requires a cofactor compound (NADPH, ATP, GDP-fucose, etc.).
+produces,Reaction,Compound,Reaction produces a compound.
+consumes,Reaction,Compound,Reaction consumes a compound.
+encodes,Organism,Enzyme,Organism's genome encodes an enzyme.
+regulates,Modification,Enzyme,A genetic modification regulates an enzyme's expression.
+has_source,Reaction,SourceManifest,Reaction was imported from a source manifest.
+has_source,Compound,SourceManifest,Compound was imported from a source manifest.
+has_source,Enzyme,SourceManifest,Enzyme metadata came from a source manifest.
+has_falsifier,Envelope,FalsifierResult,Envelope carries a falsifier result.
+has_audit,Envelope,ProvActivity,Envelope's PROV-O activity record.
+member_of_pathway,Reaction,Pathway,Reaction is a step in a pathway.
+member_of_pathway,Compound,Pathway,Compound is an intermediate in a pathway.
+instantiates_in_organism,Pathway,Organism,Pathway is instantiated in an organism's GEM.
+measured_by,Reaction,Assay,Reaction has been measured in an assay.
+supports,SourceManifest,Reaction,Source provides supporting evidence for a reaction.
+contradicts,SourceManifest,Reaction,Source contradicts another source's reaction claim.
+DERIVED_FROM,Envelope,Envelope,Envelope is derived from another envelope (input → output).
+DERIVED_FROM,Envelope,Boundary,Envelope ultimately attests the Boundary node hash for its campaign.
+USED_TOOL,Envelope,ToolAdapter,Envelope used a specific adapter.
+USED_MODEL,Envelope,ModelCheckpoint,Envelope used specific trained weights.
+USED_SOURCE,Envelope,SourceManifest,Envelope used data from a source.
+PRODUCED,Envelope,ProvEntity,Envelope produced a PROV-O entity.
+VALIDATED_BY,PathwayCandidate,FalsifierResult,Pathway candidate validated by a falsifier (pass).
+FAILED_BY,PathwayCandidate,FalsifierResult,Pathway candidate failed a falsifier.
+DISAGREES_WITH,DisagreementRecord,Envelope,Disagreement record links to its source envelope.
+FEEDS_L4,PathwayCandidate,ScoredPathway,L3 candidate feeds L4 deep evaluation.
+FEEDS_L5,ScoredPathway,RankedPathway,L4 scored pathway feeds L5 BoTorch ranking.
+ATTESTED_BY_SBOL,GeneticModificationSpec,SBOLDocument,L6 GMS is attested by an SBOL3 document.
+PROV_GENERATED,ProvActivity,ProvEntity,PROV-O wasGeneratedBy.
+PROV_USED,ProvActivity,ProvEntity,PROV-O used.
+PROV_WAS_DERIVED_FROM,ProvEntity,ProvEntity,PROV-O wasDerivedFrom.
+RIGHTS_CONSTRAINED_BY,Envelope,RightsPolicy,Envelope output is governed by a sovereignty tier policy.
+OWNED_BY,RightsPolicy,Organism,Sovereignty policy applies to a customer / engagement / organism.

@@ -1,0 +1,20 @@
+schema_version: synbio.source_manifest.v0.1
+source_id: denovodna_v2_PARKED
+uri: https://www.denovodna.com/
+retrieval_method: api
+retrieved_at: "2026-05-01T00:00:00Z"
+license_spdx_or_text: "Commercial license; API access subscription-based; off-platform redistribution not granted."
+license_class: E
+allowed_use: commercial
+geography_restrictions: null
+checksum: "sha256:never-pulled"
+local_slice_size_mb: 0.0
+hf_mirror_uri: null
+bulk_data_stored_locally: false
+citation: "De Novo DNA RBS Calculator v2+ (proprietary commercial, successor to Salis Lab v1.0 GPL)."
+rights_notes: |
+  **OFF BY DEFAULT.** Activation requires `runtime/denovodna.config.yaml`
+  populated with API credentials AND `runtime/license_grants/denovodna.yaml`
+  present. Falsifier f018_license_drift fires on any envelope referencing
+  `denovodna_v2_commercial` without both gates satisfied. PRD §22.
+excluded_from_training_corpus: true

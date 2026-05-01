@@ -1,0 +1,16 @@
+schema_version: synbio.source_manifest.v0.1
+source_id: iml1515
+uri: http://bigg.ucsd.edu/models/iML1515
+retrieval_method: api
+retrieved_at: "2026-05-01T00:00:00Z"
+license_spdx_or_text: CC-BY-4.0
+license_class: A
+allowed_use: research
+geography_restrictions: null
+checksum: "sha256:placeholder-iml1515-bootstrap"
+local_slice_size_mb: 0.0
+hf_mirror_uri: null
+bulk_data_stored_locally: false
+citation: "Monk, J. M. et al. iML1515, a knowledgebase that computes Escherichia coli traits. Nat. Biotechnol. (2017)."
+rights_notes: "CC BY 4.0 — gold-standard E. coli K-12 MG1655 GEM. PRD §3.2 specifies iML1515 as the host GEM for the HMO scientific validation triple (2'-FL, 3'-SL, DSLNT)."
+excluded_from_training_corpus: false

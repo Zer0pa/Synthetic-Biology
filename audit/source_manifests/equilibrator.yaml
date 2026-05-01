@@ -1,0 +1,16 @@
+schema_version: synbio.source_manifest.v0.1
+source_id: equilibrator
+uri: https://gitlab.com/equilibrator/equilibrator-api
+retrieval_method: git
+retrieved_at: "2026-05-01T00:00:00Z"
+license_spdx_or_text: MIT
+license_class: A
+allowed_use: research
+geography_restrictions: null
+checksum: "sha256:placeholder-equilibrator-bootstrap"
+local_slice_size_mb: 0.0
+hf_mirror_uri: null
+bulk_data_stored_locally: false
+citation: "Beber, M. E. et al. eQuilibrator 3.0: a database solution for thermodynamic constant estimation. Nucleic Acids Res. (2022)."
+rights_notes: "MIT — used in L4B for MDF computation per PRD §6.5 L4B and falsifier f003."
+excluded_from_training_corpus: false

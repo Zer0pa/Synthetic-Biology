@@ -1,0 +1,16 @@
+schema_version: synbio.source_manifest.v0.1
+source_id: sbol3
+uri: https://github.com/SynBioDex/pySBOL3
+retrieval_method: git
+retrieved_at: "2026-05-01T00:00:00Z"
+license_spdx_or_text: Apache-2.0
+license_class: A
+allowed_use: research
+geography_restrictions: null
+checksum: "sha256:placeholder-pysbol3-bootstrap"
+local_slice_size_mb: 0.0
+hf_mirror_uri: null
+bulk_data_stored_locally: false
+citation: "SBOL3 specification: Beal, J. et al. Communicating structure and function in synthetic biology diagrams. ACS Synth. Biol. (2018)."
+rights_notes: "Apache 2.0 — used to attest GeneticModificationSpec as SBOL3 documents per PRD §4.2 and §9.5; falsifier f019 (valid_sbol_only) checks libsbolj3-equivalent validation via pysbol3."
+excluded_from_training_corpus: false
