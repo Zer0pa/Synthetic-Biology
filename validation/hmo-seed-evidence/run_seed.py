@@ -333,13 +333,45 @@ def run(seed: str) -> dict[str, Any]:
             aw.write_envelope(env)
             l4_5_envelope_id = env.envelope_id
 
-    # L5 MFMO + L5_OED.
-    l5 = L5MFMOAdapter().run(
+    # L5 MFMO + L5_OED. Build a small scored-pathway pool so the
+    # BoTorch GP has something to fit. Each candidate carries the
+    # seed's MDF score plus seed-dependent Tm + KPI heuristics so
+    # ASR-thermostable warm-start triggers when appropriate.
+    real_mdf = float(thermo_env.outputs.payload.get("mdf_score_kj_mol", 5.0))
+    seed_pool: list[dict[str, Any]] = []
+    for i, env in enumerate(l3_envs):
+        for j, cand in enumerate(env.outputs.payload.get("candidates", [])[:3]):
+            cid = cand.get("pathway_id", f"{env.backend.tool}_p{j}")
+            # Heuristic per-candidate scoring: shift around the seed's
+            # real MDF and 4-objective canonical values so BoTorch sees
+            # a Pareto-trade-off shape. ASR triggered for low-Tm.
+            seed_pool.append(
+                {
+                    "pathway_id": cid,
+                    "mdf_score_kj_mol": real_mdf + (j - 1.0),
+                    "predicted_tm_celsius": 42 + 4 * j + 2 * i,
+                    "predicted_titer_g_l": 1.0 + 0.3 * j + 0.1 * i,
+                    "predicted_yield_mol_mol": 0.15 + 0.02 * j,
+                    "predicted_burden_au": 0.55 + 0.05 * (i % 2),
+                    "predicted_toxicity_au": 0.10 + 0.02 * j,
+                }
+            )
+    if not seed_pool:
+        seed_pool = [{"pathway_id": "p_seed_canonical", "mdf_score_kj_mol": real_mdf}]
+    l5 = L5MFMOAdapter(run_mode=RunMode.scientific).run(
         campaign_id=campaign_id,
         domain=Domain.hmo,
         organism=562,
         gem_id="iML1515",
-        input_payload={"scored_candidates": [{"pathway_id": "p_seed_canonical", "mdf_score_kj_mol": 5.0}]},
+        input_payload={
+            "scored_candidates": seed_pool,
+            "design_dim": 8,
+            "n_warm_asr": 3,
+            "asr_tm_threshold_c": 50.0,
+            "n_suggested_next_batch": 4,
+            "hypervolume_ref_point": [-1.0, -1.0, -3.0, -3.0],
+            "seed": int(hashlib.sha256(seed.encode()).hexdigest()[:8], 16),
+        },
         run_id=run_id,
     )
     aw.write_envelope(l5)

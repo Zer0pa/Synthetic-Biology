@@ -4,6 +4,7 @@
 
 # Python virtual envs and caches
 .venv/
+.venv-l5/
 __pycache__/
 *.pyc
 .pytest_cache/
