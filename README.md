@@ -1,43 +1,101 @@
-# Zer0pa Synthetic Biology — Workstream Repository
+# Zer0pa Synthetic Biology — Pipeline 4 of 6
 
-Canonical home for the Zer0pa Synthetic Biology / Metabolic Pathway Engineering work stream. Multi-agent handoff: synthesis → orchestrator → overnight executor → Runpod migration. Repo is the source of truth across machines.
+Canonical home for the Zer0pa Synthetic Biology / Metabolic Pathway
+Engineering work stream. Multi-agent handoff: synthesis → orchestrator
+→ overnight executor → Runpod migration. **GitHub is the source of truth
+across machines; HF (Architect-Prime) is the bulk-artifact mirror.**
 
 ## Boundary
 
-Research infrastructure for in silico synthetic biology / metabolic pathway engineering. Outputs are research artifacts (predicted pathways, predicted KPIs, candidate genetic modification specifications). No regulatory certification claims. No clinical or human-subject use. No environmental release of GMOs. No biocontainment-level claims (the pipeline does not commission BSL-2/3 work). No human gene drive or eugenic application. Defence / weapons / dual-use bio applications excluded under operator policy.
+Research infrastructure for in silico synthetic biology / metabolic pathway engineering. Outputs are research artifacts — predicted pathways, predicted KPIs, candidate genetic modification specifications. No regulatory certification claims. No clinical or human-subject use. No environmental release of GMOs. No biocontainment-level claims (the pipeline does not commission BSL-2/3 work). No human gene drive or eugenic application. Defence / weapons / dual-use bio applications excluded under operator policy.
 
-## What is in here
+## Status
 
-| Path | Purpose | Author role |
+| Stage | Status | Author |
 |---|---|---|
-| `MODUS-OPERANDI.md` | Reusable multi-agent pattern + parallel-exploration principle (Health, Materials, Energy, Synthetic Biology run independently in parallel; convergence happens after all complete, not during) | Synthesis agent |
-| `HANDOFF-TO-ORCHESTRATOR.md` | Synthetic Biology-specific brief for the next agent (the synbio orchestrator) — defines what they inherit, what they must produce, and the operator override on the research agent's three cross-workstream substrate-sharing recommendations | Synthesis agent |
-| `ORCHESTRATOR-STARTUP-PROMPT.md` | The exact prompt the user pastes into a fresh agent session to spin up the synbio orchestrator | Synthesis agent |
-| `source-briefs/` | Inherited research input — the research-agent handover note plus two technology-landscape briefs (full landscape; corrections-and-architecture brief introducing the four-column license decomposition, LDBT paradigm, causal OED node, and PathGym flywheel) | External (consumer of synthesis) |
-| `synthesis/` | Fresh-eyes reading of the briefs and handover note — what is not yet seen, the falsification-driven Bayesian-active-inference reframe, the cell-free TX-TL Build-Test substrate, twelve specific things the briefs do not see, and the operator override section | Synthesis agent |
-| `PRD.md` (to be written) | The PRD that drives the overnight long-horizon execution on a Runpod-bound machine | Synbio orchestrator |
+| Synthesis (fresh-eyes pass on the briefs) | done | Synthesis agent (Claude Opus 4.7, 2026-05-01) |
+| Orchestrator PRD v1.0 | done | Synbio orchestrator (Claude Opus 4.7, 2026-05-01) |
+| Overnight executor (CPU/Mac structural waves) | **done — see [FINAL-REPORT.md](FINAL-REPORT.md)** | Overnight executor (Claude Opus 4.7, 2026-05-01) |
+| Runpod cutover | pending | See [RUNPOD-READINESS.md](RUNPOD-READINESS.md) |
+
+## What got built
+
+The overnight executor produced:
+
+- **Boundary discipline.** [BOUNDARY.md](BOUNDARY.md), [src/zer0pa_synbio/boundary.py](src/zer0pa_synbio/boundary.py), and a `f000_boundary_violation` falsifier check the boundary block hash on every envelope.
+- **UniversalLayerEnvelope (synbio v0.1).** [src/zer0pa_synbio/envelope.py](src/zer0pa_synbio/envelope.py) — Pydantic v2 model with canonical-JSON sha256, BoundaryGate, stub-cannot-claim-scientific-validity, L6-requires-SBOL3-attestation, Class C/D/E require `audit/license_grants/` URI.
+- **23 falsifiers** ([audit/falsifiers.yaml](audit/falsifiers.yaml)) with 23 working CPU implementations ([src/zer0pa_synbio/falsifiers/checks.py](src/zer0pa_synbio/falsifiers/checks.py)) and import-time coverage assertion. Three-tier hierarchy (A=fast, B=medium, C=heavy) per PRD §5.1.
+- **30 source manifests** under [audit/source_manifests/](audit/source_manifests/) — Class A/B/C/D/E breakdown including hard exclusions (BKMS-react, KEGG bulk, ATLAS), parked items (BioTRY, UniKP, DeNovoDNA v2), and three quantum-slot BlockedSourceManifest entries. License-class enforcement is wired into the envelope validator.
+- **Knowledge graph schema.** [kg/schema.cypher](kg/schema.cypher) (constraints + indexes), [kg/nodes.csv](kg/nodes.csv) (34 node labels), [kg/edges.csv](kg/edges.csv) (30 edge types), and [src/zer0pa_synbio/kg/__init__.py](src/zer0pa_synbio/kg/__init__.py) (GraphML + Cypher + RDF/Turtle export).
+- **Synbio Audit-Trail Spec v0.1.** [docs/synbio-audit-trail-v0.1-spec.md](docs/synbio-audit-trail-v0.1-spec.md) — Zer0pa-published standard (CC BY 4.0): SBOL3 + PROV-O extension + Pydantic schemas + LangGraph DAG + sha256 hash chain + closed-loop semantics + tier-based sovereignty + GPL subprocess isolation pattern.
+- **26 layer adapters L1→L7.** All envelope-correct, all stubs honour `scientific_valid=False`, license-class enforced. L1 ZPE adapter does real SELFIES parsing + 20-bit deterministic ZPE words + 1280-d hash-derived (unit-norm) ESM-2 placeholder embedding. L6 produces SBOL3-attested GMS via `pysbol3`. L6_BUILD ships three cell-free TX-TL adapters (Stub / Strateos myTXTL dry-run / Emerald PURExpress dry-run). L7 dossier with sha256 hash chain.
+- **REST stubs (PRD §17): 10 FastAPI endpoints + /health.** Each instantiates the corresponding adapter in `gpu_rest_stub` mode and returns the envelope JSON.
+- **Plug-replaceability harness** ([src/zer0pa_synbio/plug_replaceability/__init__.py](src/zer0pa_synbio/plug_replaceability/__init__.py)) with documented `RUNTIME_VARIABLE_FIELDS` (`envelope_id`, `run_id`, `provenance.created_at`, `provenance.git_sha`, `provenance.prov_o_jsonld`, `backend.execution_mode`, `backend.tool_version`).
+- **HMO seed evidence triple.** [validation/hmo-seed-evidence/](validation/hmo-seed-evidence/) — 2'-FL (10-envelope chain), 3'-SL (11-envelope chain with L4.5), DSLNT (11-envelope chain with L4.5 fully_novel). Each seed has `acceptance.yaml` (pre-registered thresholds), `dossier.json`, `envelope_chain.json`, `kg.graphml`, `threshold_check.yaml`, `RESULT.md`.
+- **PathGym scaffold** ([src/zer0pa_synbio/pathgym/__init__.py](src/zer0pa_synbio/pathgym/__init__.py)) with deterministic `tuple_id` and Tier-1/2/3 sovereignty enforcement.
+- **Audit writer** ([src/zer0pa_synbio/audit/__init__.py](src/zer0pa_synbio/audit/__init__.py)) — JSONL append + DuckDB query layer per campaign.
+- **CLI** ([src/zer0pa_synbio/cli/__main__.py](src/zer0pa_synbio/cli/__main__.py)) — `synbio status`, `synbio falsifiers list/run`, `synbio hmo run <seed>`, `synbio audit verify`.
+- **Test suite — 117 tests, all green.**
+  - 21 contract tests (boundary block, envelope invariants, license-class enforcement)
+  - 5 L1 ZPE integration tests
+  - 38 Wave 11 cutover-invariance tests (httpx.MockTransport)
+  - 53 Wave 10 falsification-wave tests (one clean-pass + one deliberate-trigger per falsifier)
+
+## What is NOT yet built (deferred to Runpod / next-wave)
+
+See [NEXT-WAVE-PLAN.md](NEXT-WAVE-PLAN.md) and [RUNPOD-READINESS.md](RUNPOD-READINESS.md).
+
+- Wave 4 — CEKM training (10-20 GPU-hours, A100/H100 80 GB).
+- Wave 5 — RFdiffusion3 + MACE-OFF + ESMFold real inference.
+- Wave 5 — L1 ESM-2 batched real embeddings.
+- Wave 5 — L3 BioNavi / DeepRetro real inference.
+- Wave 9 — full numerical HMO triple under `scientific_valid=True`.
+- Wave 2 — full LIRC corpus build via SPARQL (Rhea + MetaNetX + BiGG + ModelSEED + BRENDA bulk core).
+- Real BoTorch + qNEHVI + qMFKG with Hamming-distance kernel (currently a scipy-backed deterministic Pareto sort).
+- Real eQuilibrator MDF (CPU-feasible; needs ~100 MB cache download).
+- Wet-lab Phase 2 dispatch (triple-gated; never on the cutover path).
+
+## Quick start
+
+```bash
+git clone https://github.com/Zer0pa/Synthetic-Biology
+cd Synthetic-Biology
+python3.13 -m venv .venv && source .venv/bin/activate
+pip install -e .[chem,fba,sbol,tda,ml,dev]
+pytest -q
+synbio status
+synbio falsifiers list
+python validation/hmo-seed-evidence/run_seed.py --seed 2pFL
+```
 
 ## Read order for the next agent
 
-1. `MODUS-OPERANDI.md` — how the role chain works and why these workstreams stay independent.
-2. `HANDOFF-TO-ORCHESTRATOR.md` — what you (synbio orchestrator) inherit and produce. Includes the operator override on the research agent's three cross-workstream proposals.
-3. `source-briefs/00-research-agent-handover-note.md` — the research agent's five structural observations, the four Report 2 contributions (license decomposition, LDBT, causal OED, PathGym), and the explicit acknowledgement that observations #1, #4, #5 are cross-workstream and will be overridden per operator policy.
-4. `source-briefs/01-full-technology-landscape.md` — Brief #1 — full seven-layer pipeline catalogue, twenty intersectional science mappings, five application domains (industrial chemicals, specialty/fine chemicals, SAF/biofuels, pharmaceutical intermediates, food/flavour ingredients).
-5. `source-briefs/02-corrections-and-architecture.md` — Brief #2 — four-column license audit (BRENDA core data corrected to CC BY 4.0 Class A, BKMS-react held at C/D, KEGG single-entry queries usable, NASA OSDR two-tier access), per-task data matrix (BioTRY, EnzyExtract, GotEnzymes2 added; BioTRY commercial license is the one explicit unresolved blocker), tiered intersectional map promoting causal OED to Tier 1 and demoting heterogeneity to Tier 2/v1.1, and five emergent innovation artefacts (LIRC, PathGym, Unknown Enzyme Generative Sub-Pipeline, MFMO, CEKM).
-6. `synthesis/01-fresh-eyes-on-synbio-briefs.md` — synthesis-agent reframe; this is the substrate for your own fresh-eyes augmentation.
+1. [BOUNDARY.md](BOUNDARY.md) — the binding boundary block.
+2. [PRD.md](PRD.md) — the controlling spec (orchestrator's output, locked decisions).
+3. [FINAL-REPORT.md](FINAL-REPORT.md) — what the overnight executor built and what failed.
+4. [HANDOFF-FROM-OVERNIGHT-EXECUTOR.md](HANDOFF-FROM-OVERNIGHT-EXECUTOR.md) — what the next role inherits.
+5. [RUNPOD-READINESS.md](RUNPOD-READINESS.md) — the Runpod cutover procedure + invariance proof.
+6. [NEXT-WAVE-PLAN.md](NEXT-WAVE-PLAN.md) — open work, ordered by priority.
+7. [docs/synbio-audit-trail-v0.1-spec.md](docs/synbio-audit-trail-v0.1-spec.md) — the published Zer0pa standard.
+8. [RESISTANCE.md](RESISTANCE.md) — anti-corruption discipline; binding meta-protocol.
+9. [MODUS-OPERANDI.md](MODUS-OPERANDI.md) — the multi-agent role chain.
+
+## Cross-workstream principle (deliberate)
+
+This workstream runs in parallel with `Zer0pa/Health`, `Zer0pa/Materials`,
+and `Zer0pa/Energy`. Each workstream is built end-to-end as an
+independent pipeline. **No substrate is shared at runtime.** Fork-and-own
+is required: copy the pattern, reimplement inside Synthetic Biology.
+The research-agent's three cross-workstream substrate-sharing
+recommendations (Shared Infrastructure Layer, Cross-Pipeline Gym
+Flywheel, single SE(3) MACE service) are captured-and-overridden per
+operator policy. See [MODUS-OPERANDI.md](MODUS-OPERANDI.md) § Operator
+refinements.
 
 ## Provenance
 
 - Initial commit: 2026-05-01.
-- Research agent: Perplexity / Zer0pa Architect Prime composite (Briefs #1 and #2 plus handover note), 2026-04-30.
 - Synthesis agent: Claude Opus 4.7 (1M context), 2026-05-01.
-- Next agent: synbio orchestrator (writes `PRD.md`).
-- Following: overnight executor on a Runpod-bound machine.
-
-## Cross-workstream principle (deliberate)
-
-This workstream runs in parallel with `Zer0pa/Health`, `Zer0pa/Materials`, and `Zer0pa/Energy`. Each workstream is built end-to-end as an independent pipeline. **No substrate is shared during build.** Redundancy across workstreams is a deliberate asset — surplus coding capacity buys diversity of architecture, not duplicated cost. Convergence (if any) happens in a separate merge step after all parallel workstreams complete. See `MODUS-OPERANDI.md` § Parallel-exploration principle.
-
-The research-agent handover note for this workstream explicitly proposes a Shared Infrastructure Layer (Observation #1), a Cross-Pipeline Gym Flywheel coupling PathGym to CandidateGym / CompositionGym / FormulationGym / ElectrochemGym (Observation #4), and a single SE(3)-equivariant MACE fine-tuning service serving Materials / Drug Discovery / Synthetic Biology (Observation #5). Those three recommendations are captured verbatim in `synthesis/01-fresh-eyes-on-synbio-briefs.md` and explicitly overridden in `HANDOFF-TO-ORCHESTRATOR.md` § Operator override. Observations #2 (variational principle as spine) and #3 (active inference as unifying frame) are within-workstream architectural framings and are permitted.
-
-The MVP-wedge debate (HMOs as the cleanest first deliverable on GRAS regulatory grounds; vs terpenoids, syngas, BIAs, SAF) is the synthesis agent's pressure-test for the orchestrator. Three named seeds are proposed (2'-FL known-good, 3'-SL known-borderline, novel sialylated HMO outside published reach) mirroring the dofetilide/verapamil/ranolazine and LLZO/Li6PS5Cl/quaternary patterns. The orchestrator may take, refine, or override.
+- Synbio orchestrator (PRD v1.0 author): Claude Opus 4.7, 2026-05-01.
+- Overnight executor (this commit set): Claude Opus 4.7 (1M context), 2026-05-01.
+- Next agent: Runpod-bound CEKM trainer + L4.5 inference + full HMO triple numerical run.

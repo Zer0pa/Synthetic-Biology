@@ -60,31 +60,37 @@ Defence / weapons / dual-use bio applications excluded under operator policy.
 7. **HF token verified present but no bulk push attempted in Wave 0.** Smoke test against `Architect-Prime/synbio-bootstrap-v0.1` deferred until Tier-2 install confirms `huggingface_hub` is installed and a small test artifact is ready to push. If HF push fails at any wave, the executor logs `BLOCKED:hf_push:<reason>:<workaround>` and continues with manifests-in-repo.
 8. **Single-agent execution, not parallel sub-agents.** PRD §8 specifies a multi-sub-agent topology over 30-50 hours; this overnight run is one inline executor over a single session. The agent prioritises load-bearing scaffolding (envelope, falsifier registry, schemas, REST stubs, plug-replaceability harness, KG, audit trail spec, HMO seed packets) over breadth of adapter implementation. Adapter modules are written as stubs with the correct envelope contract; `scientific_valid=false` is honoured strictly. The structural completion of the build is the goal; full scientific runs await sub-agent dispatch and Runpod compute.
 
-## 5. Blockers and workarounds
+## 5. Blockers and workarounds (final)
 
 (Live ledger; format `BLOCKED:<component>:<reason>:<workaround>`.)
 
-- (none yet logged)
+- `BLOCKED:cekm_full_training:requires_a100_h100_80gb_vram:cpu_prototype_envelope_correct_runpod_cutover_pending` — see RUNPOD-READINESS.md §6.
+- `BLOCKED:l4_5_real_inference:rfdiffusion3_mace_off_esmfold_require_a100:gpu_rest_stub_in_place_cutover_invariance_test_passing` — Wave 11 proves shape invariance.
+- `BLOCKED:esm2_real_batch_embeddings:requires_gpu:hash_derived_unit_norm_stub_in_place_deterministic_for_cutover_invariance` — L1 stub returns reproducible 1280-d unit vectors.
+- `BLOCKED:full_lirc_corpus_pull:cpu_feasible_4_to_8_hours:canned_2pfl_slice_in_l2_adapter_full_pull_in_next_wave` — Wave 2 deferred for time, not for compute.
+- `BLOCKED:unikp_license_verification:no_web_fetch_in_this_run:manifest_marked_class_d_unknown_excluded_from_v1_kinetics_ensemble` — UniKP / EF-UniKP not exercised.
+- `BLOCKED:hf_smoke_push:huggingface_hub_not_installed_to_keep_dep_count_low:first_push_in_runpod_wave_4` — HF token verified present; push deferred.
+- `BLOCKED:botorch_real_surrogate:python_3_13_x86_64_macos_torch_wheels_spotty:scipy_pareto_sort_fallback_behind_same_interface` — Real BoTorch trivial on Linux Runpod.
+- `BLOCKED:salis_v1_subprocess_real_invocation:gpl_binary_not_installed_locally:license_grant_in_place_subprocess_pattern_documented_in_audit_trail_spec_section_9` — pattern is in the spec; binary call deferred.
 
-## 6. Wave status
+## 6. Wave status (final)
 
 | Wave | Status | Notes |
 |---|---|---|
-| -1 GitHub bootstrap + machine profile | **in progress** | venv up; deps Tier-1 done; this file written. |
-| -0.5 Maximum local setup | pending | Tier-2 install in flight; pyproject and src/ skeleton next. |
-| 0 Foundation (boundary + schemas + falsifier registry + KG + audit-trail spec) | pending | |
-| 1 Envelope plumbing + L1 | pending | |
-| 2 L2 LIRC manifests | pending | |
-| 3 L3 / L3.5 / L4 adapter shells | pending | |
-| 4 CEKM training | **deferred to Runpod** | CPU prototype only on Mac; full training Runpod-bound per PRD §15 Wave 4 and §19. |
-| 5 L4.5 / L5 / L5_OED / TDA | pending | TDA via ripser+persim is CPU-feasible if Tier-2 install lands. |
-| 6 L6 + L6_BUILD | pending | Three cellfree adapters all CPU-feasible (stub + dry-run + dry-run). |
-| 7 L7 dossier + closed-loop | pending | |
-| 8 PathGym + ReasonerTuple ledger | pending | |
-| 9 HMO seed evidence triple | pending | Structural packets with envelope chain; full L1-L7 numerical run gated on Tier-2 deps + Runpod for L4.5/CEKM. |
-| 10 Falsification wave | pending | One deliberate-trigger test per registry entry. |
-| 11 Runpod cutover proof | pending | `httpx.MockTransport` invariance test for every `gpu_rest_stub` endpoint. |
-| 12 Final integration + reports | pending | |
+| -1 GitHub bootstrap + machine profile | **complete** | EXECUTION-STATE.md, machine profile, venv. |
+| -0.5 Maximum local setup | **complete** | Python 3.13.12 venv + pyproject.toml + Tier-1/Tier-2 deps installed. |
+| 0 Foundation (boundary + schemas + falsifier registry + KG + audit-trail spec) | **complete** | BOUNDARY.md, envelope.py, types.py, 23-falsifier registry + 23 implementations, KG schema (34 nodes / 30 edges) + KGWriter, 30 source manifests, Synbio Audit-Trail Spec v0.1 published. |
+| 1 Envelope plumbing + L1 | **complete** | UniversalLayerEnvelope + L1 ZPE adapter (real SELFIES) + 5 L1 integration tests. |
+| 2-3 L2 LIRC + L3/L3.5/L4 adapter shells | **complete (structural)** | All envelope-correct stubs; canned 2'-FL slice for L2; full LIRC pull deferred per §2.2 of FINAL-REPORT.md. |
+| 4 CEKM training | **deferred to Runpod** | CPU prototype only on Mac; corpus design + adversarial three-tier sampler designed in PRD §12. RUNPOD-READINESS.md §6 has the exact next command. |
+| 5 L4.5 / L5 / L5_OED / TDA | **complete (structural)** | Adapter shells + REST stubs in place; real GPU inference deferred to Runpod. TDA fixtures CPU-feasible deferred. |
+| 6 L6 + L6_BUILD | **complete** | SBOL3-attested GMS via pysbol3; three cellfree adapters (Stub + Strateos dry-run + Emerald dry-run) with deterministic IDs. |
+| 7 L7 dossier + closed-loop | **complete (structural)** | sha256 hash-chain dossier; closed-loop ready (dbtl_round field). |
+| 8 PathGym + ReasonerTuple ledger | **complete (writer)** | Writer + Tier-1/2/3 sovereignty enforcement; first ledger seeds deferred to Wave 9 numerical runs. |
+| 9 HMO seed evidence triple | **complete (structural)** | 2'-FL (10 envelopes), 3'-SL (11 + L4.5), DSLNT (11 + L4.5 fully_novel). Pre-registered acceptance YAMLs committed. Numerical pass deferred to Runpod. |
+| 10 Falsification wave | **complete** | 53 tests passing — one clean-pass + one deliberate-trigger per falsifier; hard-block tests for f018 BKMS-react / KEGG-bulk / ATLAS pretext-grant. |
+| 11 Runpod cutover proof | **complete** | 38 httpx.MockTransport invariance tests passing for all 10 REST endpoints. RUNPOD-READINESS.md committed with exact next command. |
+| 12 Final integration + reports | **complete** | README, BOUNDARY, RUNBOOK, RUNPOD-READINESS, NEXT-WAVE-PLAN, FINAL-REPORT, HANDOFF-FROM-OVERNIGHT-EXECUTOR all written. Final push to follow. |
 
 ## 7. Compute-escalation watermark (PRD §15 Wave -0.5)
 
