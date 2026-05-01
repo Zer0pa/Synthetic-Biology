@@ -273,6 +273,16 @@ class RunpodESMFoldRunner:
                 with torch.no_grad():
                     output = self._model(**tokenized)
 
+                # output_to_pdb internally calls .numpy() — but numpy doesn't
+                # support bfloat16. Cast every bf16 tensor IN PLACE so we
+                # preserve ModelOutput type (otherwise hasattr(output,'plddt')
+                # downstream returns False for a plain dict).
+                if hasattr(output, "keys"):
+                    for k in list(output.keys()):
+                        v = output[k]
+                        if torch.is_tensor(v) and v.dtype == torch.bfloat16:
+                            output[k] = v.float()
+
                 # output_to_pdb returns one PDB string per sequence in the batch.
                 pdb_strings: list[str] = self._model.output_to_pdb(output)
 

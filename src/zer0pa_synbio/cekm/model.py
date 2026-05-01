@@ -315,24 +315,39 @@ class DMPNNSubstrateEncoder(nn.Module if _TORCH_AVAILABLE else object):  # type:
         hidden_dim: int,
         dropout: float,
     ) -> None:
-        """Select and construct the best available encoder backend."""
-        # Try full D-MPNN first (requires torch_geometric or chemprop-style stack).
-        try:
-            self._encoder = _TorchDMPNN(
-                atom_feature_dim=atom_feature_dim,
-                bond_feature_dim=bond_feature_dim,
-                hidden_dim=hidden_dim,
-                depth=self._depth,
-                dropout=dropout,
-                aggregation=self._aggregation,
-            )
-            self.input_mode = "dmpnn"
-            return
-        except (ImportError, Exception):
-            pass
+        """Select and construct the best available encoder backend.
 
-        # Fingerprint MLP fallback (RDKit available for feature generation).
-        if _RDKIT_AVAILABLE:
+        Priority order: STUB > FINGERPRINT > DMPNN.
+
+        We invert the original priority because the current train.py loop
+        passes substrate_input as a LongTensor (B,) hash — only the random
+        stub encoder accepts that shape. _TorchDMPNN.__init__ succeeds but
+        its forward raises NotImplementedError until a Chemprop-style batch
+        loader is wired in (Wave 4 future work).
+
+        To opt back into the DMPNN path: set env CEKM_SUBSTRATE_ENCODER=dmpnn.
+        To force fingerprints: CEKM_SUBSTRATE_ENCODER=fingerprint.
+        """
+        import os as _os
+
+        preferred = _os.environ.get("CEKM_SUBSTRATE_ENCODER", "stub").lower()
+
+        if preferred == "dmpnn":
+            try:
+                self._encoder = _TorchDMPNN(
+                    atom_feature_dim=atom_feature_dim,
+                    bond_feature_dim=bond_feature_dim,
+                    hidden_dim=hidden_dim,
+                    depth=self._depth,
+                    dropout=dropout,
+                    aggregation=self._aggregation,
+                )
+                self.input_mode = "dmpnn"
+                return
+            except Exception:
+                pass
+
+        if preferred in ("fingerprint", "dmpnn") and _RDKIT_AVAILABLE:
             self._encoder = _FingerprintSubstrateEncoder(
                 nbits=_FP_NBITS,
                 output_dim=hidden_dim,
@@ -341,7 +356,7 @@ class DMPNNSubstrateEncoder(nn.Module if _TORCH_AVAILABLE else object):  # type:
             self.input_mode = "fingerprint"
             return
 
-        # Final stub fallback.
+        # Default: stub — accepts (B,) LongTensor hash input.
         self._encoder = _RandomSubstrateEncoder(output_dim=hidden_dim)
         self.input_mode = "stub"
 

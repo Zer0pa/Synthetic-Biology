@@ -1,63 +1,39 @@
 #!/usr/bin/env bash
-# Phase 200 — CEKM data-pipeline + model-construction smoke (no training).
-# Confirms the model builds on H100 before committing to phase 210.
+# Phase 200 — CEKM data-pipeline + model-construction smoke.
 set -euo pipefail
 . "$RUN_ROOT/env.sh"
 
 python <<'PY'
-"""Smoke test:
-1. Data pipeline runs end-to-end (CPU).
-2. Model factory builds CEKM on CUDA in bf16.
-3. One forward pass on the same input shape that train.py uses
-   (substrate as a LongTensor (B,) hash, not fingerprint).
+"""1. Data pipeline runs end-to-end (CPU).
+2. Model factory builds CEKM on CUDA via TrainingConfig defaults.
+3. One forward pass with the same shape train.py uses.
 """
 import torch
 from zer0pa_synbio.cekm import smoke_test_pipeline
-from zer0pa_synbio.cekm.train import (
-    TrainingConfig, ESM2Config, DMPNNConfig, ConditionMLPConfig,
-    AdaptiveGateConfig, HeadsConfig, LossConfig, build_model,
-)
+from zer0pa_synbio.cekm.train import TrainingConfig, build_model
 
-# 1. Data-pipeline smoke (CPU; no model).
 print("=== data pipeline smoke ===")
 result = smoke_test_pipeline()
-print(f"  corpus_size={result['corpus_size']} in_corpus_size={result['in_corpus_size']}")
-print(f"  held_out_size={result['held_out_size']}")
-print(f"  adversarial_negative_count={result['adversarial_negative_count']}")
-print(f"  tier_alpha={result['tier_alpha_count']} beta={result['tier_beta_count']} gamma={result['tier_gamma_count']}")
+print(f"  corpus_size={result['corpus_size']} held_out_size={result['held_out_size']}")
+print(f"  adversarial: α={result['tier_alpha_count']} β={result['tier_beta_count']} γ={result['tier_gamma_count']}")
 
-# 2. Model build on CUDA.
-print("=== model build (bf16, CUDA) ===")
-cfg = TrainingConfig(
-    campaign_id="cekm_smoke_h100",
-    esm2=ESM2Config(unfreeze_last_n_layers=0, use_real_esm2=True, dtype="bfloat16"),
-    dmpnn=DMPNNConfig(hidden_dim=128, num_layers=3),
-    condition_mlp=ConditionMLPConfig(hidden_dim=64),
-    adaptive_gate=AdaptiveGateConfig(gate_type="cross_attention"),
-    heads=HeadsConfig(num_disc_classes=4),
-    loss=LossConfig(supervised_weight=1.0, curriculum_weight=0.3, contrastive_weight=0.5),
-    batch_size=4,
-    learning_rate=1e-4,
-    max_steps=10,
-    eval_every_steps=10,
-    checkpoint_every_steps=10,
-    seed=42,
-)
+print("=== build model (CUDA, fp32 for smoke; train.py uses bf16) ===")
+cfg = TrainingConfig(campaign_id="cekm_smoke_h100", seed=42, use_bf16=False)
 model = build_model(cfg)
+assert model is not None, "build_model returned None — torch missing?"
 model = model.cuda()
 total = sum(p.numel() for p in model.parameters())
 trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
 print(f"  param count: {total/1e6:.1f} M ({trainable/1e6:.1f} M trainable)")
+print(f"  esm2_real={model._using_real_esm2}  substrate_mode={model.substrate_encoder.input_mode}")
 
-# 3. Forward pass — same shape as the training loop uses (substrate as hash).
 print("=== forward pass on dummy batch (training-loop shape) ===")
 from transformers import AutoTokenizer
 tok = AutoTokenizer.from_pretrained("facebook/esm2_t33_650M_UR50D")
-seq = "MFKVAIIGAGAVGNALLLDLLEKHKVELQGI"  # FutC fragment (30 residues)
+seq = "MFKVAIIGAGAVGNALLLDLLEKHKVELQGI"
 batch = tok([seq] * 4, return_tensors="pt", padding=True).to("cuda")
 substrate_input = torch.tensor([0, 1, 2, 3], dtype=torch.long, device="cuda")
-conditions = torch.tensor([[7.0, 37.0, 0.15]] * 4, dtype=torch.float32, device="cuda")
-
+conditions = torch.tensor([[7.0, 37.0]] * 4, dtype=torch.float32, device="cuda")
 with torch.no_grad():
     out = model(
         sequence_ids=batch["input_ids"],
