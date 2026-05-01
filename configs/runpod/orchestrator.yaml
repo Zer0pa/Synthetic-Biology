@@ -1,0 +1,95 @@
+# Synbio autonomous H100 SXM orchestrator config.
+#
+# Per HANDOFF-CPU-CONTINUATION.md follow-on + RUNPOD-AUTONOMOUS-RUNBOOK.md.
+# Read by scripts/runpod/orchestrator.sh.
+#
+# Phase ordering and retry policy are operator-tunable. Defaults are
+# calibrated for one 24h H100 SXM session that closes Wave 4 (CEKM
+# training) + Wave 5 (L4.5 inference) + Wave 9 (HMO triple full
+# numerical run).
+
+# Maximum total wallclock for the autonomous run. Orchestrator hard-stops
+# at this point (pushes status, shuts down gracefully). Set to >0 to
+# enable; 0 disables the cap.
+max_wallclock_hours: 26.0
+
+# Heartbeat / git push cadences (seconds).
+heartbeat_local_period_s: 60       # write heartbeat.txt every N seconds
+heartbeat_git_push_period_s: 600   # push heartbeat to git every N seconds (10 min)
+
+# Phase definitions. Each phase is one script under
+# scripts/runpod/phases/<name>.sh. The orchestrator runs them in this
+# order; on success it writes a sentinel; on restart it skips phases
+# whose sentinel already exists. Phases marked optional=true are
+# skipped on missing prerequisites (e.g., FOUNDRY_TOKEN for
+# RFdiffusion3) without aborting the run.
+phases:
+  - name: "00_preflight"
+    description: "Sanity checks: CUDA, VRAM, disk, HF/GH tokens, cutover smoke."
+    timeout_minutes: 10
+    max_retries: 1
+    optional: false
+
+  - name: "10_install_deps"
+    description: "Install full GPU stack: torch+CUDA, flash-attn-2, transformers (ESMFold), mace-torch, equilibrator-pathway, ripser, persim."
+    timeout_minutes: 30
+    max_retries: 2
+    optional: false
+
+  - name: "20_stage_data"
+    description: "Pull corpora from HF dataset (or fallback to public source)."
+    timeout_minutes: 60
+    max_retries: 3
+    optional: false
+
+  - name: "30_cekm_train"
+    description: "CEKM training on real corpus (load-bearing 6–8 h block). Resume-safe."
+    timeout_minutes: 720    # 12 h hard cap
+    max_retries: 2          # OOM / NaN-loss recovery
+    optional: false
+
+  - name: "40_cekm_eval"
+    description: "Calibration audit on held-out + Tier α/β/γ adversarial negatives."
+    timeout_minutes: 60
+    max_retries: 1
+    optional: false
+
+  - name: "50_hf_push_cekm"
+    description: "Push CEKM checkpoints + audit JSONL to HF Architect-Prime/synbio-cekm-v0.1."
+    timeout_minutes: 30
+    max_retries: 5          # network flakiness tolerated
+    optional: false
+
+  - name: "60_l45_inference"
+    description: "ESMFold + MACE-OFF + (optional RFdiffusion3) for HMO triple."
+    timeout_minutes: 360    # 6 h cap; RFdiffusion3 is the long pole
+    max_retries: 2
+    optional: false
+
+  - name: "70_hmo_triple"
+    description: "Wave 9 full numerical HMO triple run (2pFL, 3pSL, DSLNT)."
+    timeout_minutes: 180
+    max_retries: 1
+    optional: false
+
+  - name: "80_audit_verify"
+    description: "synbio audit verify on each campaign; conformance reports."
+    timeout_minutes: 30
+    max_retries: 1
+    optional: false
+
+  - name: "90_finalize"
+    description: "Generate FINAL-REPORT-RUNPOD-AUTONOMOUS.md, push everything to git + HF, write COMPLETE.flag."
+    timeout_minutes: 30
+    max_retries: 3
+    optional: false
+
+# When to push artifacts to git on phase boundary.
+git_push_on_phase_boundary: true
+git_push_max_retries: 5
+git_push_backoff_seconds: [10, 30, 60, 180, 600]
+
+# Operator emergency stop: if PAUSE_ORCHESTRATOR.flag exists at the
+# repo root (committed by operator from anywhere), the orchestrator
+# completes the current phase and exits gracefully.
+pause_flag_path: "PAUSE_ORCHESTRATOR.flag"

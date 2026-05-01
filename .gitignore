@@ -19,6 +19,14 @@ htmlcov/
 # Local runtime artifacts (will be added by overnight executor)
 audit_log/
 audit/runtime/
+# Re-include autonomous runpod status surface (heartbeat, sentinels, status
+# pages) so operator can see live progress via `git fetch` even when the
+# Mac is offline. Bulk runtime artifacts (logs, checkpoints) stay ignored.
+!audit/runtime/runpod/
+audit/runtime/runpod/*.log
+audit/runtime/runpod/*.bin
+audit/runtime/runpod/checkpoints/
+audit/runtime/runpod/raw_data/
 kg_store/
 runtime/cache/
 *.sqlite
