@@ -3,7 +3,7 @@
   "boundary": "Research infrastructure for in silico synthetic biology / metabolic pathway engineering. Outputs are research artifacts \u2014 predicted pathways, predicted KPIs, candidate genetic modification specifications. No regulatory certification claims. No clinical or human-subject use. No environmental release of GMOs. No biocontainment-level claims (the pipeline does not commission BSL-2/3 work). No human gene drive or eugenic application. Defence / weapons / dual-use bio applications excluded under operator policy.",
   "campaign_id": "hmo_seed_3pSL",
   "cftxtl_observation_envelope_ids": [
-    "sha256:22d59b65e1fa8df0a3a39f6c45e3d127c024b1238da331bd1dae85b87b2381fc"
+    "sha256:01c4629647233892f80e559a73ada57baaffd10596bfdebe4fd80ba9b52ae964"
   ],
   "consumer_recommendation": "human_cro",
   "cross_model_disagreement_summary": [],
@@ -12,7 +12,7 @@
   "dossier_id": "dossier_3pSL_round_0",
   "early_warning_summary": [],
   "falsifier_summary": [],
-  "gms_envelope_id": "sha256:7d50616bc80a83e774c4b1ab7fc88b1aa1e37b1c37c5c4c155414d2ce10bb27f",
+  "gms_envelope_id": "sha256:c6862c750cd6d46a419c32c2974e0f3a794a7e6e2beec9910aa2fbc30402d644",
   "host_organism": {
     "gem_id": "iML1515",
     "refseq_genome_accession": "NC_000913.3",
@@ -38,23 +38,23 @@
   ],
   "literature_refs": [],
   "prov_o_chain_uri": "",
-  "ranked_pathway_set_envelope_id": "sha256:5f393812426296277870fbbefd433117591b23621c692b7a89dc4a7ac992e083",
+  "ranked_pathway_set_envelope_id": "sha256:251270199b6dafac881aec55495552801c594da24017e24f0ae4b998e9d14865",
   "sbol_attestation_uri": "/Users/zer0palab/Synthetic Biology Pipeline/.claude/worktrees/hopeful-roentgen-e3c78e/audit/runtime/hmo_seed_3pSL/sbol/gms_3pSL_canonical.sbol3.xml",
   "schema_version": "synbio.dossier.v0.1",
   "sha256_hash_chain": [
-    "sha256:eae4785c9d16a745e521bdbc9023ee84263b02bfd4a4e03bfc76ca7975c232b2",
-    "sha256:f9fb5779cf5586974c7a2cbec6cde9f52f7e57f641c050ec2f6a5b67bab7a4fe",
-    "sha256:3f865d97f8e0a9d795e5839bcd25d83c8751891e32eec5f0d03d1970a3a4d88a",
-    "sha256:9608c5576cabc08281d908a921f28638f49c72861cb71a7f34569c8ce717461f",
-    "sha256:4b9be71485a161567d473fc4eaf576e17f5a13072374a39c3ebbf698cfcda8c6",
-    "sha256:0cdc365448438183d79b2e5868246340f67ac5a3e410710b5b310ee49516d0ac",
-    "sha256:5f393812426296277870fbbefd433117591b23621c692b7a89dc4a7ac992e083",
-    "sha256:beaccd826ab5bf51284def3d98164b87caec7386453479418fbde9f889814b61",
-    "sha256:7d50616bc80a83e774c4b1ab7fc88b1aa1e37b1c37c5c4c155414d2ce10bb27f",
-    "sha256:22d59b65e1fa8df0a3a39f6c45e3d127c024b1238da331bd1dae85b87b2381fc",
+    "sha256:862685c4804864781ef44377090a79b0a15923ade0165622bbaec668bd7ad325",
+    "sha256:d0b1213d0b3d01972d704a2c46f4f63b21a79d673be031af49af0dfa08ae988e",
+    "sha256:f129b1abef293543527b9586b50ddb802aebcf30c80a515246d81ef7415de286",
+    "sha256:b9b13fb8108fece24d31791300e46351f3cfbca72750f897f5e4088a53aed98e",
+    "sha256:9ae55daa4b6b2a1da6beb7b01815c4539fed4812b2c1d068686ffc0f3e32e0c3",
+    "sha256:599b7d042d980c1b09e8e74eaab1f4106760126169d5448ee305c84a3f855b0b",
+    "sha256:251270199b6dafac881aec55495552801c594da24017e24f0ae4b998e9d14865",
+    "sha256:9ad37739930377ef302d3395d4117940478bc7f42949b00db281fb53c34fc390",
+    "sha256:c6862c750cd6d46a419c32c2974e0f3a794a7e6e2beec9910aa2fbc30402d644",
+    "sha256:01c4629647233892f80e559a73ada57baaffd10596bfdebe4fd80ba9b52ae964",
     "sbol3:570753f8152edab92f448ad30995d812b6fbf43680a2b773dc456493c499cb3f",
     "prov:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "dossier:418e07363e7a97cf97ec116f56dcfe3928491923f8d430e8db4d533db9bdf165"
+    "dossier:add4fdf09d1e5320306d7d20cb406d0a01dffc1ada4bd5cef2f7156d8f073888"
   ],
   "target_compound_inchi_key": "COFLCBMXHRDGMP-AHXISFCHSA-N",
   "validation_sequence": {
