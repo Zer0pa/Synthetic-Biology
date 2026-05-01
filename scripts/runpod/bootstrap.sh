@@ -12,9 +12,13 @@
 #   bash scripts/runpod/bootstrap.sh
 #
 # Required env vars (set in Runpod UI):
-#   HF_TOKEN          — Hugging Face token with write access to Architect-Prime
+#   HF_TOKEN          — Hugging Face token (operator's existing one;
+#                       on this machine: cat ~/.cache/huggingface/token)
 #   GH_TOKEN          — GitHub PAT with `repo` scope on Zer0pa/Synthetic-Biology
-#   FOUNDRY_TOKEN     — (optional) RosettaCommons Foundry token for RFdiffusion3
+#                       (operator's existing one; on this machine:
+#                       gh auth token)
+# RFdiffusion2 weights are public (no Foundry registration required) —
+# downloaded from files.ipd.uw.edu by phase 60 directly.
 #
 # What this does:
 #   1. Configures the workspace + git auth
@@ -40,7 +44,6 @@ fatal() { printf '%s[bootstrap]%s %s\n' "$RED" "$NC" "$*" >&2; exit 1; }
 # ─── env validation ───────────────────────────────────────────────────────────
 : "${HF_TOKEN:?HF_TOKEN must be set in pod env (HuggingFace write token)}"
 : "${GH_TOKEN:?GH_TOKEN must be set in pod env (GitHub PAT, repo scope)}"
-# FOUNDRY_TOKEN is optional; phases that need it will skip if missing.
 
 # ─── workspace ────────────────────────────────────────────────────────────────
 WORKSPACE="${WORKSPACE:-/workspace}"

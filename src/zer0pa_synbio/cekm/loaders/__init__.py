@@ -16,8 +16,11 @@ Sources:
   TSV with one row per ``(enzyme, substrate, organism, condition)``
   measurement.
 - ``enzyextract.load_enzyextract_tsv(path)`` — EnzyExtract (MIT,
-  Class A). git clone https://github.com/HanselYu/EnzyExtract; parse
-  the ``data/parameters.tsv`` file.
+  Class A). Direct download from https://github.com/ChemBioHTP/EnzyExtract
+  (file ``EnzyExtractDB/EnzyExtractDB_176463.parquet``, ~10 MB,
+  176,463 rows). The function name retains the ``_tsv`` suffix for
+  backward compatibility but auto-dispatches to the parquet reader
+  by extension.
 - ``gotenzymes2.load_gotenzymes2_jsonl(path)`` — GotEnzymes2 (CC BY 4.0,
   Class A). Bulk pull from https://gotenzymes.io/. Marked as
   curriculum / soft-pseudo-label per PRD §12.1.

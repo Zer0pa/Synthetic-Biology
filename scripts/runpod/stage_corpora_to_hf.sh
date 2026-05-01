@@ -21,7 +21,9 @@
 # continues without it. The pod's CEKM training will then run
 # without BRENDA core (EnzyExtract + GotEnzymes2 + ProteinGym only).
 
-set -euo pipefail
+# Don't use -e: we want to continue past missing/failed sources rather
+# than abort the whole staging run.
+set -uo pipefail
 
 REPO_DIR="${REPO_DIR:-$(cd "$(dirname "$0")/../.." && pwd)}"
 cd "$REPO_DIR"
@@ -52,7 +54,7 @@ HF_REPO="Architect-Prime/synbio-cekm-corpus-v0.1"
 
 # ─── ensure dataset exists ─────────────────────────────────────────────
 log "Ensuring HF dataset $HF_REPO exists (private)…"
-huggingface-cli repo create "$HF_REPO" --type dataset --private -y 2>&1 | tail -3 || true
+hf repos create "$HF_REPO" --type dataset --private 2>&1 | tail -3 || true
 
 # ─── source paths (local) ──────────────────────────────────────────────
 RAW_DIR="${RAW_DATA_DIR:-data/raw}"
@@ -66,7 +68,7 @@ stage_file() {
     fi
     local size=$(stat -c %s "$local_path" 2>/dev/null || stat -f %z "$local_path" 2>/dev/null || echo 0)
     log "Uploading $source_label ($((size/1024/1024)) MB) → $HF_REPO/$hf_path …"
-    huggingface-cli upload "$HF_REPO" "$local_path" "$hf_path" --repo-type dataset \
+    hf upload "$HF_REPO" "$local_path" "$hf_path" --repo-type dataset \
         --commit-message "Stage $source_label at $(ts)" 2>&1 | tail -3
     # Record SHA256.
     local sha
@@ -89,22 +91,14 @@ if [[ ! -f "$BRENDA_TSV" ]]; then
 fi
 stage_file "$BRENDA_TSV" "brenda/brenda_data.tsv" "BRENDA" || true
 
-# ─── EnzyExtract (public clone) ────────────────────────────────────────
-ENZY_REPO="$RAW_DIR/enzyextract/repo"
-ENZY_TSV="$RAW_DIR/enzyextract/parameters.tsv"
-if [[ ! -f "$ENZY_TSV" ]]; then
-    if [[ ! -d "$ENZY_REPO" ]]; then
-        log "Cloning HanselYu/EnzyExtract…"
-        git clone --depth 1 https://github.com/HanselYu/EnzyExtract "$ENZY_REPO"
-    fi
-    for cand in "$ENZY_REPO/data/parameters.tsv" "$ENZY_REPO/parameters.tsv" "$ENZY_REPO/output/parameters.tsv"; do
-        if [[ -f "$cand" ]]; then
-            cp "$cand" "$ENZY_TSV"
-            break
-        fi
-    done
+# ─── EnzyExtract (public; ChemBioHTP/EnzyExtract; parquet format) ─────
+ENZY_PARQUET="$RAW_DIR/enzyextract/EnzyExtractDB_176463.parquet"
+if [[ ! -f "$ENZY_PARQUET" ]]; then
+    log "Downloading EnzyExtract parquet (~10 MB) from ChemBioHTP/EnzyExtract…"
+    curl -fsSL "https://github.com/ChemBioHTP/EnzyExtract/raw/main/EnzyExtractDB/EnzyExtractDB_176463.parquet" \
+        -o "$ENZY_PARQUET" || log "EnzyExtract parquet download failed."
 fi
-stage_file "$ENZY_TSV" "enzyextract/parameters.tsv" "EnzyExtract" || true
+stage_file "$ENZY_PARQUET" "enzyextract/EnzyExtractDB_176463.parquet" "EnzyExtract" || true
 
 # ─── GotEnzymes2 (bulk pull) ───────────────────────────────────────────
 GOT_JSONL="$RAW_DIR/gotenzymes2/gotenzymes2_bulk.jsonl"
@@ -115,22 +109,12 @@ if [[ ! -f "$GOT_JSONL" ]]; then
 fi
 stage_file "$GOT_JSONL" "gotenzymes2/gotenzymes2_bulk.jsonl" "GotEnzymes2" || true
 
-# ─── ProteinGym (public clone) ─────────────────────────────────────────
-PG_REPO="$RAW_DIR/proteingym/repo"
+# ─── ProteinGym (public; OATML-Markslab/ProteinGym) ───────────────────
 PG_CSV="$RAW_DIR/proteingym/DMS_substitutions.csv"
 if [[ ! -f "$PG_CSV" ]]; then
-    if [[ ! -d "$PG_REPO" ]]; then
-        log "Cloning OATML-Markslab/ProteinGym (shallow)…"
-        git clone --depth 1 https://github.com/OATML-Markslab/ProteinGym "$PG_REPO"
-    fi
-    for cand in "$PG_REPO/reference_files/DMS_substitutions.csv" \
-                "$PG_REPO/data/DMS_substitutions.csv" \
-                "$PG_REPO/DMS_substitutions.csv"; do
-        if [[ -f "$cand" ]]; then
-            cp "$cand" "$PG_CSV"
-            break
-        fi
-    done
+    log "Downloading ProteinGym DMS_substitutions.csv (~209 KB) from OATML-Markslab/ProteinGym…"
+    curl -fsSL "https://github.com/OATML-Markslab/ProteinGym/raw/main/reference_files/DMS_substitutions.csv" \
+        -o "$PG_CSV" || log "ProteinGym CSV download failed."
 fi
 stage_file "$PG_CSV" "proteingym/DMS_substitutions.csv" "ProteinGym" || true
 
@@ -147,7 +131,7 @@ README="$RAW_DIR/HF_README.md"
     echo "| File | Source | License |"
     echo "|---|---|---|"
     echo "| brenda/brenda_data.tsv | https://www.brenda-enzymes.org/ | CC BY 4.0 |"
-    echo "| enzyextract/parameters.tsv | https://github.com/HanselYu/EnzyExtract | MIT |"
+    echo "| enzyextract/EnzyExtractDB_176463.parquet | https://github.com/ChemBioHTP/EnzyExtract | MIT |"
     echo "| gotenzymes2/gotenzymes2_bulk.jsonl | https://gotenzymes.io/ | CC BY 4.0 |"
     echo "| proteingym/DMS_substitutions.csv | https://github.com/OATML-Markslab/ProteinGym | MIT |"
     echo
@@ -161,7 +145,7 @@ README="$RAW_DIR/HF_README.md"
     cat "$RAW_DIR/STAGED_MANIFEST.txt" 2>/dev/null || echo "(none)"
     echo '```'
 } > "$README"
-huggingface-cli upload "$HF_REPO" "$README" "README.md" --repo-type dataset \
+hf upload "$HF_REPO" "$README" "README.md" --repo-type dataset \
     --commit-message "Update README at $(ts)" 2>&1 | tail -3 || true
 
 log "Staging complete. Pod's phase 20 will pull from $HF_REPO."

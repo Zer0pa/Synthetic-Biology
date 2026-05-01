@@ -1,16 +1,16 @@
 schema_version: synbio.source_manifest.v0.1
 source_id: enzyextract
-uri: https://github.com/biorxiv-papers/EnzyExtract
+uri: https://github.com/ChemBioHTP/EnzyExtract
 retrieval_method: git
-retrieved_at: "2026-05-01T00:00:00Z"
+retrieved_at: "2026-05-02T00:00:00Z"
 license_spdx_or_text: MIT
 license_class: A
 allowed_use: research
 geography_restrictions: null
 checksum: "sha256:placeholder-enzyextract-bootstrap"
-local_slice_size_mb: 0.0
+local_slice_size_mb: 10.1
 hf_mirror_uri: "Architect-Prime/synbio-cekm-corpus-v0.1"
 bulk_data_stored_locally: false
-citation: "EnzyExtract: 218,095 enzyme kinetic entries extracted from literature; 89,544 absent from BRENDA per source-briefs/02 §1.2."
-rights_notes: "MIT — included in CEKM training corpus per PRD §12.1. The 89,544 BRENDA-absent entries materially reduce survivorship bias."
+citation: "EnzyExtract (ChemBioHTP/EnzyExtract): 176,463 enzyme kinetic entries (kcat, Km, conditions) extracted from literature; rows where brenda_id is null form the BRENDA-absent dark-matter partition (PRD §12.1 survivorship-bias defence)."
+rights_notes: "MIT — included in CEKM training corpus per PRD §12.1. Bulk format is parquet at EnzyExtractDB/EnzyExtractDB_176463.parquet (verified upstream 2026-05). The dark-matter partition (brenda_id IS NULL) is fully held out from training per HeldOutSplit.enzyextract_holdout_full=True."
 excluded_from_training_corpus: false

@@ -23,7 +23,7 @@ self-sufficient, self-resuming, and self-pushing.
 | 30 | cekm_train (real corpus, 20K steps, resume-safe) | **6–8 h** | no |
 | 40 | cekm_eval (calibration audit, held-out + Tier α/β/γ) | 1–2 h | no |
 | 50 | hf_push_cekm (Architect-Prime/synbio-cekm-v0.1) | 15–30 min | no |
-| 60 | l45_inference (ESMFold + MACE-OFF + opt RFdiffusion3) | 1–6 h | yes (RFdiffusion3 only if FOUNDRY_TOKEN set) |
+| 60 | l45_inference (ESMFold + MACE-OFF + RFdiffusion2 weights staged) | 1–4 h | no (RFdiffusion2 is public BSD-3) |
 | 70 | hmo_triple (Wave 9 full numerical run) | 2–3 h | no |
 | 80 | audit_verify (synbio audit verify per seed) | <30 min | no |
 | 90 | finalize (FINAL-REPORT-RUNPOD-AUTONOMOUS.md + push) | <30 min | no |
@@ -46,19 +46,28 @@ source .venv/bin/activate
 bash scripts/runpod/stage_corpora_to_hf.sh
 ```
 
-### 2.2 Mint a GitHub PAT
+### 2.2 Read existing tokens from this Mac (no minting required)
 
-The pod needs to push to `Zer0pa/Synthetic-Biology`. Mint a
-fine-grained PAT with `Contents: Read and write` on that repo only.
-Save the token; you'll paste it as `GH_TOKEN` in Runpod.
+The Mac already has both tokens set up — agents have been using them.
+Read them directly into the Runpod pod env:
 
-### 2.3 (Optional) Foundry token for RFdiffusion3
+```bash
+# GitHub PAT (Zer0pa-Architect-Prime account, scopes: gist, read:org, repo, workflow)
+gh auth token
 
-If you have a RosettaCommons Foundry account with RFdiffusion3 access,
-set `FOUNDRY_TOKEN` in the pod env. Without it, phase 60's
-RFdiffusion3 substep is skipped (the rest of the chain proceeds
-normally; DSLNT seed gets a Tier-3 advisory rather than a Tier-1/2
-enzyme design).
+# Hugging Face token (Architect-Prime user, write access to org)
+cat ~/.cache/huggingface/token
+```
+
+Paste those values into Runpod's env-var UI as `GH_TOKEN` and
+`HF_TOKEN` respectively.
+
+### 2.3 No Foundry / external registration needed
+
+RFdiffusion2 is BSD-3-Clause on GitHub at `RosettaCommons/RFdiffusion2`;
+weights are publicly downloadable from `files.ipd.uw.edu` (verified
+2026-05). Phase 60 wgets weights directly — no `FOUNDRY_TOKEN`, no
+RosettaCommons account required.
 
 ---
 
@@ -70,7 +79,7 @@ enzyme design).
 | Region | EU or US-East — pick whichever has SXM availability |
 | Image | `pytorch/pytorch:2.4.1-cuda12.1-cudnn9-devel` (or any 2.x torch + CUDA 12 image) |
 | Volume | Persistent volume mounted at `/workspace`, **≥150 GiB** (CEKM checkpoints + corpora are heavy) |
-| Env vars | `HF_TOKEN`, `GH_TOKEN`, optional `FOUNDRY_TOKEN` |
+| Env vars | `HF_TOKEN`, `GH_TOKEN` (read from Mac via `cat ~/.cache/huggingface/token` and `gh auth token`) |
 | Startup command | `bash -c "curl -fsSL https://raw.githubusercontent.com/Zer0pa/Synthetic-Biology/main/scripts/runpod/bootstrap.sh \| bash"` |
 
 When the pod boots, the bootstrap script:
@@ -157,7 +166,7 @@ delete the flag, push, and re-run bootstrap on the pod.
 | Pod restart / preempt | orchestrator skips done sentinels; CEKM resumes from checkpoint |
 | CUDA OOM during training | phase 30 reduces batch_size from 64 → 32 → 16 on retry |
 | NaN loss | train.py rolls back to last checkpoint; orchestrator retries |
-| HF service hiccup | huggingface-cli has internal retries; phase 50 tolerates 5 retries |
+| HF service hiccup | `hf` CLI has internal retries; phase 50 tolerates 5 retries |
 | GitHub push fails | exponential backoff (10s, 30s, 60s, 180s, 600s); next phase boundary retries |
 | GPU sat <10% for 10+ min | watchdog appends to WATCHDOG_ALERTS.md and pushes (soft alert; doesn't kill phase) |
 | Single phase exceeds timeout_minutes | orchestrator kills + retries (per phase max_retries) |
@@ -204,10 +213,10 @@ cat FINAL-REPORT-RUNPOD-AUTONOMOUS.md
   scaffolding looks right. Each phase has executable verification —
   CEKM training requires a checkpoint to be written; HF push verifies
   via a download check; audit verify must pass on each campaign.
-- `fp-NULLasout`: a phase failing optional gates (e.g., FOUNDRY_TOKEN
-  unset → RFdiffusion3 skipped) is logged as a graceful skip, not as
-  "the run failed." Required-phase failure halts the chain with a
-  diagnostic, not a silent NULL.
+- `fp-NULLasout`: required-phase failure halts the chain with a
+  diagnostic pushed to git, not a silent NULL. Optional substeps
+  (e.g., a sequence not in the UniProt cache) log a warning and the
+  parent phase continues.
 - `fp-flatteryasfreedom`: the autonomous mandate is binding because
   the verification surface (heartbeat to git, watchdog, audit verify)
   is binding. The operator can interrupt at any phase boundary via
@@ -222,7 +231,7 @@ cat FINAL-REPORT-RUNPOD-AUTONOMOUS.md
 
 ## 11. Quick reference
 
-- **Bootstrap from anywhere:** `curl -fsSL https://raw.githubusercontent.com/Zer0pa/Synthetic-Biology/main/scripts/runpod/bootstrap.sh | bash` (env: HF_TOKEN, GH_TOKEN, optional FOUNDRY_TOKEN).
+- **Bootstrap from anywhere:** `curl -fsSL https://raw.githubusercontent.com/Zer0pa/Synthetic-Biology/main/scripts/runpod/bootstrap.sh | bash` (env: HF_TOKEN, GH_TOKEN — both read from this Mac via `cat ~/.cache/huggingface/token` and `gh auth token`).
 - **Inspect from anywhere:** `git pull --ff-only && cat audit/runtime/runpod/STATUS.md`.
 - **Pause from anywhere:** commit `PAUSE_ORCHESTRATOR.flag` to main.
 - **Final outputs:** `FINAL-REPORT-RUNPOD-AUTONOMOUS.md` (git) + `Architect-Prime/synbio-cekm-v0.1` (HF).

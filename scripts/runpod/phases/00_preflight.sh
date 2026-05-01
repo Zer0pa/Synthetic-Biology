@@ -39,7 +39,6 @@ fi
 : "${GH_TOKEN:?GH_TOKEN unset}"
 log "HF_TOKEN: present (${#HF_TOKEN} chars)"
 log "GH_TOKEN: present (${#GH_TOKEN} chars)"
-log "FOUNDRY_TOKEN: ${FOUNDRY_TOKEN:+present}${FOUNDRY_TOKEN:-absent}"
 
 # ─── Python ───────────────────────────────────────────────────────────────
 log "Python: $(python3 --version)"

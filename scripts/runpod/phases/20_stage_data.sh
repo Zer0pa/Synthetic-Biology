@@ -24,10 +24,19 @@ mkdir -p "$DATA_ROOT"/{brenda,enzyextract,gotenzymes2,proteingym}
 
 # ─── HF dataset stager ──────────────────────────────────────────────────
 HF_CORPUS_REPO="Architect-Prime/synbio-cekm-corpus-v0.1"
-hf_dataset_exists=0
-if huggingface-cli repo info "$HF_CORPUS_REPO" --type dataset >/dev/null 2>&1; then
-    hf_dataset_exists=1
+hf_dataset_exists=$(python -c "
+from huggingface_hub import HfApi
+import sys
+try:
+    HfApi().repo_info('$HF_CORPUS_REPO', repo_type='dataset')
+    sys.stdout.write('1')
+except Exception:
+    sys.stdout.write('0')
+")
+if [[ "$hf_dataset_exists" == "1" ]]; then
     log "HF corpus dataset $HF_CORPUS_REPO found."
+else
+    log "HF corpus dataset $HF_CORPUS_REPO not found; will fall back to direct sources."
 fi
 
 download_from_hf_or_direct() {
@@ -38,8 +47,8 @@ download_from_hf_or_direct() {
     fi
     if [[ "$hf_dataset_exists" == "1" ]]; then
         log "Pulling $source from HF dataset…"
-        if huggingface-cli download "$HF_CORPUS_REPO" "$hf_path" --repo-type dataset \
-            --local-dir "$(dirname "$out_path")" --local-dir-use-symlinks False >/dev/null 2>&1; then
+        if hf download "$HF_CORPUS_REPO" "$hf_path" --repo-type dataset \
+            --local-dir "$(dirname "$out_path")" >/dev/null 2>&1; then
             return 0
         fi
         log "HF dataset pull failed for $source; trying direct."
@@ -62,67 +71,55 @@ if [[ -f "$BRENDA_TSV" ]]; then
     log "BRENDA already present."
 elif [[ "$hf_dataset_exists" == "1" ]]; then
     log "Pulling BRENDA from HF dataset…"
-    huggingface-cli download "$HF_CORPUS_REPO" "brenda/brenda_data.tsv" --repo-type dataset \
-        --local-dir "$DATA_ROOT/brenda" --local-dir-use-symlinks False >/dev/null 2>&1 || \
+    hf download "$HF_CORPUS_REPO" "brenda/brenda_data.tsv" --repo-type dataset \
+        --local-dir "$DATA_ROOT/brenda" >/dev/null 2>&1 || \
         log "WARNING: BRENDA not on HF dataset. CEKM will train without BRENDA core (EnzyExtract + GotEnzymes2 + ProteinGym only)."
 else
     log "WARNING: BRENDA not pre-staged. Operator must run scripts/runpod/stage_corpora_to_hf.sh before next pod."
 fi
 
-# ─── EnzyExtract (Class A; MIT; public) ──────────────────────────────────
-ENZYEXTRACT_REPO="$DATA_ROOT/enzyextract/repo"
-ENZYEXTRACT_TSV="$DATA_ROOT/enzyextract/parameters.tsv"
-if [[ ! -f "$ENZYEXTRACT_TSV" ]]; then
-    if [[ -d "$ENZYEXTRACT_REPO" ]]; then
-        log "EnzyExtract repo present but parameters.tsv missing; symlinking…"
-    else
-        log "Cloning HanselYu/EnzyExtract…"
-        git clone --depth 1 https://github.com/HanselYu/EnzyExtract "$ENZYEXTRACT_REPO" || \
-            log "EnzyExtract clone failed."
+# ─── EnzyExtract (Class A; MIT; ChemBioHTP/EnzyExtract; parquet) ─────────
+ENZYEXTRACT_PARQUET="$DATA_ROOT/enzyextract/EnzyExtractDB_176463.parquet"
+if [[ ! -f "$ENZYEXTRACT_PARQUET" ]]; then
+    if [[ "$hf_dataset_exists" == "1" ]]; then
+        log "Pulling EnzyExtract parquet from HF dataset…"
+        hf download "$HF_CORPUS_REPO" "enzyextract/EnzyExtractDB_176463.parquet" --repo-type dataset \
+            --local-dir "$DATA_ROOT/enzyextract" >/dev/null 2>&1
     fi
-    # Try common locations.
-    for cand in "$ENZYEXTRACT_REPO/data/parameters.tsv" "$ENZYEXTRACT_REPO/parameters.tsv" "$ENZYEXTRACT_REPO/output/parameters.tsv"; do
-        if [[ -f "$cand" ]]; then
-            ln -sf "$cand" "$ENZYEXTRACT_TSV"
-            log "Linked EnzyExtract: $cand"
-            break
-        fi
-    done
+    if [[ ! -f "$ENZYEXTRACT_PARQUET" ]]; then
+        log "Direct download EnzyExtract parquet from ChemBioHTP/EnzyExtract…"
+        curl -fsSL "https://github.com/ChemBioHTP/EnzyExtract/raw/main/EnzyExtractDB/EnzyExtractDB_176463.parquet" \
+            -o "$ENZYEXTRACT_PARQUET" || log "EnzyExtract parquet download failed."
+    fi
 fi
-[[ -f "$ENZYEXTRACT_TSV" ]] || log "WARNING: EnzyExtract parameters.tsv not found after clone."
+[[ -f "$ENZYEXTRACT_PARQUET" ]] || log "WARNING: EnzyExtract parquet not present at $ENZYEXTRACT_PARQUET"
 
 # ─── GotEnzymes2 (Class A; CC BY 4.0; bulk pull) ────────────────────────
 GOTENZYMES2_JSONL="$DATA_ROOT/gotenzymes2/gotenzymes2_bulk.jsonl"
 if [[ ! -f "$GOTENZYMES2_JSONL" ]]; then
     if [[ "$hf_dataset_exists" == "1" ]]; then
-        huggingface-cli download "$HF_CORPUS_REPO" "gotenzymes2/gotenzymes2_bulk.jsonl" --repo-type dataset \
-            --local-dir "$DATA_ROOT/gotenzymes2" --local-dir-use-symlinks False >/dev/null 2>&1 || \
+        hf download "$HF_CORPUS_REPO" "gotenzymes2/gotenzymes2_bulk.jsonl" --repo-type dataset \
+            --local-dir "$DATA_ROOT/gotenzymes2" >/dev/null 2>&1 || \
             log "WARNING: GotEnzymes2 not on HF dataset; bulk pull from gotenzymes.io would go here."
     else
         log "WARNING: GotEnzymes2 not pre-staged."
     fi
 fi
 
-# ─── ProteinGym (Class A; MIT; public) ──────────────────────────────────
-PROTEINGYM_REPO="$DATA_ROOT/proteingym/repo"
+# ─── ProteinGym (Class A; MIT; OATML-Markslab/ProteinGym) ──────────────
 PROTEINGYM_CSV="$DATA_ROOT/proteingym/DMS_substitutions.csv"
 if [[ ! -f "$PROTEINGYM_CSV" ]]; then
-    if [[ ! -d "$PROTEINGYM_REPO" ]]; then
-        log "Cloning OATML-Markslab/ProteinGym (shallow)…"
-        git clone --depth 1 https://github.com/OATML-Markslab/ProteinGym "$PROTEINGYM_REPO" || \
-            log "ProteinGym clone failed."
+    if [[ "$hf_dataset_exists" == "1" ]]; then
+        hf download "$HF_CORPUS_REPO" "proteingym/DMS_substitutions.csv" --repo-type dataset \
+            --local-dir "$DATA_ROOT/proteingym" >/dev/null 2>&1
     fi
-    for cand in "$PROTEINGYM_REPO/reference_files/DMS_substitutions.csv" \
-                "$PROTEINGYM_REPO/data/DMS_substitutions.csv" \
-                "$PROTEINGYM_REPO/DMS_substitutions.csv"; do
-        if [[ -f "$cand" ]]; then
-            ln -sf "$cand" "$PROTEINGYM_CSV"
-            log "Linked ProteinGym: $cand"
-            break
-        fi
-    done
+    if [[ ! -f "$PROTEINGYM_CSV" ]]; then
+        log "Direct download ProteinGym DMS_substitutions.csv from OATML-Markslab/ProteinGym…"
+        curl -fsSL "https://github.com/OATML-Markslab/ProteinGym/raw/main/reference_files/DMS_substitutions.csv" \
+            -o "$PROTEINGYM_CSV" || log "ProteinGym CSV download failed."
+    fi
 fi
-[[ -f "$PROTEINGYM_CSV" ]] || log "WARNING: ProteinGym DMS_substitutions.csv not found."
+[[ -f "$PROTEINGYM_CSV" ]] || log "WARNING: ProteinGym DMS_substitutions.csv not present."
 
 # ─── eQuilibrator cache pre-warm ─────────────────────────────────────────
 log "Pre-warming eQuilibrator ComponentContribution cache…"
@@ -152,7 +149,7 @@ PHASE_CFG="$REPO_DIR/audit/runtime/runpod/wave4_active_corpus.yaml"
 log "Materialising active config at $PHASE_CFG (rewriting paths to pod data dir)…"
 sed \
     -e "s|/workspace/data/brenda/brenda_data.tsv|$BRENDA_TSV|g" \
-    -e "s|/workspace/data/enzyextract/parameters.tsv|$ENZYEXTRACT_TSV|g" \
+    -e "s|/workspace/data/enzyextract/parameters.tsv|$ENZYEXTRACT_PARQUET|g" \
     -e "s|/workspace/data/gotenzymes2/gotenzymes2_bulk.jsonl|$GOTENZYMES2_JSONL|g" \
     -e "s|/workspace/data/proteingym/DMS_substitutions.csv|$PROTEINGYM_CSV|g" \
     "$WAVE4_CFG" > "$PHASE_CFG"
@@ -164,7 +161,7 @@ p = pathlib.Path("$PHASE_CFG")
 cfg = yaml.safe_load(p.read_text())
 for key, path in (
     ("brenda_tsv_path", "$BRENDA_TSV"),
-    ("enzyextract_tsv_path", "$ENZYEXTRACT_TSV"),
+    ("enzyextract_tsv_path", "$ENZYEXTRACT_PARQUET"),
     ("gotenzymes2_jsonl_path", "$GOTENZYMES2_JSONL"),
     ("proteingym_csv_path", "$PROTEINGYM_CSV"),
 ):
