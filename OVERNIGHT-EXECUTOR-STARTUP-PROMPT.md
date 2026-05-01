@@ -26,6 +26,7 @@ Every artifact you produce must carry this boundary verbatim.
 - If the current Mac/local machine can complete a layer or the whole pipeline within storage and time limits, complete it there.
 - If a layer truly needs GPU or larger compute, leave a same-shape REST stub, source manifest, golden fixture, test suite, Runpod config flag, and cutover acceptance test.
 - Never use "needs GPU" as a reason to skip contracts, manifests, tests, adapters, audit logging, dossier plumbing, or boundary gates.
+- If all useful Mac/local work is complete and increased compute is the next hard blocker, write `COMPUTE-ESCALATION` in `EXECUTION-STATE.md`, `FINAL-REPORT.md`, and `HANDOFF-FROM-OVERNIGHT-EXECUTOR.md` with exact required GPU/VRAM/storage/time, blocked commands, completed local artifacts, and the next command to run after compute is available. Commit and push before advising the operator.
 
 ## Canonical outputs
 
@@ -40,6 +41,7 @@ Do not stop early except for:
 - A boundary violation.
 - Missing credentials that prevent all useful local work.
 - A destructive ambiguity that cannot be safely stubbed or quarantined.
+- A compute-escalation boundary after every useful Mac/local task has been completed, committed, and pushed.
 
 If a component is blocked but other work can proceed, log `BLOCKED:<component>:<reason>:<workaround>` in `EXECUTION-STATE.md`, preserve interface shape with a stub or manifest, and continue.
 

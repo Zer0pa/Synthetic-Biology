@@ -66,6 +66,8 @@ You are expected to run long-horizon and autonomously. The operator may be aslee
 
 Before declaring any need for increased compute, download, install, configure, cache, and execute everything the current machine can support. If the available Mac/local machine can complete a layer or the whole pipeline within storage and time limits, complete it there. If a layer truly needs GPU or larger compute, leave the same endpoint shape, same schema, same fixtures, same manifests, same tests, and a Runpod config flag so the later upgrade is a stub swap, not a rewrite.
 
+If all useful Mac/local work is complete and increased compute is the next hard blocker, write `COMPUTE-ESCALATION` in `EXECUTION-STATE.md`, `FINAL-REPORT.md`, and `HANDOFF-FROM-OVERNIGHT-EXECUTOR.md` with exact required GPU/VRAM/storage/time, blocked commands, completed local artifacts, and the next command to run after compute is available. Commit and push the current state before advising the operator. This is the only compute-related report point; do not use it while CPU-side work remains.
+
 If you hit a blocker:
 
 1. Record it in `EXECUTION-STATE.md` as `BLOCKED:<component>:<reason>:<workaround>`.
@@ -73,7 +75,7 @@ If you hit a blocker:
 3. Continue to the next independent wave.
 4. Surface the blocker in `FINAL-REPORT.md` and `HANDOFF-FROM-OVERNIGHT-EXECUTOR.md`.
 
-Only stop for a boundary issue, credential absence that prevents all useful local work, or a destructive ambiguity that cannot be safely stubbed.
+Only stop for a boundary issue, credential absence that prevents all useful local work, a destructive ambiguity that cannot be safely stubbed, or the compute-escalation boundary after all Mac/local work has been exhausted and pushed.
 
 ## Build sequence
 
