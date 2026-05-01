@@ -186,16 +186,19 @@ class RunpodESMFoldRunner:
 
             if device == "cuda":
                 model_kwargs["torch_dtype"] = torch.bfloat16
-                # Enable FlashAttention-2 when the installed version supports it.
-                try:
-                    model_kwargs["attn_implementation"] = "flash_attention_2"
-                    logger.info("RunpodESMFoldRunner: FlashAttention-2 enabled")
-                except Exception:  # noqa: BLE001
-                    logger.info(
-                        "RunpodESMFoldRunner: FlashAttention-2 unavailable; using eager attention"
-                    )
+                # NB: EsmForProteinFolding does NOT support attn_implementation=
+                # "flash_attention_2" yet (transformers raises ValueError). The
+                # ESM-2 sub-module supports it, but the folding trunk doesn't.
+                # We rely on the bf16 cast for throughput; FA2 would only help
+                # the ESM backbone path which is the smaller cost on H100.
 
-            model = EsmForProteinFolding.from_pretrained(self.model_id, **model_kwargs)
+            try:
+                model = EsmForProteinFolding.from_pretrained(self.model_id, **model_kwargs)
+            except (ValueError, TypeError) as exc:
+                # If the chosen kwargs are rejected (e.g. some flash-attn arg
+                # leaked in via env), fall back to plain eager attention.
+                logger.warning("ESMFold load with bf16 failed (%s); retrying eager fp32", exc)
+                model = EsmForProteinFolding.from_pretrained(self.model_id, low_cpu_mem_usage=True)
             model = model.to(device)
             if device == "cuda":
                 # ESMFold uses fp16 for the ESM-2 language-model backbone.
