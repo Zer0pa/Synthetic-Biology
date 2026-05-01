@@ -19,7 +19,7 @@ required for `scientific_valid=True`.
 
 ## SBOL3 attestation
 
-Attestation document: `/Users/zer0palab/Synthetic Biology Pipeline/.claude/worktrees/hopeful-roentgen-e3c78e/audit/runtime/hmo_seed_3pSL/sbol/gms_3pSL_canonical.sbol3.xml`
+Attestation document: `/workspace/synbio-run/repo/audit/runtime/hmo_seed_3pSL/sbol/gms_3pSL_canonical.sbol3.xml`
 sha256: `570753f8152edab92f448ad30995d812b6fbf43680a2b773dc456493c499cb3f`
 
 ## Pre-registered acceptance thresholds

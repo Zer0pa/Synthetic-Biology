@@ -1,18 +1,18 @@
 {
   "campaign_id": "hmo_seed_2pFL",
   "envelope_ids": [
-    "sha256:be9c360245f0dfa150614f520850f6fff3358e6cc2d908f04c684e99e3c80957",
-    "sha256:c55041cef2b4f9bac88d6a0e1c86ffd801f2228b11aadd8db52f085f0177f05f",
-    "sha256:6b7d951d312f3ac9a4d7a8c1ad0e366b2841d0aa911a7dc53a0b6b947edb91a0",
-    "sha256:2f8c585694dcded05df44f5b1ca96f1c47727ecc1746a529b895d3435b58beae",
-    "sha256:1a5cf933457bd6221c56def2664bc374c1aeeaa6ac3479da3881bba8a0795759",
-    "sha256:574e945b03304d33aea760169a0a432836134b8d4cc71fccd6f8cd9949771d48",
-    "sha256:9dbd3e3c1eac096b1a313444ed363735e80531cd1e2215dae7eb81b5deb37853",
-    "sha256:cd1b0c46331cb91400884daec914f47e466f37fbe413f1136f17cfa4500d8b4b",
-    "sha256:7688d335d06f9e555249f2b856031f6f5b6aa5e308da199b7bd8f35a939d687a",
-    "sha256:ec76ae30fb861b09f34cf0cf54cfd75b78e081bd3e5a638605cc68c43cdacf10"
+    "sha256:af0533156af7ac31f325ad337a7fc252938a2feb36ef7a669b9cb0325910f8b4",
+    "sha256:cb07ff9c5eba1956a7cdcc60f57c732bd0d1b1aead2aef12d3f7910c6c205436",
+    "sha256:f180566e1d73853702527680c5963abbda4df8b0ec8b3a73dc9b91bff3c37744",
+    "sha256:cd1d130ebaccc9f09a8da02fe44a3d2217d40c8e0ce72d5c0b1112611e987350",
+    "sha256:9798782d551bdece675ca9f66ee608a006026ccbad7a916bf8ecce63a0bca4f5",
+    "sha256:42d150743903d34fdc4048278f9a723013a4cb2ae6b5aa3fbd251d265e60a7bd",
+    "sha256:58e2b15c5a1fed3dc7d679781d3d98e83e9ac33d2daf2fb5dcf5e9e4733f0074",
+    "sha256:22f0dca4e1bb0e47015a4fe4128c68bc1cca16336c8dfea8d79805aa1124a360",
+    "sha256:b73205776128dafa683cbd04083bb6d8df673792a95c12739bd7e302eb5449c0",
+    "sha256:5bf32fbfc2958112611338f14c90be4f281f4ba7265df5f2ad916f921c4daedd"
   ],
-  "sbol3_uri": "/Users/zer0palab/Synthetic Biology Pipeline/.claude/worktrees/hopeful-roentgen-e3c78e/audit/runtime/hmo_seed_2pFL/sbol/gms_2pFL_canonical.sbol3.xml",
+  "sbol3_uri": "/workspace/synbio-run/repo/audit/runtime/hmo_seed_2pFL/sbol/gms_2pFL_canonical.sbol3.xml",
   "sbol_sha256": "621a411f337763e00dc287ff7af1b5a7d30f7a8b3f274ffbf56dd9a12de03d27",
   "seed": "2pFL"
 }
