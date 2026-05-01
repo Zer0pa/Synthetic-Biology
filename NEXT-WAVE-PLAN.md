@@ -140,6 +140,53 @@ These remain unresolved and require operator input:
   content's commercial-use terms with a Perplexity / Gemini deep-research
   query.
 
+## E.bis CPU-continuation phase (2026-05-01) — what is now done
+
+After the H100 release, a second executor closed `HANDOFF-CPU-CONTINUATION.md`
+items A–H on the Mac (Python 3.13 + a Python-3.11 `.venv-l5` for
+torch wheels). Status delta:
+
+| Item | Status | Where |
+|---|---|---|
+| A. Real BoTorch surrogate (qLogNEHVI + Hamming kernel + ASR warm-start) | **DONE** | `src/zer0pa_synbio/adapters/l5_mfmo/{__init__,botorch_worker}.py`. `.venv-l5` provisioning script: `scripts/provision_venv_l5.sh`. |
+| B. Real eQuilibrator MDF in L4B | **DONE** | `src/zer0pa_synbio/adapters/l4_thermodynamics/__init__.py`. HMO seeds emit `stub_mode=False` with real LP MDF. |
+| C. Real LIRC corpus build | **DONE (architecture)** | `src/zer0pa_synbio/adapters/l2_lirc/build.py`. Validation slice `fixtures/lirc/lirc_v0.1_smoke.json.gz` (50 reactions per source, 40s wallclock). Full ~4-8h Wave-2 build is a single CLI call: `python -m zer0pa_synbio.adapters.l2_lirc.build`. **Operator action remaining:** run the full build and HF-push the result. |
+| D. Real CEKM corpus loaders | **DONE** | `src/zer0pa_synbio/cekm/loaders/`. Pod-ready config: `configs/cekm/wave4_real_corpus.yaml`. |
+| E. TDA real fermentation simulator + warning_score | **DONE** | `src/zer0pa_synbio/tda/{simulator,__init__}.py`. All 5 PRD §5.3 failure modes implemented as physically-grounded ODE perturbations. Detector calibration deferred to PathGym. |
+| F. Salis Lab RBS Calculator GPL subprocess wrapper | **DONE (wrapper)** | `src/zer0pa_synbio/adapters/l6_host_engineering/salis_rbs_subprocess.py`. License-grant gate + binary discovery + parser. **Operator action remaining:** install Salis v1.0 binary on the GPU pod and point `SALIS_RBS_BIN` at it. |
+| G. Pull cekm_training_audit.jsonl from HF | **DONE** | `audit/runtime/cekm_train_h100/cekm_training_audit.jsonl` (gitignored; 71 events). |
+| H. Update reports | **DONE** | This section + `EXECUTION-STATE.md §9` + `FINAL-REPORT-RUNPOD.md §11`. |
+
+### What is genuinely still GPU-bound
+
+After items A–H, the CPU side is exhausted modulo BLOCKED-by-credentials
+work. The next pod-rental is required for:
+
+1. **Real CEKM training on the assembled real corpus** (10–20 GPU-h
+   on H100). The data pipeline + config are now ready.
+2. **L4.5 RFdiffusion3 / Baker scaffolding / MACE-OFF / ESMFold
+   inference** (per A.2 above; needs Foundry enrollment for
+   RFdiffusion3 + GPU).
+3. **Real DLKcat / CatPred / TurNuP / FluxGAT batch inference at
+   industrial scale.**
+
+### What is BLOCKED on operator action
+
+These do not need a GPU but they do need an operator decision:
+
+1. **Salis v1.0 binary install + license-grant activation.** The wrapper
+   is in place but the GPL binary isn't installed anywhere. Operator
+   step: `git clone https://github.com/salislab/RBS_Calculator_v1`,
+   wrap the Python-2 entrypoint in a small CLI shim that emits
+   `INITIATION_RATE_AU=<float> CONFIDENCE=<float>`, set
+   `SALIS_RBS_BIN`. Then L6 will use Salis on every run that touches
+   `_build_rbs_predictions`.
+2. **Full LIRC corpus run + HF push.** ~4-8h CPU + ~5 GB output.
+   Operator step: `python -m zer0pa_synbio.adapters.l2_lirc.build`,
+   then `huggingface-cli upload Architect-Prime/synbio-lirc-v0.1
+   fixtures/lirc/lirc_v0.1.json.gz`. Could run on a small CPU VM rather
+   than a GPU pod.
+
 ## E. PathGym corpus seed
 
 The PathGym ledger (`audit/reasoner_tuples.jsonl`) is currently empty.

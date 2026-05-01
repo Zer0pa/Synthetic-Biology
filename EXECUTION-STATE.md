@@ -163,3 +163,61 @@ git push origin main
 | `fp-approvalseek` | This file is written for substantive correctness, not as a "pre-completion shape". `FINAL-REPORT.md` is written last, not first. |
 | `fp-flatteryasfreedom` | The user's resume prompt is treated as an operating instruction, not as freedom to skip verification steps. Schemas validate. Tests run. The discipline is the work. |
 | `fp-efficiency-as-corner-cutting` | Where a layer's full implementation is gated on Runpod, the executor still writes the envelope contract, REST stub, manifest, golden fixture, and cutover test. "Needs GPU" is never a reason to skip CPU-side plumbing. |
+
+---
+
+## 9. CPU-continuation phase (post H100 release, 2026-05-01)
+
+Pod 429xv4r3wm66q9 was released after the Wave-4 CEKM smoke training
+landed at HF (`Architect-Prime/synbio-cekm-v0.1`, 6.4 GB checkpoint at
+step 1500). A second executor agent took over to convert the
+remaining stub layers to real implementations on the Mac CPU.
+Items A–H from `HANDOFF-CPU-CONTINUATION.md` are now complete.
+
+### Items completed (in commit order)
+
+| Commit | Item | What landed |
+|---|---|---|
+| `52b8ad2` | **B** — Real eQuilibrator MDF in L4B | `equilibrator-pathway 0.7.0`. `ThermodynamicModel.mdf_analysis()` LP solved per HMO seed (5–6 BiGG-resolvable reactions per seed). 2'-FL: MDF=+6.78 kJ/mol, 3'-SL: +11.84 kJ/mol, DSLNT: +11.41 kJ/mol. Stub fallback for <2 reactions (upstream cvxpy 0-d-array bug). 4 new contract tests. |
+| `e5d396b` | **A** — Real BoTorch surrogate in L5 | Split-venv pattern: `.venv-l5/` (Python 3.11 + torch 2.2.2 + botorch 0.17.2 + gpytorch 1.15.2) gitignored; `scripts/provision_venv_l5.sh` re-provisions. L5MFMOAdapter shells out to `botorch_worker.py` via stdin/stdout JSON. GP-per-objective with custom HammingKernel; qLogNoisyExpectedHypervolumeImprovement; ASR-thermostable warm-start when min(Tm) < 50 °C. Plug-replaceability invariant preserved (scipy stub fallback). 6 new contract tests. |
+| `0631e83` | **E** — Real Monod ODE simulator + multi-channel TDA | New `tda/simulator.py`: 5-state fed-batch ODE (X, S, P, DO, B) via `scipy.integrate.solve_ivp(LSODA)`. All 5 PRD §5.3 failure modes physically grounded. `tda/__init__.py` z-scores biomass + DO + byproduct + product into a 4-channel time series before Takens embedding; hybrid warning_score combines real ripser bottleneck distance + late-vs-early rate-of-change ratio. 13 new tests. |
+| `701672f` | **D** — Real CEKM corpus loaders | `cekm/loaders/{brenda_bulk,enzyextract,gotenzymes2,proteingym}.py`. `load_corpus_slices_from_config` aggregator. `TrainingConfig` extended with four optional path attributes. `configs/cekm/wave4_real_corpus.yaml` is pod-ready. 8 new tests + 4 mini-fixtures. |
+| `0ea9995` | **F** — Salis RBS GPL subprocess wrapper | `adapters/l6_host_engineering/salis_rbs_subprocess.py`. Strict subprocess-isolation per PRD §22 + audit/license_grants/salis_v1.yaml — no Python `import` of GPL modules. L6 adapter now calls Salis first when license-grant + binary present; OSTIR fallback. 10 new tests using a fake-binary shell shim, including a static-source check for forbidden imports. |
+| `0949ae1` | **C** — Real LIRC corpus build pipeline | `adapters/l2_lirc/build.py` pulls Rhea SPARQL + MetaNetX MNXref + BiGG REST + ModelSEED bulk + BRENDA core. Atom-mapped SMARTS canonicalisation via RDKit. CLI `python -m zer0pa_synbio.adapters.l2_lirc.build [--cap N]`. Validation slice (cap=50, 40s wallclock, 146 unique reactions) committed at `fixtures/lirc/lirc_v0.1_smoke.json.gz`. Full ~4-8h Wave-2 build is a single CLI call. 7 new tests + 1 network-gated. BLOCKED sources (ATLAS, BKMS-react, KEGG bulk) emitted in every output's audit list. |
+| (no commit) | **G** — Pull cekm_training_audit.jsonl | 71-event audit JSONL pulled from HF `Architect-Prime/synbio-cekm-v0.1` to `audit/runtime/cekm_train_h100/` (gitignored; local-only review copy). |
+
+### Test surface
+
+- **Baseline (start of CPU-continuation):** 208 passed, 58 skipped (GPU-gated).
+- **End of CPU-continuation:** 256 passed, 59 skipped. +48 new tests across items B/A/E/D/F/C.
+- 0 regressions; 0 GPU-skipped tests reactivated (correct — GPU is still required for those).
+
+### Architectural pieces converted from stub → real
+
+- L4B thermodynamics: synthetic ΔG sum → real eQuilibrator MDF LP.
+- L5 MFMO: scipy Pareto sort → real BoTorch GP + qLogNEHVI + Hamming kernel + ASR warm-start.
+- TDA simulator: manual time-step loop → real `scipy.integrate.solve_ivp` LSODA Monod ODE.
+- TDA detector: single-channel biomass embedding → multi-channel z-scored embedding + ripser bottleneck + rate-of-change hybrid.
+- CEKM corpus: synthetic 100-row stub → real loader-driven path (BRENDA + EnzyExtract + GotEnzymes2 + ProteinGym; data pre-downloaded by pod prep).
+- L6 RBS: OSTIR-only path → license-grant-gated Salis v1.0 GPL subprocess wrapper, OSTIR fallback.
+- L2 LIRC: 2'-FL canned slice → full Rhea/MetaNetX/BiGG/ModelSEED build pipeline; 50-row validation slice committed.
+
+### What's still GPU-bound (next pod)
+
+- Real CEKM training on the assembled real corpus (10–20 GPU-h on H100). The data pipeline is now ready — `synbio cekm train --config configs/cekm/wave4_real_corpus.yaml` should work after the operator pre-downloads the four sources.
+- ESMFold / MACE-OFF / RFdiffusion3 production runs.
+- Real MACE-OFF binding deltas (3-run reference-state subtraction).
+- Industrial-scale BioNavi / DeepRetro / DLKcat / CatPred / TurNuP inference.
+
+### Detector calibration deferred to PathGym
+
+- TDA `warning_score` thresholds (normal / watch / warn / fail) are v0.1; PathGym DBTL holdout tuning is downstream.
+- L5 `surrogate_calibration_score` is leave-one-out posterior coverage on the smoke pool; full PathGym calibration is downstream.
+
+### CPU-continuation resistance ledger
+
+- **fp-rushtoend** resisted: each item has executable tests + visible output (HMO seeds re-run with new envelopes carrying `stub_mode=False`, `mdf_solver_status=ok`, etc.). No item declared done because the file structure exists.
+- **fp-shapematch** resisted: real implementations were verified by re-running the HMO seeds, not by structural fit alone.
+- **fp-NULLasout** resisted: the macOS-x86_64 + Python-3.13 torch wheel gap was solved with a split-venv subprocess, not by declaring item A unfeasible.
+- **fp-flatteryasfreedom** resisted: split-venv architecture is honest about the platform constraint and documented; provisioning script committed.
+- **fp-efficiency-as-corner-cutting** resisted: TDA detector calibration was attempted iteratively, then deferred with explicit acknowledgement in code comments and tests rather than silently shipping a too-sensitive detector.

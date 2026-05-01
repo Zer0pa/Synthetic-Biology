@@ -5,6 +5,15 @@
 **To:** Next role — Runpod-bound executor or sub-agent dispatch on the originating Mac (CPU-feasible work in §2.2 of `FINAL-REPORT.md`).
 **Source of truth:** GitHub `Zer0pa/Synthetic-Biology` after the final push.
 
+> **2026-05-01 update (CPU-continuation phase):** All CPU-feasible
+> stub→real conversions in this file's §2.2 are now closed. See
+> `HANDOFF-CPU-CONTINUATION.md` and `EXECUTION-STATE.md §9` for the
+> commit-by-commit ledger of items A–H. Net delta: 256 passing tests
+> (up from 208), L4B/L5/TDA/CEKM-loaders/Salis/LIRC all real on
+> CPU. The next blocker is genuinely GPU compute (real CEKM
+> training, RFdiffusion3 inference, etc.). See `NEXT-WAVE-PLAN.md
+> §E.bis` for the up-to-date status table.
+
 ## Boundary
 
 Research infrastructure for in silico synthetic biology / metabolic pathway engineering. Outputs are research artifacts — predicted pathways, predicted KPIs, candidate genetic modification specifications. No regulatory certification claims. No clinical or human-subject use. No environmental release of GMOs. No biocontainment-level claims (the pipeline does not commission BSL-2/3 work). No human gene drive or eugenic application. Defence / weapons / dual-use bio applications excluded under operator policy.

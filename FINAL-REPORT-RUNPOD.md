@@ -132,3 +132,54 @@ GPU was used by phases: 10_pull_models, 50_esm2_real_l1, 60_hmo_*. CPU-bound
 phases (LIRC, audit verify, dossier emission, BoTorch fits) ran in parallel
 where the orchestrator allowed.
 
+## CPU continuation after pod release (2026-05-01)
+
+After the H100 was released, a second executor agent took over on the
+operator's Mac to convert the remaining stub layers to real
+implementations on CPU. Items A–H of `HANDOFF-CPU-CONTINUATION.md`
+all closed. Detail in `EXECUTION-STATE.md §9`.
+
+### Stub → real conversions landed
+
+| Layer | Before | After |
+|---|---|---|
+| L4B thermodynamics | synthetic ΔG sum | real eQuilibrator MDF LP via `equilibrator-pathway 0.7.0`. HMO seeds emit `stub_mode=False, mdf_solver_status=ok`. |
+| L5 MFMO | scipy Pareto sort | real BoTorch GP per objective (Hamming kernel) + qLogNoisyExpectedHypervolumeImprovement + ASR-thermostable warm-starts. Subprocess pattern (`.venv-l5/`, Python 3.11 + torch 2.2.2). |
+| TDA fermentation simulator | manual time-step loop | `scipy.integrate.solve_ivp` LSODA, 5-state Monod ODE with all 5 PRD §5.3 failure modes physically grounded. |
+| TDA early-warning | single-channel biomass | multi-channel z-scored embedding (X, DO, byproduct, P) → ripser bottleneck + late-vs-early rate ratio hybrid warning_score. |
+| CEKM corpus | synthetic 100-row stub | real loader-driven path (BRENDA + EnzyExtract + GotEnzymes2 + ProteinGym). Pod-ready config at `configs/cekm/wave4_real_corpus.yaml`. |
+| L6 RBS predictions | OSTIR only | license-grant-gated Salis v1.0 GPL subprocess (no Python `import` of GPL); OSTIR fallback. |
+| L2 LIRC | 2'-FL canned slice | full Rhea/MetaNetX/BiGG/ModelSEED build pipeline; 50-row validation slice committed as `fixtures/lirc/lirc_v0.1_smoke.json.gz`. |
+
+### Test surface delta
+
+- **Start of CPU continuation:** 208 passed, 58 GPU-skipped.
+- **End of CPU continuation:** 256 passed, 59 skipped.
+- 48 net-new tests across items B/A/E/D/F/C; zero regressions.
+
+### What is still GPU-bound (next pod)
+
+- Real CEKM training on the assembled real corpus (10–20 GPU-h H100).
+  Data pipeline + config are in place — `synbio cekm train --config
+  configs/cekm/wave4_real_corpus.yaml` should work after data prep.
+- L4.5 RFdiffusion3 / Baker / MACE-OFF / ESMFold inference (+ Foundry
+  enrollment for RFdiffusion3).
+- Industrial-scale BioNavi / DeepRetro / DLKcat / CatPred / TurNuP.
+
+### What is BLOCKED on operator action (no GPU needed)
+
+- **Salis v1.0 binary install + `SALIS_RBS_BIN` setup.** The wrapper
+  is in place; the GPL binary itself isn't installed.
+- **Full LIRC corpus run** (~4-8h CPU; could run on a small CPU VM)
+  + HF push to `Architect-Prime/synbio-lirc-v0.1`.
+
+### Resistance ledger (CPU-continuation phase)
+
+- **fp-NULLasout** resisted: macOS-x86_64 + Python-3.13 torch wheel gap
+  was solved with a split-venv subprocess pattern, not by declaring
+  item A unfeasible.
+- **fp-rushtoend** resisted: each item carries new tests + visible
+  output through HMO seed re-runs.
+- **fp-efficiency-as-corner-cutting** resisted: TDA detector calibration
+  attempted iteratively; deferred to PathGym with explicit
+  acknowledgement, not silently skipped.
