@@ -142,7 +142,31 @@ class L1ZPEAdapter(LayerAdapter):
         host = input_payload.get("host_organism", {})
         gem_handle = host.get("gem_id", gem_id)
         seed = (selfies_str + "|" + inchi_key + "|" + gem_handle).encode("utf-8")
-        esm2_embedding = _hash_derived_embedding(seed)
+
+        # Real ESM-2 batched embedding when on Runpod backend with a
+        # protein sequence supplied; fall back to deterministic hash-derived
+        # stub otherwise. The cutover invariance test (Wave 11) is preserved
+        # because: in stub-mode without protein_sequence, the output is
+        # identical to before; in runpod-mode WITH protein_sequence, the
+        # output_payload structure stays the same, only the embedding
+        # values differ — which is captured under provenance.method.
+        protein_seq = input_payload.get("protein_sequence", "")
+        used_real_esm2 = False
+        if self.execution_mode == ExecutionMode.runpod_rest and protein_seq:
+            try:
+                from zer0pa_synbio.adapters.l1_zpe.esm2_real import (
+                    encode_real,
+                    is_available,
+                )
+                if is_available():
+                    esm2_embedding = encode_real([protein_seq])[0]
+                    used_real_esm2 = True
+                else:
+                    esm2_embedding = _hash_derived_embedding(seed)
+            except Exception:
+                esm2_embedding = _hash_derived_embedding(seed)
+        else:
+            esm2_embedding = _hash_derived_embedding(seed)
 
         output_payload = {
             "zpe_version": _ZPE_VERSION,
@@ -150,8 +174,8 @@ class L1ZPEAdapter(LayerAdapter):
             "esm2_embedding": esm2_embedding,
             "gem_handle": gem_handle,
             "embedding_provenance": {
-                "method": "hash_derived_stub" if self.execution_mode != ExecutionMode.runpod_rest else "esm2_runpod",
-                "scientific_valid": False if self.execution_mode != ExecutionMode.runpod_rest else True,
+                "method": "esm2_runpod" if used_real_esm2 else "hash_derived_stub",
+                "scientific_valid": used_real_esm2,
                 "dim": _EMBEDDING_DIM,
             },
         }
