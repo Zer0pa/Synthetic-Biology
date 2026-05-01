@@ -59,17 +59,53 @@ def _ostir_predict_rbs(rbs_seq: str, cds_start_seq: str = "ATGAAAAAGCTGCTG") -> 
 
 
 def _build_rbs_predictions(input_payload: dict) -> dict:
-    """Real OSTIR RBS prediction when an RBS sequence is in the payload;
-    fall back to the deterministic stub otherwise.
+    """Tiered RBS prediction with strict license-isolation discipline.
 
-    PRD §6.9: Salis v1.0 GPL subprocess is the preferred tool when
-    available; OSTIR is the permissive fallback. v1 uses OSTIR by
-    default; the Salis subprocess wrapper activates when
-    `runtime/license_grants/salis_v1.yaml` is present AND the binary
-    is installed.
+    Priority order (PRD §6.9 + audit/license_grants/salis_v1.yaml):
+
+    1. **Salis v1.0 GPL subprocess** — preferred. Activates when the
+       license grant file is present AND the binary is locatable
+       (env ``SALIS_RBS_BIN`` or ``$PATH``). Subprocess-isolated only;
+       no Python ``import`` from the GPL codebase.
+    2. **OSTIR** — permissive (MIT) fallback. Always tried if Salis
+       didn't return.
+    3. **Deterministic stub** — final fallback when neither is
+       available, e.g. on CI runners.
     """
     rbs_seq = input_payload.get("rbs_sequence", "TTTAAGAAGGAGATATACAT")  # default BBa_B0034
-    cds_start = input_payload.get("cds_start_sequence", "ATGAAAAAGCTGCTGGAACGCATTAAA")
+    cds_start = input_payload.get(
+        "cds_start_sequence", "ATGAAAAAGCTGCTGGAACGCATTAAA"
+    )
+
+    # 1. Salis v1.0 GPL subprocess — only if the license grant is on
+    # disk AND the binary is locatable. License-grant gate is the
+    # operator's affirmative consent; the file MUST exist before the
+    # subprocess fires.
+    repo_root = Path(__file__).resolve().parents[4]
+    grant_path = repo_root / "audit" / "license_grants" / "salis_v1.yaml"
+    if grant_path.exists():
+        from zer0pa_synbio.adapters.l6_host_engineering.salis_rbs_subprocess import (
+            predict_initiation_rate as _salis_predict,
+        )
+
+        salis_path = input_payload.get("salis_binary_path")
+        salis_result = _salis_predict(
+            rbs_sequence=rbs_seq,
+            cds_start_sequence=cds_start,
+            binary_path=salis_path,
+        )
+        if salis_result is not None:
+            return {
+                "tool": "rbs_calculator_v1_0_gpl_subprocess",
+                "initiation_rate_au": salis_result.initiation_rate_au,
+                "confidence": salis_result.confidence,
+                "rbs_sequence": rbs_seq,
+                "binary_path": salis_result.binary_path,
+                "license_grant_uri": "audit/license_grants/salis_v1.yaml",
+                "isolation_mechanism": "subprocess",
+            }
+
+    # 2. OSTIR (MIT) — permissive fallback.
     rate, confidence, sub_energies = _ostir_predict_rbs(rbs_seq, cds_start)
     if rate > 0:
         return {
@@ -79,8 +115,8 @@ def _build_rbs_predictions(input_payload: dict) -> dict:
             "sub_energies_kj_mol": sub_energies,
             "rbs_sequence": rbs_seq,
         }
-    # Deterministic stub if OSTIR isn't available.
-    import hashlib
+
+    # 3. Deterministic stub — final fallback.
     seed = (rbs_seq + "|" + cds_start).encode()
     pseudo_rate = float(int(hashlib.sha256(seed).hexdigest()[:8], 16) % 100000) + 1000.0
     return {
