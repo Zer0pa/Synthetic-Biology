@@ -1,6 +1,6 @@
 # Handoff to the Overnight Executor — Synthetic Biology Work Stream
 
-You are the overnight executor for the Zer0pa Synthetic Biology / Metabolic Pathway Engineering work stream. You inherit a self-contained PRD and repository briefing pack from the synbio orchestrator. Your job is to build as much of the full research infrastructure as possible before Runpod GPU bring-up, with GPU-dependent layers represented by contract-true REST stubs that can later be swapped by configuration flag.
+You are the overnight executor for the Zer0pa Synthetic Biology / Metabolic Pathway Engineering work stream. You work from GitHub on a different machine. You inherit a self-contained PRD and repository briefing pack from the synbio orchestrator. Your job is to execute the PRD end to end without interim user engagement, build as much of the full research infrastructure as possible before Runpod GPU bring-up, and represent GPU-dependent layers with contract-true REST stubs that can later be swapped by configuration flag.
 
 ## Boundary
 
@@ -62,32 +62,38 @@ Bulk artifacts go to private Hugging Face under user `Architect-Prime`; repo con
 
 ## Execution mode
 
-You are expected to run long-horizon and autonomously. The operator may be asleep. Do not stop for routine implementation decisions. If you hit a blocker:
+You are expected to run long-horizon and autonomously. The operator may be asleep. Do not stop for routine implementation decisions. Do not interim-report. Do not ask the user for confirmation, preference, or permission while useful work remains. Your first action is to clone or fetch `https://github.com/Zer0pa/Synthetic-Biology`, check out `main`, and read the repo files from that checkout. Do not rely on conversation history or stale local fallback files.
+
+Before declaring any need for increased compute, download, install, configure, cache, and execute everything the current machine can support. If the available Mac/local machine can complete a layer or the whole pipeline within storage and time limits, complete it there. If a layer truly needs GPU or larger compute, leave the same endpoint shape, same schema, same fixtures, same manifests, same tests, and a Runpod config flag so the later upgrade is a stub swap, not a rewrite.
+
+If you hit a blocker:
 
 1. Record it in `EXECUTION-STATE.md` as `BLOCKED:<component>:<reason>:<workaround>`.
 2. Keep the interface shape intact with a stub, manifest, or degraded local implementation.
 3. Continue to the next independent wave.
 4. Surface the blocker in `FINAL-REPORT.md` and `HANDOFF-FROM-OVERNIGHT-EXECUTOR.md`.
 
-Only stop for a boundary issue, credential absence that prevents all progress, or a destructive ambiguity that cannot be safely stubbed.
+Only stop for a boundary issue, credential absence that prevents all useful local work, or a destructive ambiguity that cannot be safely stubbed.
 
 ## Build sequence
 
 Follow `PRD.md` §15 exactly unless the codebase forces a better local ordering. The expected wave order is:
 
-1. Foundation: boundary, schemas, falsifier registry, KG schema, audit spec, HF smoke path.
-2. Envelope plumbing and L1.
-3. L2 LIRC corpus manifests and license-clean reconciliation.
-4. L3/L3.5/L4 parallel CPU-side tools and GPU stubs.
-5. CEKM corpus, synthetic negatives, held-out split, CPU prototype, Runpod training stub.
-6. L4.5 unknown-enzyme, L5 MFMO, L5_OED, TDA.
-7. L6 host engineering and L6_BUILD cell-free TX-TL adapters.
-8. L7 dossier and closed-loop active inference.
-9. PathGym and ReasonerTuple ledger.
-10. HMO scientific validation triple.
-11. Falsification wave.
-12. Runpod cutover proof.
-13. Final integration and report.
+1. GitHub bootstrap on the executor machine.
+2. Maximum local setup before compute escalation.
+3. Foundation: boundary, schemas, falsifier registry, KG schema, audit spec, HF smoke path.
+4. Envelope plumbing and L1.
+5. L2 LIRC corpus manifests and license-clean reconciliation.
+6. L3/L3.5/L4 parallel CPU-side tools and GPU stubs.
+7. CEKM corpus, synthetic negatives, held-out split, CPU prototype, Runpod training stub.
+8. L4.5 unknown-enzyme, L5 MFMO, L5_OED, TDA.
+9. L6 host engineering and L6_BUILD cell-free TX-TL adapters.
+10. L7 dossier and closed-loop active inference.
+11. PathGym and ReasonerTuple ledger.
+12. HMO scientific validation triple.
+13. Falsification wave.
+14. Runpod cutover proof.
+15. Final integration and report.
 
 Parallelize by non-overlapping file scopes or worktrees. Commit coherent increments. Push frequently.
 
@@ -105,6 +111,7 @@ You are not done until all gates are either passing or explicitly blocked with e
 ## Authorities and tools
 
 - GitHub is canonical. Operate on `main` unless the operator instructs otherwise. Push final state to `Zer0pa/Synthetic-Biology`.
+- The different-machine executor must work from the GitHub checkout. Local fallback paths are historical convenience only.
 - Use Hugging Face only for bulk artifacts and model/corpus mirrors under `Architect-Prime`.
 - On the originating Mac, HF token is expected at `~/.cache/huggingface/token`. On Runpod, expect `HF_TOKEN` env var.
 - Docker is not available on the originating Mac. Runpod may use Docker later.

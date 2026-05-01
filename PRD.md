@@ -18,7 +18,7 @@ This block appears verbatim in every artifact, every envelope, and every dossier
 
 1. **Anti-toy. Anti-MVP. Anti-first-paying-customer.** This is R&D pushing boundaries. Build the most overdesigned, best-in-class, science-and-evidence-anchored pipeline the team has ever shipped. There is no "ship it cheap" version.
 2. **110% before Runpod.** Front-load every CPU-side artifact. When Runpod comes online the cutover is a config flag, not an architectural rewrite. If a layer can be built CPU-side, it is built CPU-side. If a layer cannot, a REST stub returns shape-correct canned outputs that pass golden-fixture invariance under `httpx.MockTransport`.
-3. **Long-horizon overnight execution.** The operator is asleep. The agent does not interim-report. The agent decides every contested call autonomously using the discipline in this PRD. The agent updates GitHub continuously and Hugging Face for bulk artifacts. The operator reviews from a different machine.
+3. **Long-horizon overnight execution from GitHub.** The executor runs on a different machine and treats GitHub as the only canonical input. The operator is asleep. The agent does not interim-report, does not ask for routine permission, and does not engage the user until it has completed the PRD end to end or hit a genuine boundary/credential blocker that prevents all useful work. The agent decides every contested call autonomously using the discipline in this PRD. The agent updates GitHub continuously and Hugging Face for bulk artifacts. The operator reviews from a different machine.
 4. **GitHub is canonical. Hugging Face is the bulk-artifact mirror.** All code, schemas, fixtures, audit logs, KG exports, dossiers, and human-readable artifacts go to `Zer0pa/Synthetic-Biology` on GitHub. All bulk datasets, model weights, training corpora, large fixtures, and trained artifacts go to Hugging Face under user **Architect-Prime** (HF user, not Zer0pa org). HF token at `~/.cache/huggingface/token` on the originating machine; on the Runpod machine the operator provides via env var `HF_TOKEN`.
 5. **All prompts the agent needs are in the repo.** This PRD, the HANDOFF, the per-layer briefs in `briefs/`, the resistance protocol in `RESISTANCE.md`, the modus operandi in `MODUS-OPERANDI.md`, and the source-briefs in `source-briefs/` together constitute the agent's complete cold-start context. No other context is required. The agent may augment any of these documents, but every augmentation lands in `Zer0pa/Synthetic-Biology` before the next phase begins.
 6. **Resistance.md is binding.** Every executor agent reads `RESISTANCE.md` first and carries the four anti-corruption protocols (`fp-shapematchRE`, `fp-rushtoend`, `fp-NULLasout`, `fp-flatteryasfreedom`, `fp-approvalseek`, `fp-shapematch`, `fp-efficiency-as-corner-cutting`) as binding meta-discipline.
@@ -33,13 +33,14 @@ Read in this order, then begin:
 1. `RESISTANCE.md` — anti-corruption discipline. Read first. Carried as binding meta-protocol throughout execution.
 2. This document, `PRD.md` — the full execution spec.
 3. `HANDOFF-TO-OVERNIGHT-EXECUTOR.md` — what you inherit, produce, the authorities you operate under.
-4. `MODUS-OPERANDI.md` — pattern, role chain, parallel-exploration principle, fork-and-own permission.
-5. `HANDOFF-TO-ORCHESTRATOR.md` — context for why this PRD looks the way it does. Operator override on cross-workstream substrate sharing is binding.
-6. `synthesis/01-fresh-eyes-on-synbio-briefs.md` — the synthesis agent's twelve specific gaps and pressure-test points; this PRD has resolved each.
-7. `source-briefs/00-research-agent-handover-note.md` — the research agent's framing.
-8. `source-briefs/02-corrections-and-architecture.md` — the four-column license decomposition, LDBT paradigm, causal OED node, PathGym flywheel, and the typed seven-layer architecture.
-9. `source-briefs/01-full-technology-landscape.md` — the full pipeline catalogue (read in chunks; not required for cold-start of every sub-agent).
-10. Sibling repos `Zer0pa/Health`, `Zer0pa/Materials`, `Zer0pa/Energy` — fork-and-own reference at the dependency level.
+4. `OVERNIGHT-EXECUTOR-STARTUP-PROMPT.md` — paste-ready cold-start prompt for the different machine.
+5. `MODUS-OPERANDI.md` — pattern, role chain, parallel-exploration principle, fork-and-own permission.
+6. `HANDOFF-TO-ORCHESTRATOR.md` — context for why this PRD looks the way it does. Operator override on cross-workstream substrate sharing is binding.
+7. `synthesis/01-fresh-eyes-on-synbio-briefs.md` — the synthesis agent's twelve specific gaps and pressure-test points; this PRD has resolved each.
+8. `source-briefs/00-research-agent-handover-note.md` — the research agent's framing.
+9. `source-briefs/02-corrections-and-architecture.md` — the four-column license decomposition, LDBT paradigm, causal OED node, PathGym flywheel, and the typed seven-layer architecture.
+10. `source-briefs/01-full-technology-landscape.md` — the full pipeline catalogue (read in chunks; not required for cold-start of every sub-agent).
+11. Sibling repos `Zer0pa/Health`, `Zer0pa/Materials`, `Zer0pa/Energy` — fork-and-own reference at the dependency level.
 
 The orchestrator (this document's author) ran seven deep-research verifications and locked the seven license items in §22. Those resolutions are binding.
 
@@ -880,6 +881,20 @@ Every HF push writes a `BlockedSourceManifest` or `SourceManifest` under `audit/
 
 The agent decomposes into waves. Each wave is parallel within itself; waves sequence on dependencies.
 
+### Wave -1 (GitHub bootstrap on the executor machine, mandatory)
+- Clone or fetch `https://github.com/Zer0pa/Synthetic-Biology`.
+- Check out `main` and confirm `origin/main` is current before reading any local fallback path.
+- Read `RESISTANCE.md`, `PRD.md`, `HANDOFF-TO-OVERNIGHT-EXECUTOR.md`, and `OVERNIGHT-EXECUTOR-STARTUP-PROMPT.md` from the GitHub checkout.
+- Do not rely on conversation history or local files outside the checkout except credentials and cache directories explicitly named in the PRD.
+- Create or update `EXECUTION-STATE.md` with the bootstrap timestamp, machine profile, available CPU/RAM/disk/GPU, Python version, package manager status, HF token availability, and any missing credentials.
+- Begin execution immediately. Do not ask for confirmation and do not interim-report.
+
+### Wave -0.5 (maximum local setup before compute escalation, mandatory)
+- Download, install, cache, and configure every Mac/local/CPU-feasible dependency, source manifest, small fixture, schema, REST stub, model stub, and test harness before marking any layer Runpod-needed.
+- If the machine can complete a layer entirely on CPU/MPS/local resources within storage and time limits, complete it there.
+- If a layer truly needs increased compute, leave a production-shaped REST stub, a Runpod config entry, a source manifest, golden fixtures, and a cutover test so the later compute upgrade is a config change.
+- Never use "needs GPU" as a reason to skip CPU-side contracts, manifests, tests, adapters, or dossier plumbing.
+
 ### Wave 0 (foundation, < 1 hour)
 - Resistance.md re-read; binding.
 - Schemas committed (envelope, GMS, all v0.1 schemas).
@@ -1184,7 +1199,7 @@ This section ships in the PRD for completeness; the agent does not consume it as
 | Item | Resolution | Action |
 |---|---|---|
 | BioTRY commercial license | Codebase MIT (Tian Yu, 2024). Database content is "freely available" academic; commercial-use terms not explicitly granted. | **v1 excluded from training corpus.** v2 inclusion gated by `runtime/license_grants/biotry.yaml`. Fallback: per-product literature-titer baseline curated from published HMO papers (the engine-vs-baseline harness). |
-| UniKP / EF-UniKP | Repo at Luo-SynBioLab/UniKP; **no top-level LICENSE file via API.** Inferred MIT but unverified. | **Excluded from kinetics ensemble v1** until overnight executor verifies LICENSE in repo and commits `audit/source_manifests/unikp.yaml` with explicit license SPDX. |
+| UniKP / EF-UniKP | Live GitHub lookup surfaced `HanselYu/UniKP`; GitHub reports no license metadata and no top-level LICENSE file. EF-UniKP did not surface as a public repository in the checked GitHub search. | **Excluded from kinetics ensemble v1** until overnight executor verifies LICENSE in repo and commits `audit/source_manifests/unikp.yaml` with explicit license SPDX. |
 | RFdiffusion3 / Foundry | RosettaCommons Foundry public repository is **BSD 3-Clause** and its README exposes RFD3 installation paths. No public South-Africa-specific geo restriction was found in the repository metadata reviewed. | **v1 cleared for software integration via Foundry.** If checkpoint download or Foundry enrolment gates appear during execution, keep `RFD3StubAdapter` active, record the blocker in `audit/source_manifests/rfdiffusion3.yaml`, and do not claim scientific validity from stub outputs. |
 | SBOL-as-audit-trail-shape | SBOL3 + PROV-O is the closest standard; no synbio M15-equivalent exists. | **Zer0pa publishes Synbio Audit-Trail Specification v0.1** as a CC BY 4.0 standard document (`docs/synbio-audit-trail-v0.1-spec.md`). |
 | myTXTL / PURExpress / cell-free TX-TL APIs | Kits, no direct API. **Strateos / Emerald Cloud Lab provide programmatic dispatch.** | `CellFreeTXTLAdapter` interface with three implementations (Stub / Strateos+myTXTL / Emerald+PURExpress); Phase 0 dry-run; Phase 2 wet-lab gated. |
@@ -1237,11 +1252,13 @@ Before reporting "complete," the overnight executor must commit:
 
 ## 26. The agent's standing instruction
 
-The agent reads this PRD once. Re-reads `RESISTANCE.md`. Begins execution. Does not interim-report. Decides every contested call autonomously using this PRD's locked decisions. Updates GitHub continuously. Pushes bulk artifacts to HF under Architect-Prime continuously. Writes `EXECUTION-STATE.md` as a live ledger. Reads from `briefs/L*-*.md` for per-layer context but does not need to ask the operator for clarification — the PRD is complete.
+The agent starts from GitHub on a different machine. It clones or fetches the repo, checks out `main`, reads this PRD once, re-reads `RESISTANCE.md`, and begins execution. It does not interim-report. It does not ask the operator for clarification, permission, or prioritisation while useful work remains. It decides every contested call autonomously using this PRD's locked decisions. It downloads, installs, configures, and locally executes the maximum possible CPU/Mac-side work before declaring increased compute necessary. If the available Mac/local machine can complete a layer or the whole pipeline, it completes it there. If increased compute is required, it leaves the layer as a same-shape REST stub with manifests, fixtures, tests, and Runpod cutover config.
+
+The agent updates GitHub continuously. It pushes bulk artifacts to HF under Architect-Prime continuously when credentials are available. It writes `EXECUTION-STATE.md` as a live ledger. It reads from `briefs/L*-*.md` for per-layer context but does not need to ask the operator for clarification — the PRD is complete.
 
 When done: `FINAL-REPORT.md`, `HANDOFF-FROM-OVERNIGHT-EXECUTOR.md`, `git push`. The operator reviews on GitHub. The HF mirror is the bulk-artifact review surface.
 
-If a stuck point is unresolvable, the agent logs it in `EXECUTION-STATE.md` with `BLOCKED:<reason>:<workaround-attempted>`, continues with the workaround, and moves on. The agent does not stop and ask. The operator reviews blockers on review.
+If a stuck point is unresolvable, the agent logs it in `EXECUTION-STATE.md` with `BLOCKED:<reason>:<workaround-attempted>`, continues with the workaround, and moves on. The agent does not stop and ask. The operator reviews blockers on review. The only acceptable early stop is a boundary violation, missing credentials that prevent all useful local work, or a destructive ambiguity that cannot be safely stubbed.
 
 ## 27. DRIFT DELETED card
 
