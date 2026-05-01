@@ -3,7 +3,13 @@
 set -euo pipefail
 . "$RUN_ROOT/env.sh"
 
-SEED="${1:?usage: 60_hmo_seed.sh {2pFL|3pSL|DSLNT}}"
+# NB: do NOT use ${1:?usage...{...}} — bash matches the FIRST `}` to close
+# the parameter expansion, leaving the second `}` appended to the value.
+SEED="${1:-}"
+if [ -z "$SEED" ]; then
+  echo "usage: 60_hmo_seed.sh 2pFL|3pSL|DSLNT" >&2
+  exit 2
+fi
 echo "Running HMO seed: $SEED (scientific mode)"
 python validation/hmo-seed-evidence/run_seed.py --seed "$SEED" 2>&1 | tail -10
 echo "OK: $SEED dossier emitted."
