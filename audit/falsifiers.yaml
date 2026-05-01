@@ -1,0 +1,291 @@
+# Zer0pa Synthetic Biology — Falsifier Registry v0.1
+#
+# This file is canonical. Source-of-truth for the falsifier suite. Adapter,
+# REST, KG, and dossier writers all read from this YAML; the matching Python
+# implementations live under `src/zer0pa_synbio/falsifiers/`. New falsifiers
+# require a schema-version bump and golden-fixture extension.
+#
+# References:
+#   - PRD.md § 5 Falsification framework
+#   - PRD.md § 5.1 Three-tier falsifier hierarchy (A=fast, B=medium, C=heavy)
+#   - PRD.md § 5.4 Falsifier registry (the 18+ named falsifiers)
+#   - synthesis/01-fresh-eyes-on-synbio-briefs.md § 9 (valid_sbol_only)
+#   - synthesis/01-fresh-eyes-on-synbio-briefs.md § 10 (industrial-scale gate)
+#
+# Tier thresholds (per PRD §5.1):
+#   A: fast,   < 100 ms / candidate, run on every candidate
+#   B: medium, < 10 s   / candidate, run on top-100 after Tier A pass
+#   C: heavy,  minutes  / candidate, run on top-10 after Tier B pass
+#
+# severity ∈ {warn, fail}. gate_action ∈ {
+#   reject_candidate, flag_in_dossier, inflate_uncertainty, rank_lower,
+#   route_to_unknown_enzyme, tier_3_advisory, route_to_blind_eval,
+#   reject_l6_envelope, route_to_phase_2, reject_claim,
+#   reject_candidate_and_alert, reject_envelope
+# }
+
+schema_version: "synbio.falsifiers.v0.1"
+boundary: "Research infrastructure for in silico synthetic biology / metabolic pathway engineering. Outputs are research artifacts — predicted pathways, predicted KPIs, candidate genetic modification specifications. No regulatory certification claims. No clinical or human-subject use. No environmental release of GMOs. No biocontainment-level claims (the pipeline does not commission BSL-2/3 work). No human gene drive or eugenic application. Defence / weapons / dual-use bio applications excluded under operator policy."
+
+falsifiers:
+  - id: f000_boundary_violation
+    tier: A
+    description: "Envelope's `boundary` field does not hash to BOUNDARY_SHA256. The boundary block has been mutated, removed, or replaced."
+    severity: fail
+    gate_action: reject_envelope
+    layers: [L1, L2, L3, L3_5, L4, L4_5, L5, L5_OED, L6, L6_BUILD, L7]
+    evidence_schema:
+      observed_sha256: string
+      expected_sha256: string
+
+  - id: f001_invalid_selfies
+    tier: A
+    description: "Target compound SELFIES string fails to parse into a valid molecule via `selfies.decoder` + RDKit `MolFromSmiles`."
+    severity: fail
+    gate_action: reject_candidate
+    layers: [L1]
+    evidence_schema:
+      offending_selfies: string
+      parse_error: string
+
+  - id: f002_mass_balance_violation
+    tier: A
+    description: "Reaction step's atom counts don't balance between substrates and products (excluding charged H+ and pure cofactor flux). Atom-mapped SMARTS canonicalisation should catch this before LIRC import."
+    severity: fail
+    gate_action: reject_candidate
+    layers: [L2, L3]
+    evidence_schema:
+      reaction_id: string
+      substrate_atoms: object
+      product_atoms: object
+      delta: object
+
+  - id: f003_mdf_infeasibility
+    tier: A
+    description: "eQuilibrator MDF (Max-min Driving Force) score is negative at every feasible metabolite-concentration bound. The pathway cannot be made thermodynamically feasible by any in vivo concentration choice."
+    severity: fail
+    gate_action: reject_candidate
+    layers: [L3_5, L4]
+    evidence_schema:
+      pathway_id: string
+      mdf_kj_mol: float
+      bottleneck_step: string
+
+  - id: f004_toxic_intermediate
+    tier: A
+    description: "Pathway intermediate triggers a structural alert in the QSAR battery (RDKit + ToxCast public alerts + ChEMBL mechanisms). Severity warn unless host-essential pathway is implicated."
+    severity: warn
+    gate_action: flag_in_dossier
+    layers: [L3, L4]
+    evidence_schema:
+      intermediate_inchi_key: string
+      qsar_alert: string
+      confidence: float
+
+  - id: f005_stoichiometric_infeasibility
+    tier: A
+    description: "Pathway requires cofactor flux exceeding native regeneration capacity by > 10× (NADPH, NADH, ATP, acetyl-CoA, CMP-Neu5Ac, GDP-fucose, etc.). Cofactor-balance check uses host GEM's regeneration capacity as denominator."
+    severity: fail
+    gate_action: reject_candidate
+    layers: [L3, L4, L4_FBA]
+    evidence_schema:
+      cofactor: string
+      required_flux: float
+      native_capacity: float
+      ratio: float
+
+  - id: f006_kinetics_disagreement_high
+    tier: B
+    description: "Cross-model kinetics disagreement (DLKcat, CatPred, TurNuP, CEKM) exceeds σ-normalised warn threshold for kcat or Km on a load-bearing enzyme step."
+    severity: warn
+    gate_action: inflate_uncertainty
+    layers: [L4_kinetics]
+    evidence_schema:
+      enzyme_uniprot_id: string
+      quantity: string  # "kcat" | "Km"
+      values: list
+      sigma_normalised_disagreement: float
+      threshold: float
+
+  - id: f007_fba_disagreement_high
+    tier: B
+    description: "Cross-model FBA disagreement (COBRApy/GLPK, GECKO 3.0, ECMpy 2.0, ETFL) exceeds threshold on flux through a load-bearing reaction in the candidate pathway."
+    severity: warn
+    gate_action: inflate_uncertainty
+    layers: [L4_fba]
+    evidence_schema:
+      reaction_id: string
+      values: list
+      sigma_normalised_disagreement: float
+      threshold: float
+
+  - id: f008_retrosynthesis_disagreement_high
+    tier: B
+    description: "Cross-tool retrosynthesis disagreement (RetroPath3, novoStoic2, BioNavi, DeepRetro) Jaccard-distance exceeds threshold on candidate routes for a target compound."
+    severity: warn
+    gate_action: rank_lower
+    layers: [L3]
+    evidence_schema:
+      target_inchi_key: string
+      tool_route_sets: object
+      jaccard_distance: float
+      threshold: float
+
+  - id: f009_novelty_without_retrosynthesis
+    tier: B
+    description: "Pathway candidate is `fully_novel` and zero retrosynthesis tool proposed any of its steps. Route to L4.5 unknown-enzyme sub-pipeline rather than evaluating with a kinetics ensemble that has no support."
+    severity: warn
+    gate_action: route_to_unknown_enzyme
+    layers: [L3, L3_5]
+    evidence_schema:
+      pathway_id: string
+      novelty_class: string
+      retrosynthesis_proposing_count: int
+
+  - id: f010_novelty_without_ts_analog
+    tier: B
+    description: "Pathway candidate is `fully_novel` and no transition-state analog exists in the LIRC corpus. Mark as Tier-3 advisory in the unknown-enzyme sub-pipeline; route to closed-loop validation at lowest priority."
+    severity: warn
+    gate_action: tier_3_advisory
+    layers: [L3, L3_5, L4_5]
+    evidence_schema:
+      pathway_id: string
+      reaction_class: string
+      ts_analog_search_result: object
+
+  - id: f011_cekm_survivorship_bias_check
+    tier: B
+    description: "CEKM prediction on the held-out negative partition disagrees with the remainder of the kinetics ensemble. May indicate the model has learned BRENDA's survivorship bias rather than true substrate-enzyme fit."
+    severity: warn
+    gate_action: route_to_blind_eval
+    layers: [L4_kinetics]
+    evidence_schema:
+      enzyme_uniprot_id: string
+      held_out_partition: string
+      cekm_value: float
+      ensemble_value: float
+      disagreement: float
+
+  - id: f012_codec_as_mechanism_analog
+    tier: B
+    description: "A KPI prediction does not trace to at least one genotype-level intervention. Forbidden — every KPI prediction must have a mechanistic chain to a genotype-encoded change. Reject the candidate."
+    severity: fail
+    gate_action: reject_candidate
+    layers: [L4, L5, L7]
+    evidence_schema:
+      pathway_id: string
+      kpi: string
+      missing_mechanism_chain: bool
+
+  - id: f013_rfdiffusion3_motif_infeasible
+    tier: C
+    description: "RFdiffusion3 generated structure does not plausibly hold the catalytic geometry expected from the Baker catalytic motif. Motif RMSD or active-site geometry exceeds threshold."
+    severity: warn
+    gate_action: rank_lower
+    layers: [L4_5]
+    evidence_schema:
+      enzyme_candidate_id: string
+      motif_rmsd: float
+      threshold: float
+
+  - id: f014_mace_off_binding_implausible
+    tier: C
+    description: "MACE-OFF binding energy for a generated enzyme-substrate complex falls outside physically reasonable bounds for analogous reactions in the LIRC corpus."
+    severity: warn
+    gate_action: flag_in_dossier
+    layers: [L4_5]
+    evidence_schema:
+      complex_id: string
+      binding_energy_kj_mol: float
+      reference_range: object
+
+  - id: f015_prody_nma_misaligned
+    tier: C
+    description: "ProDy normal mode analysis: lowest-frequency normal modes do not align with the catalytic coordinate of the candidate enzyme. Suggests the structure cannot accommodate the mechanistic motion."
+    severity: warn
+    gate_action: flag_in_dossier
+    layers: [L4_5]
+    evidence_schema:
+      enzyme_candidate_id: string
+      catalytic_coordinate_alignment: float
+      threshold: float
+
+  - id: f016_tda_regime_change
+    tier: C
+    description: "Persistent homology over a simulated fermentation time-series predicts a regime change (oxygen transfer collapse, byproduct buildup, growth stall, toxicity threshold crossing, nutrient depletion) before the surrogate's mean prediction reaches its KPI peak."
+    severity: warn
+    gate_action: flag_in_dossier
+    layers: [L4, L5]
+    evidence_schema:
+      pathway_id: string
+      window_spec: object
+      persistence_diagram_artifact_uri: string
+      lead_time_estimate_min: float
+      failure_mode: string
+
+  - id: f017_industrial_scale_uncalibrated
+    tier: C
+    description: "KPI prediction is at industrial scale and the cited corpus is not Class A-licensed and present in `audit/source_manifests/`. Per PRD §5.1 Tier C and synthesis §10 (industrial scale-up gap is admitted but not parked)."
+    severity: fail
+    gate_action: reject_claim
+    layers: [L5, L7]
+    evidence_schema:
+      pathway_id: string
+      claimed_scale: string
+      cited_corpus_uri: string
+      corpus_license_class: string
+
+  - id: f018_license_drift
+    tier: C
+    description: "Pathway, reaction, or training-corpus slice cites BKMS-react, KEGG bulk, ATLAS of Biochemistry, or any Class C/D/E source without an explicit `license_grant` record under `audit/license_grants/`. Reject and alert."
+    severity: fail
+    gate_action: reject_candidate_and_alert
+    layers: [L1, L2, L3, L4, L5, L6, L7]
+    evidence_schema:
+      offending_source_uri: string
+      license_class: string
+      license_grant_present: bool
+
+  - id: f019_valid_sbol_only
+    tier: A
+    description: "L6 envelope's `GeneticModificationSpec` SBOL3 document does not parse via `libsbolj3` validator at strict mode (Python sbol3 package). Reject the L6 envelope."
+    severity: fail
+    gate_action: reject_l6_envelope
+    layers: [L6]
+    evidence_schema:
+      gms_spec_id: string
+      sbol3_uri: string
+      libsbolj3_validator_messages: list
+
+  - id: f020_txtl_observation_without_in_vivo
+    tier: B
+    description: "L6_BUILD CellFreeTXTLObservation is being used as authority for a host-engineering decision but has not been corroborated by an in-vivo measurement. Route to Phase 2 wet-lab gate."
+    severity: warn
+    gate_action: route_to_phase_2
+    layers: [L6_BUILD, L7]
+    evidence_schema:
+      observation_id: string
+      consumer_decision: string
+      in_vivo_corroboration_present: bool
+
+  - id: f021_reaction_not_atom_balanced
+    tier: A
+    description: "LIRC corpus build: an imported reaction's atom count is not balanced after MetaNetX MNXref 4.5 reconciliation. Atom-mapped SMARTS canonicalisation should catch this; if it doesn't, reject the import. Distinct from f002 in that f002 fires per-pathway-step; f021 fires per-LIRC-import."
+    severity: fail
+    gate_action: reject_candidate
+    layers: [L2]
+    evidence_schema:
+      reaction_id: string
+      source: string
+      atom_balance_delta: object
+
+  - id: f022_validation_sequence_unreachable
+    tier: B
+    description: "L5_OED-emitted ValidationSequence contains an experiment whose `consumer` is not a configured adapter for the current campaign (e.g., `strateos_api` selected when `runtime/cloud_lab.config.yaml` is empty)."
+    severity: fail
+    gate_action: reject_claim
+    layers: [L5_OED]
+    evidence_schema:
+      experiment_id: string
+      consumer: string
+      configured_consumers: list

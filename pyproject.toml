@@ -1,0 +1,86 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "zer0pa_synbio"
+version = "0.1.0"
+description = "Zer0pa Synthetic Biology / Metabolic Pathway Engineering Pipeline (Pipeline 4 of 6). Research infrastructure: predicted pathways, predicted KPIs, candidate genetic modification specifications. No regulatory certification claims."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Proprietary, Zer0pa internal R&D" }
+authors = [{ name = "Zer0pa", email = "architects@zer0pa.ai" }]
+keywords = ["synthetic-biology", "metabolic-pathway-engineering", "in-silico-research", "active-inference", "falsification"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "License :: Other/Proprietary License",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+
+dependencies = [
+    "pydantic>=2.7",
+    "pyyaml>=6.0",
+    "httpx>=0.27",
+    "fastapi>=0.110",
+    "uvicorn>=0.27",
+    "click>=8.1",
+    "numpy>=2.0",
+    "duckdb>=1.0",
+    "networkx>=3.2",
+    "jsonschema>=4.21",
+    "rdflib>=6.1,<8",
+    "orjson>=3.10",
+]
+
+[project.optional-dependencies]
+chem = ["selfies>=2.1", "rdkit>=2024.3"]
+fba = ["cobra>=0.29", "scipy>=1.11"]
+sbol = ["sbol3>=1.2"]
+tda = ["ripser>=0.6", "persim>=0.3"]
+ml = ["scikit-learn>=1.4", "pandas>=2.2"]
+mfmo = ["torch>=2.4", "botorch>=0.12", "ax-platform>=0.4", "gpytorch>=1.12"]
+all = [
+    "selfies>=2.1", "rdkit>=2024.3", "cobra>=0.29", "scipy>=1.11",
+    "sbol3>=1.2", "ripser>=0.6", "persim>=0.3",
+    "scikit-learn>=1.4", "pandas>=2.2",
+]
+dev = ["pytest>=8.0", "pytest-asyncio>=0.23", "pytest-cov>=5.0"]
+
+[project.scripts]
+synbio = "zer0pa_synbio.cli.__main__:cli"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["zer0pa_synbio*"]
+
+[tool.setuptools.package-data]
+zer0pa_synbio = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra -q --strict-markers"
+markers = [
+    "contract: contract / schema validation tests",
+    "falsification: deliberate-trigger tests for the falsifier registry (Wave 10)",
+    "plug_replaceability: plug-swap / interface-invariance tests",
+    "runpod_cutover: httpx.MockTransport invariance tests for gpu_rest_stub endpoints (Wave 11)",
+    "hmo_seed: 2'-FL / 3'-SL / DSLNT validation packet tests (Wave 9)",
+    "integration: cross-layer integration tests",
+    "slow: tests that take more than ~5s; not run on every invocation",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
