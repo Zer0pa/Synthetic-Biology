@@ -53,15 +53,17 @@ condition = torch.randn(4, 3, device="cuda", dtype=torch.bfloat16)  # pH, T, ion
 
 with torch.no_grad():
     out = model(
-        sequences=batch["input_ids"],
-        sequence_attention_mask=batch["attention_mask"],
-        substrate=substrate_fp,
-        condition=condition,
+        sequence_ids=batch["input_ids"],
+        substrate_input=substrate_fp,
+        conditions=condition,
     )
 print(f"  forward keys: {list(out.keys())}")
+expected_keys = {"kcat_log", "km_log", "disc_alpha", "disc_beta", "disc_gamma", "fused"}
+assert expected_keys.issubset(out.keys()), f"missing keys: {expected_keys - set(out.keys())}"
 for k, v in out.items():
     if torch.is_tensor(v):
         print(f"    {k}: shape={tuple(v.shape)} dtype={v.dtype}")
-print("OK: CEKM model builds and forward-passes on H100.")
+        assert not torch.isnan(v).any(), f"NaN in {k}"
+print("OK: CEKM model builds and forward-passes on H100; all 6 output keys present.")
 PY
 echo "OK: CEKM smoke passed."
