@@ -1,0 +1,10 @@
+{
+  "schema_version": "synbio.l3_5_thresholds.v0.1",
+  "tau_mdf_kj_mol": 1.0,
+  "tau_cofactor_flux_ratio": 10.0,
+  "tau_toxic_severity": 0.5,
+  "tau_retrosynthesis_jaccard": 0.7,
+  "last_updated": "2026-05-01T00:00:00Z",
+  "update_source": "default initialisation; nightly reoptimisation against PathGym partitions per PRD §6.4 will overwrite",
+  "boundary": "Research infrastructure for in silico synthetic biology / metabolic pathway engineering. Outputs are research artifacts — predicted pathways, predicted KPIs, candidate genetic modification specifications. No regulatory certification claims. No clinical or human-subject use. No environmental release of GMOs. No biocontainment-level claims (the pipeline does not commission BSL-2/3 work). No human gene drive or eugenic application. Defence / weapons / dual-use bio applications excluded under operator policy."
+}
