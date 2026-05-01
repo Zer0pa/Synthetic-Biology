@@ -1,0 +1,51 @@
+schema_version: synbio.hmo_acceptance.v0.1
+seed_id: DSLNT
+seed_name: Disialyllacto-N-tetraose
+status: novel
+inchi_key: PLACEHOLDER-TO-BE-COMPUTED-RDKIT-CANONICAL
+host_organism:
+  taxonomy_id: 562
+  name: Escherichia coli
+  refseq_genome_accession: NC_000913.3
+  gem_id: iML1515
+
+# Pre-registered (PRD §3.2 row 3; clinical NEC interest, no published *E. coli* g/L titer).
+# The acceptance gate is qualitative + structural — there is no literature titer to compare to.
+pre_registered_acceptance:
+  produces_defensible_novel_pathway_prediction: true
+  retrosynthesis_returns_at_least_n_distinct_routes: 3
+  at_least_one_route_recovers_known_unlinked_transferase_OR_routes_through_unknown_enzyme: true
+  novelty_classification_at_least_tier_2: true  # Tier-2 = reaction class known, no TS analog
+  dossier_advisory_only_must_be_true: true
+  closed_loop_validation_sequence_executable_by_external_cro: true
+  calibrated_uncertainty_band_must_be_present: true
+
+qualitative_acceptance:
+  - "Engine produces a candidate pathway for DSLNT (e.g., LNT-2-elongation
+     + α-2,3-sialylation + α-2,6-sialylation) with a calibrated
+     uncertainty band."
+  - "L3 retrosynthesis returns ≥ 3 distinct candidate routes with ranked
+     thermodynamic feasibility (MDF scores)."
+  - "At least one route either (a) recovers a known-but-unlinked
+     transferase from the LIRC corpus (e.g., NCAM-α-2,6-sialyltransferase
+     candidate), or (b) routes through the L4.5 Unknown Enzyme Generative
+     Sub-Pipeline with a Tier-2 (reaction class known, no TS analog)
+     classification."
+  - "Dossier flags the prediction as 'advisory; experimental validation
+     required'."
+  - "Validation sequence proposes experiments executable by an external
+     CRO (consumer ∈ {human_cro, strateos_api, emerald_api}) and within
+     a research-budget cost envelope."
+  - "Cross-model retrosynthesis disagreement record is present (PRD §5.2)."
+
+# Clinical / scientific motivation (informational, not a gate).
+clinical_motivation: |
+  DSLNT (Disialyllacto-N-tetraose) is one of the HMOs most studied for
+  necrotizing enterocolitis (NEC) prevention research; epidemiological
+  studies in preterm infants associate higher DSLNT in mother's milk with
+  reduced NEC incidence. There is no published gram/L titer in E. coli;
+  the pipeline's job is to produce a defensible novel-pathway prediction
+  with calibrated uncertainty. The dossier is research output only — no
+  clinical claim, no human-subject framing, no regulatory submission.
+
+boundary: "Research infrastructure for in silico synthetic biology / metabolic pathway engineering. Outputs are research artifacts — predicted pathways, predicted KPIs, candidate genetic modification specifications. No regulatory certification claims. No clinical or human-subject use. No environmental release of GMOs. No biocontainment-level claims (the pipeline does not commission BSL-2/3 work). No human gene drive or eugenic application. Defence / weapons / dual-use bio applications excluded under operator policy."

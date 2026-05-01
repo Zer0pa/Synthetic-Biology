@@ -1,0 +1,18 @@
+{
+  "campaign_id": "hmo_seed_2pFL",
+  "envelope_ids": [
+    "sha256:de103283a8febf5f4d75944015dd1914430a2ca3e2d35b6d2bec5723a4deed0b",
+    "sha256:3b6adb8648673a569bc2fd3d32163d08764a12fb1b9c243cc3c5bb07b0fce17d",
+    "sha256:5f8626646230571f43618d960ad149e27375edd3d2c6bc40b8d9012837782a7a",
+    "sha256:471a9fb222876ce41d43afa7c328f4d4b181265afbd5f151cc22dbf1910cdce8",
+    "sha256:09d784b4e69b2ecafd9cec14af3606f22216f3d4637477606930efcb4e556c54",
+    "sha256:541d6a2b3009f41d43882b943410f40dd052226c331bf78f727eec3d0a0eaf75",
+    "sha256:3cc753c1ec1231a38c677dd2e157e7342dcb9543d4a4b283030030f8fba58170",
+    "sha256:5b68fdd057327a913696258d30706fb7b4753b728bc5e15a8d35e7a96de3c0e6",
+    "sha256:8777778fc0ecfda7204b8e7a26274a3cab0c2daa96fc2609ece8db81be49e634",
+    "sha256:1822a16cfe82affd23584fffd97bf4f9a41a1af693e349ecabff683ef26db2e6"
+  ],
+  "sbol3_uri": "/Users/zer0palab/Synthetic Biology Pipeline/.claude/worktrees/hopeful-roentgen-e3c78e/audit/runtime/hmo_seed_2pFL/sbol/gms_2pFL_canonical.sbol3.xml",
+  "sbol_sha256": "621a411f337763e00dc287ff7af1b5a7d30f7a8b3f274ffbf56dd9a12de03d27",
+  "seed": "2pFL"
+}

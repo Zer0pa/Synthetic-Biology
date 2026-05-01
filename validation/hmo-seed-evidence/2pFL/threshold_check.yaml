@@ -1,0 +1,15 @@
+blocked_by:
+- ESM-2 batched inference not on GPU yet
+- CEKM weights not Runpod-trained yet
+- Real LIRC corpus not pulled (canned slice only)
+- RFdiffusion3 / MACE-OFF / ESMFold inference not on GPU yet
+boundary_block_passed: true
+campaign_id: hmo_seed_2pFL
+envelope_chain_complete: true
+envelope_count: 10
+next_action: Runpod cutover Wave 4 (CEKM training) + Wave 5 (L4.5 inference) + Wave
+  9 (full numerical run)
+pre_registered_acceptance_yaml: /Users/zer0palab/Synthetic Biology Pipeline/.claude/worktrees/hopeful-roentgen-e3c78e/validation/hmo-seed-evidence/2pFL/acceptance.yaml
+sbol_attestation_present: true
+scientific_valid_eligible: false
+seed_id: 2pFL

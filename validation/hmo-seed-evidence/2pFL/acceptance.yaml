@@ -1,0 +1,37 @@
+schema_version: synbio.hmo_acceptance.v0.1
+seed_id: 2pFL
+seed_name: 2'-fucosyllactose
+status: known_good
+inchi_key: GFXBRIYRYYFCIA-LWNAIEPUSA-N
+host_organism:
+  taxonomy_id: 562
+  name: Escherichia coli
+  refseq_genome_accession: NC_000913.3
+  gem_id: iML1515
+
+# Pre-registered (PRD §3.2 row 1; binding before the engine produces output).
+pre_registered_acceptance:
+  predicted_titer_within_pct_of_literature: 25
+  literature_titer_g_l_median: 5.0  # representative for a high-titer strain
+  literature_sources:
+    - doi: "10.1186/s12934-019-1101-z"
+      claim: "5+ g/L 2'-FL in fed-batch E. coli (representative)"
+    - doi: "10.1186/s12934-019-1187-z"
+      claim: "Engineered E. coli for 2'-FL production"
+  cekm_kcat_within_log_units: 0.5
+  brenda_kcat_reference_log10_per_s: 1.1
+  fucosyltransferase_uniprot_id: Q11075
+  mdf_score_kj_mol_min: 1.0
+  cross_model_kinetics_disagreement_threshold_relative: 0.5
+
+# What the dossier MUST identify in addition to passing the numeric thresholds.
+qualitative_acceptance:
+  - "Engine identifies α-1,2-fucosyltransferase (EC 2.4.1.69) as the
+     committed enzyme step."
+  - "GDP-fucose pathway (manB+manC overexpression + per+gmd+wcaG
+     module) appears in the GeneticModificationSpec."
+  - "Cross-model kinetics disagreement record is present and below threshold."
+  - "Dossier carries advisory_only=True and consumer_recommendation in
+     {human_cro, strateos_api, emerald_api}."
+
+boundary: "Research infrastructure for in silico synthetic biology / metabolic pathway engineering. Outputs are research artifacts — predicted pathways, predicted KPIs, candidate genetic modification specifications. No regulatory certification claims. No clinical or human-subject use. No environmental release of GMOs. No biocontainment-level claims (the pipeline does not commission BSL-2/3 work). No human gene drive or eugenic application. Defence / weapons / dual-use bio applications excluded under operator policy."

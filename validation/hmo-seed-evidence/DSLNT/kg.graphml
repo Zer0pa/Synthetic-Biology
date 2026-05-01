@@ -1,0 +1,66 @@
+<?xml version='1.0' encoding='utf-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key id="d5" for="edge" attr.name="type" attr.type="string" />
+  <key id="d4" for="node" attr.name="adapter" attr.type="string" />
+  <key id="d3" for="node" attr.name="campaign" attr.type="string" />
+  <key id="d2" for="node" attr.name="layer" attr.type="string" />
+  <key id="d1" for="node" attr.name="sha256" attr.type="string" />
+  <key id="d0" for="node" attr.name="label" attr.type="string" />
+  <graph edgedefault="directed">
+    <node id="boundary_attest">
+      <data key="d0">Boundary</data>
+      <data key="d1">b8430d4289dd93b8a2276e34635ff34177b7f5866688d013e4c9022727d00522</data>
+    </node>
+    <node id="sha256:af8ba3d298c8728b48eccb2e370dd4599f16ff1860686c76d6388fc4505a95d6">
+      <data key="d0">Envelope</data>
+      <data key="d2">L1</data>
+      <data key="d3">hmo_seed_DSLNT</data>
+    </node>
+    <node id="sha256:43aabb65450a3622d3edd1c31545207784ab57021af0235544a64559461fba51">
+      <data key="d0">Envelope</data>
+      <data key="d2">L2</data>
+    </node>
+    <node id="sha256:a938a1d4a8360d38e8508e3ee7b7eb72cc74de1bd8f485f64b376499f066729c">
+      <data key="d0">Envelope</data>
+      <data key="d2">L3</data>
+      <data key="d4">L3RetroPath3Adapter</data>
+    </node>
+    <node id="sha256:4fdf48f30174cafee42f2996e8172f175422c24baaa0978f5dc8da2f5317f77e">
+      <data key="d0">Envelope</data>
+      <data key="d2">L3</data>
+      <data key="d4">L3NovoStoic2Adapter</data>
+    </node>
+    <node id="sha256:341b172e6ed4175bcf46f5a0b8d6aac67ef2e92909ac3c643bb7b61e845a0d78">
+      <data key="d0">Envelope</data>
+      <data key="d2">L3</data>
+      <data key="d4">L3BioNaviAdapter</data>
+    </node>
+    <node id="sha256:63738b02edf0e0c07aeaf076c106158ef3bdda134ea57ecd46103afb122163c8">
+      <data key="d0">Envelope</data>
+      <data key="d2">L3</data>
+      <data key="d4">L3DeepRetroAdapter</data>
+    </node>
+    <node id="sha256:728b2b02d8ee0875a0ef6359be67926c4cf412516cc4546a895ab4411ad161b1">
+      <data key="d0">Envelope</data>
+      <data key="d2">L3_5</data>
+    </node>
+    <edge source="sha256:af8ba3d298c8728b48eccb2e370dd4599f16ff1860686c76d6388fc4505a95d6" target="boundary_attest" id="DERIVED_FROM">
+      <data key="d5">DERIVED_FROM</data>
+    </edge>
+    <edge source="sha256:43aabb65450a3622d3edd1c31545207784ab57021af0235544a64559461fba51" target="sha256:af8ba3d298c8728b48eccb2e370dd4599f16ff1860686c76d6388fc4505a95d6" id="DERIVED_FROM">
+      <data key="d5">DERIVED_FROM</data>
+    </edge>
+    <edge source="sha256:a938a1d4a8360d38e8508e3ee7b7eb72cc74de1bd8f485f64b376499f066729c" target="sha256:43aabb65450a3622d3edd1c31545207784ab57021af0235544a64559461fba51" id="DERIVED_FROM">
+      <data key="d5">DERIVED_FROM</data>
+    </edge>
+    <edge source="sha256:4fdf48f30174cafee42f2996e8172f175422c24baaa0978f5dc8da2f5317f77e" target="sha256:43aabb65450a3622d3edd1c31545207784ab57021af0235544a64559461fba51" id="DERIVED_FROM">
+      <data key="d5">DERIVED_FROM</data>
+    </edge>
+    <edge source="sha256:341b172e6ed4175bcf46f5a0b8d6aac67ef2e92909ac3c643bb7b61e845a0d78" target="sha256:43aabb65450a3622d3edd1c31545207784ab57021af0235544a64559461fba51" id="DERIVED_FROM">
+      <data key="d5">DERIVED_FROM</data>
+    </edge>
+    <edge source="sha256:63738b02edf0e0c07aeaf076c106158ef3bdda134ea57ecd46103afb122163c8" target="sha256:43aabb65450a3622d3edd1c31545207784ab57021af0235544a64559461fba51" id="DERIVED_FROM">
+      <data key="d5">DERIVED_FROM</data>
+    </edge>
+  </graph>
+</graphml>

@@ -422,7 +422,8 @@ def check_f018_license_drift(evidence: dict[str, Any]) -> FalsifierResult:
 def check_f019_valid_sbol_only(evidence: dict[str, Any]) -> FalsifierResult:
     """`evidence` carries `sbol3_uri: str` (path to a local SBOL3 file).
     Validates via the `sbol3` Python package; triggered on parse/validation
-    failure."""
+    failure OR on a document that contains zero SBOL3 TopLevel objects
+    (an empty document is structurally invalid for an L6 GMS attestation)."""
     uri = evidence.get("sbol3_uri", "")
     if not uri:
         return _result("f019_valid_sbol_only", True, "Missing sbol3_uri", evidence=evidence)
@@ -436,16 +437,36 @@ def check_f019_valid_sbol_only(evidence: dict[str, Any]) -> FalsifierResult:
             evidence={**evidence, "skipped": True},
         )
     try:
-        doc = sbol3.Document()
-        doc.read(uri)
-        # Validate strictly.
-        report = doc.validate()
-        if report and len(report) > 0:
+        # Pre-check: the file must contain the SBOL3 namespace declaration.
+        from pathlib import Path
+
+        body = Path(uri).read_text(encoding="utf-8", errors="ignore")
+        if "http://sbols.org/v3" not in body and "sbol3" not in body.lower():
             return _result(
                 "f019_valid_sbol_only",
                 True,
-                f"SBOL3 validator messages: {len(report)}",
-                evidence={**evidence, "libsbolj3_validator_messages": [str(m) for m in report]},
+                "Document does not declare SBOL3 namespace",
+                evidence={**evidence, "missing_namespace": True},
+            )
+        doc = sbol3.Document()
+        doc.read(uri)
+        # Empty document is invalid for an L6 attestation.
+        if len(list(doc.objects)) == 0:
+            return _result(
+                "f019_valid_sbol_only",
+                True,
+                "SBOL3 document parsed but contains zero objects",
+                evidence={**evidence, "object_count": 0},
+            )
+        # Strict validation.
+        report = doc.validate()
+        msgs = list(report) if report else []
+        if msgs:
+            return _result(
+                "f019_valid_sbol_only",
+                True,
+                f"SBOL3 validator messages: {len(msgs)}",
+                evidence={**evidence, "libsbolj3_validator_messages": [str(m) for m in msgs]},
             )
         return _result("f019_valid_sbol_only", False, "SBOL3 valid", evidence=evidence)
     except Exception as exc:

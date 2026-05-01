@@ -1,0 +1,81 @@
+{
+  "advisory_only": true,
+  "boundary": "Research infrastructure for in silico synthetic biology / metabolic pathway engineering. Outputs are research artifacts \u2014 predicted pathways, predicted KPIs, candidate genetic modification specifications. No regulatory certification claims. No clinical or human-subject use. No environmental release of GMOs. No biocontainment-level claims (the pipeline does not commission BSL-2/3 work). No human gene drive or eugenic application. Defence / weapons / dual-use bio applications excluded under operator policy.",
+  "campaign_id": "hmo_seed_3pSL",
+  "cftxtl_observation_envelope_ids": [
+    "sha256:226580d2a76445bc8283559700761764f1c6542e46073727659070b47c7f6979"
+  ],
+  "consumer_recommendation": "human_cro",
+  "cross_model_disagreement_summary": [],
+  "dbtl_round": 0,
+  "domain": "hmo",
+  "dossier_id": "dossier_3pSL_round_0",
+  "early_warning_summary": [],
+  "falsifier_summary": [],
+  "gms_envelope_id": "sha256:3f0b692d1d17a72188a0853387711482358177d9de592e9c34ecfa1d161f5707",
+  "host_organism": {
+    "gem_id": "iML1515",
+    "refseq_genome_accession": "NC_000913.3",
+    "taxonomy_id": 562
+  },
+  "kpi_predictions": [
+    {
+      "contributors": [
+        "L1",
+        "L2",
+        "L3",
+        "L4_kinetics",
+        "L4_fba",
+        "L5"
+      ],
+      "distribution": "lognormal",
+      "name": "predicted_titer_g_l",
+      "p05": 0.5,
+      "p50": 1.2,
+      "p95": 2.4,
+      "unit": "g/L"
+    }
+  ],
+  "literature_refs": [],
+  "prov_o_chain_uri": "",
+  "ranked_pathway_set_envelope_id": "sha256:c4f3188b1236fd0557723e80ad917d35cdcc58ef68c0e30c9b80fdae4a16585d",
+  "sbol_attestation_uri": "/Users/zer0palab/Synthetic Biology Pipeline/.claude/worktrees/hopeful-roentgen-e3c78e/audit/runtime/hmo_seed_3pSL/sbol/gms_3pSL_canonical.sbol3.xml",
+  "schema_version": "synbio.dossier.v0.1",
+  "sha256_hash_chain": [
+    "sha256:96de48a8c3d2da303002168d76c181616f7f33cd15a0414516e57c6c87cab1ce",
+    "sha256:967aba22377cdb194f3622b51fbc3aa64c804a590ca45b0fd9e5ea66b703d608",
+    "sha256:fccfc188c6d9e1865e73fc5c67f6618f8aca2a22603229c00b3ee07fb70c61a1",
+    "sha256:bc40732f8674b7f57b92e2d4a4de3779fee87ce1f1230fd498965501f6e37da9",
+    "sha256:b907ad727cbf617d2bd7cd724808b32a7f717983732a423d378a9fddb7f96193",
+    "sha256:50ae6ec14c3cf28066fea40fb112b468bc48a72b9428edced50bec24e27fd814",
+    "sha256:c4f3188b1236fd0557723e80ad917d35cdcc58ef68c0e30c9b80fdae4a16585d",
+    "sha256:0b13d5478e37902c49a14283e818ca29f1dda62cbf97bea0e3095794983a19c3",
+    "sha256:3f0b692d1d17a72188a0853387711482358177d9de592e9c34ecfa1d161f5707",
+    "sha256:226580d2a76445bc8283559700761764f1c6542e46073727659070b47c7f6979",
+    "sbol3:570753f8152edab92f448ad30995d812b6fbf43680a2b773dc456493c499cb3f",
+    "prov:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "dossier:3ce3e3467b5b2250731064531fd6066c9ba71a2e7f9ad517fc652b02e3dd565f"
+  ],
+  "target_compound_inchi_key": "COFLCBMXHRDGMP-AHXISFCHSA-N",
+  "validation_sequence": {
+    "go_cbed_objective": "max_information_gain_about_top_pareto_candidate",
+    "ordered_experiments": [
+      {
+        "consumer": "human_cro",
+        "cost_estimate_usd": 5000.0,
+        "expected_completion_days": 21,
+        "expected_information_gain_nats": 2.5,
+        "experiment_id": "exp_000",
+        "intervention": {
+          "knockin_genes": [
+            "FutC"
+          ],
+          "pathway_id": "p_seed_canonical",
+          "promoter": "Ptrc"
+        }
+      }
+    ],
+    "posterior_uncertainty_kl_reduction_target": 1.5,
+    "schema_version": "synbio.validation_sequence.v0.1"
+  }
+}

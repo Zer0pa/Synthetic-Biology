@@ -1,0 +1,19 @@
+{
+  "campaign_id": "hmo_seed_DSLNT",
+  "envelope_ids": [
+    "sha256:af8ba3d298c8728b48eccb2e370dd4599f16ff1860686c76d6388fc4505a95d6",
+    "sha256:43aabb65450a3622d3edd1c31545207784ab57021af0235544a64559461fba51",
+    "sha256:a938a1d4a8360d38e8508e3ee7b7eb72cc74de1bd8f485f64b376499f066729c",
+    "sha256:728b2b02d8ee0875a0ef6359be67926c4cf412516cc4546a895ab4411ad161b1",
+    "sha256:f6e549ba39fda59a3740b872a569704b9b528d7c0249d8435b648137c9e4cb0e",
+    "sha256:21c9525418dfe3c85fcbc914879c7ae18b5095f1be42b4a3fd69878182c43976",
+    "sha256:34fc181d9bb20f0de317dcd1691f247b22f3cb3263941b486b1b530a4eaf798d",
+    "sha256:b643c2959eaa3feb4766b3343d680b43b7ed95fe1d5b6daed336d82e95c24ed7",
+    "sha256:6f87edfcb81c4bcc140eba02b4c64723fea091f103e33cc916affa818a519282",
+    "sha256:a80540eabae86831434e2a38735b09a5f18010fd2e024714cde262e4f230e09e",
+    "sha256:05038234fac7bc133dffc1dba6a06e83e9256da845464b29859d78b77c5c58d8"
+  ],
+  "sbol3_uri": "/Users/zer0palab/Synthetic Biology Pipeline/.claude/worktrees/hopeful-roentgen-e3c78e/audit/runtime/hmo_seed_DSLNT/sbol/gms_DSLNT_canonical.sbol3.xml",
+  "sbol_sha256": "71419739ec4b820a3cb935f7337808fb9caca5534099f1fbffd992bcf6557aad",
+  "seed": "DSLNT"
+}

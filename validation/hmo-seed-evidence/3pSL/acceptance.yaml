@@ -1,0 +1,36 @@
+schema_version: synbio.hmo_acceptance.v0.1
+seed_id: 3pSL
+seed_name: 3'-sialyllactose
+status: known_borderline
+inchi_key: COFLCBMXHRDGMP-AHXISFCHSA-N
+host_organism:
+  taxonomy_id: 562
+  name: Escherichia coli
+  refseq_genome_accession: NC_000913.3
+  gem_id: iML1515
+
+# Pre-registered (PRD §3.2 row 2; cofactor balance is the documented pain point).
+pre_registered_acceptance:
+  predicted_titer_90pct_credible_interval_covers_literature: true
+  literature_titer_g_l_median: 1.2
+  literature_sources:
+    - doi: "10.1186/s12934-019-1191-0"
+      claim: "Engineered E. coli for 3'-sialyllactose"
+  cofactor_dominant_uncertainty: CMP-Neu5Ac
+  cmp_neu5ac_regeneration_pathway_proposed_in_validation_sequence: true
+  highest_information_gain_intervention_target: cmp_neu5ac_pathway
+
+# Qualitative gate (must hold).
+qualitative_acceptance:
+  - "Dossier explicitly identifies CMP-Neu5Ac cofactor balance as the
+     dominant uncertainty contributor (NOT 'the model is uncertain
+     everywhere')."
+  - "ValidationSequence proposes the CMP-Neu5Ac regeneration pathway
+     (neuB+neuC+neuA module) as the highest-information-gain next
+     intervention."
+  - "Cross-model FBA disagreement on CMP-Neu5Ac flux is reported and
+     below the warn threshold."
+  - "α-2,3-sialyltransferase (EC 2.4.99.6) is identified as the
+     committed enzyme step."
+
+boundary: "Research infrastructure for in silico synthetic biology / metabolic pathway engineering. Outputs are research artifacts — predicted pathways, predicted KPIs, candidate genetic modification specifications. No regulatory certification claims. No clinical or human-subject use. No environmental release of GMOs. No biocontainment-level claims (the pipeline does not commission BSL-2/3 work). No human gene drive or eugenic application. Defence / weapons / dual-use bio applications excluded under operator policy."
