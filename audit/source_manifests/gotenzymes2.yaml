@@ -1,16 +1,17 @@
 schema_version: synbio.source_manifest.v0.1
 source_id: gotenzymes2
-uri: https://gotenzymes.io/
-retrieval_method: api
-retrieved_at: "2026-05-01T00:00:00Z"
-license_spdx_or_text: CC-BY-4.0
+uri: https://github.com/LiLabTsinghua/GotEnzymes2
+upstream_paper_uri: https://digitallifethu.com/gotenzymes
+retrieval_method: git
+retrieved_at: "2026-05-02T00:00:00Z"
+license_spdx_or_text: MIT
 license_class: A
 allowed_use: research
 geography_restrictions: null
-checksum: "sha256:placeholder-gotenzymes2-bootstrap"
-local_slice_size_mb: 0.0
+checksum: "sha256:33ada4c908fdbf52f9fc9e8fe933aa13587acebeab27e86b85d88c76f89a5354"
+local_slice_size_mb: 12.0
 hf_mirror_uri: "Architect-Prime/synbio-cekm-corpus-v0.1"
 bulk_data_stored_locally: false
-citation: "GotEnzymes2: 59.6M predicted enzyme-substrate-condition entries; CC BY 4.0."
-rights_notes: "CC BY 4.0 — used as a curriculum pre-training dataset for CEKM per PRD §12.1. Soft pseudo-labels are weighted lower than BRENDA + EnzyExtract during CEKM training."
+citation: "GotEnzymes2 (LiLabTsinghua/GotEnzymes2, MIT): benchmarking + prediction dataset for enzyme kinetics + thermal properties. 19 prediction CSVs from UniKP / EITLEM / DLKcat / CataPro / TurNuP / DeepEnzyme / Boost / Seq2Topt across kcat, Km, kcat/Km, Topt, Tm. v0.1 corpus uses UniKP-KCAT × UniKP-KM merged on (Sequence, Smiles, EC, Organism) yielding 16,890 paired (kcat, Km) soft-pseudo-label rows."
+rights_notes: "MIT (repo) + CC BY 4.0 (web app data). Used as curriculum pre-training only per PRD §12.1; soft pseudo-labels weighted lower than BRENDA + EnzyExtract during CEKM training. Conditions (temp, pH) not in upstream — defaulted to 25 °C / pH 7.0 in JSONL."
 excluded_from_training_corpus: false
