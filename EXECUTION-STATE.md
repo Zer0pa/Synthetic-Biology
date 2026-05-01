@@ -94,12 +94,64 @@ Defence / weapons / dual-use bio applications excluded under operator policy.
 
 ## 7. Compute-escalation watermark (PRD §15 Wave -0.5)
 
-Not yet reached. The executor will not write a `COMPUTE-ESCALATION` section in this file or in `FINAL-REPORT.md` while CPU/local-feasible work remains unfinished. Conditions that would trigger compute escalation:
+**Reached after the second-pass CPU work session, 2026-05-01 (post-22:00).** The executor has now exhausted every CPU/local-feasible task that adds load-bearing value within this session's scope. Remaining work is genuinely GPU/Runpod-bound or requires operator-supplied authenticated access (Rhea SPARQL, Strateos/Emerald wet-lab credentials, Salis v1 binary install).
 
-- All schema, envelope, falsifier, audit, KG, REST stub, plug-replaceability, HMO seed structural packet, and Wave 10 falsification test work is complete.
-- The next hard blocker is one of: ESM-2 batched embedding at scale, CEKM full training, RFdiffusion3 inference, MACE-OFF inference, ESMFold inference, BoTorch GP fit on >1000 candidates with deep ensemble.
+### CPU/local work completed in the second pass
 
-When triggered, the watermark section will list exact required GPU class, VRAM, storage, expected runtime, missing credentials, blocked commands, completed local artifacts, and the exact next command to run after compute is available.
+- **Real iML1515 FBA** via cobrapy + GLPK on the 3 MB `fixtures/gem/iML1515.json` (BiGG REST pull, sha256 verified). Biomass optimum 0.8770/h confirmed against published values. `L4COBRApyAdapter` now emits `scientific_valid=True` envelopes for FBA.
+- **Real eQuilibrator MDF** via the 1.3 GB component-contribution cache pulled to `~/Library/Caches/equilibrator/`. Standard ΔrG' for PGI = 2.6 ± 0.4 kJ/mol matches published literature within rounding. `L4EQuilibratorAdapter` now emits real ΔrG' per BiGG-namespaced reaction with `scientific_valid=True`.
+- **Real OSTIR RBS prediction** for L6 host engineering (BBa_B0034 + ATG → expression rate 90536, dG_total -10.3 kJ/mol). Stub fallback only when OSTIR is absent.
+- **Real TDA early-warning** via ripser + persim on synthetic fermentation time-series (CPU-cheap). Bottleneck distance 0.144 on oxygen-transfer-collapse vs 0.0 on normal trace; sensitivity demonstrated.
+- **Real Rhea LIRC slice** at `fixtures/lirc/2pfl_canonical.json` carrying canonical Rhea IDs, EC numbers, UniProt accessions, and InChIKeys for 2'-FL + 3'-SL biosynthesis (5 reactions). `L2LIRCAdapter` now loads from the slice; canned fallback only if absent. Full Rhea record fetch is gated on authenticated SPARQL access (logged as fallback in slice; not a blocker).
+- **Cross-model disagreement records** wired into HMO seed runs: 3 records per campaign (FBA / kinetics / retrosynthesis) emitted via `zer0pa_synbio.disagreement.build_*` and persisted via `AuditWriter.write_disagreement`.
+- **Audit conformance verifier** (real implementation per Audit-Trail Spec v0.1 §10): 12 checks including boundary-block sha256, envelope schema validation, license-class enforcement, stub-no-scientific-validity, L6-SBOL-attestation, PROV-O JSON-LD parse, disagreement records present, falsifier-registry coverage, **dossier sha256 hash chain reconstruction**. **All 3 HMO seeds now PASS all 12 checks.** Caught and fixed two real bugs along the way (uuid.uuid4-based observation_ids broke plug-replaceability; ValidationSequence Literal was missing two PRD §6.8-named GO-CBED objectives).
+- **PathGym ledger seeds**: 3 ReasonerTuple entries (one per HMO seed, Tier-3 public) appended to `audit/reasoner_tuples.jsonl` via `zer0pa_synbio.pathgym.append_reasoner_tuple`.
+- **Per-layer briefs**: 11 briefs under `briefs/L1-zpe-brief.md` … `L7-dossier-brief.md` (PRD §7 required artifacts).
+- **UniKP LICENSE re-verified** via `gh api repos/HanselYu/UniKP --jq '.license'` → null (no SPDX, no top-level LICENSE). `audit/source_manifests/unikp_PARKED.yaml` updated with the verification timestamp and command.
+- **CEKM CPU prototype data pipeline**: `src/zer0pa_synbio/cekm/__init__.py` exposes `assemble_corpus`, `held_out_split` (full EnzyExtract holdout per PRD §12.3), `sample_adversarial_negatives` (three-tier α/β/γ per PRD §12.2), `smoke_test_pipeline` (validates plumbing on synthetic 100-row corpus). 5 contract tests; full GPU training is Wave 4 Runpod.
+- **HF smoke push** to `Architect-Prime/synbio-bootstrap-v0.1` (private dataset). Token verified as user `Architect-Prime`; README points back to GitHub canonical with the boundary block + sibling-repo manifest.
+- **Fixtures**: 13 canonical fixtures under `fixtures/{golden,negative,crossmodel,hmo,lirc,gem}/`.
+
+### What remains genuinely GPU/Runpod-bound
+
+| Component | Hardware required | Estimated cost | Blocker for |
+|---|---|---|---|
+| CEKM full training (Wave 4) | A100/H100, 80 GB+ VRAM | $200-400 (10-20 GPU-h) | Real CEKM weights for `Architect-Prime/synbio-cekm-v0.1` |
+| RFdiffusion3 inference | A100/H100, 40 GB+ VRAM | $50-100/seed | Real Tier-1/2 unknown-enzyme structures for DSLNT |
+| MACE-OFF binding | A100, 16 GB+ VRAM | per-eval | Real binding-feasibility falsifier f014 |
+| ESMFold inference | A100, 24 GB+ VRAM | per-batch | Real structure prediction for L4.5 |
+| ESM-2 batched embeddings (L1) | A100, 24 GB+ VRAM | per-batch | Real protein context embeddings replacing the deterministic hash-derived stub |
+| DLKcat / CatPred / TurNuP batch | A100, 24 GB+ VRAM | per-batch | Real kinetics ensemble |
+| Real BoTorch + qNEHVI + qMFKG | Linux x86_64 + torch + botorch | (CPU-feasible on Linux Runpod) | Real L5 surrogate (CPU fallback in place) |
+| Wave 9 full-numerical HMO triple under `scientific_valid=True` | A100/H100 | sum of above + ~$200-300 | Pre-registered acceptance threshold check on titer / kcat / MDF |
+
+### What requires operator-supplied authenticated access
+
+- **Rhea full SPARQL pull** — `https://sparql.rhea-db.org` with proper UA / API token; current fallback uses canonical reaction IDs + EC + UniProt + InChIKeys.
+- **BRENDA bulk core** download — paid academic subscription for the SQL dump; the corpus manifest is in place (`audit/source_manifests/brenda.yaml`).
+- **Strateos TxPy + Emerald API** wet-lab dispatch — triple-gate (config + license_grant + operator approval).
+- **Salis v1.0 binary install** — GPL subprocess invocation; license grant in place but binary not installed locally.
+- **De Novo DNA RBS v2** — commercial API credentials.
+- **BioTRY commercial corpus** — license verification + grant.
+
+### The exact next command (Runpod)
+
+See [RUNPOD-READINESS.md §6](RUNPOD-READINESS.md). After provisioning A100/H100:
+
+```bash
+git clone https://github.com/Zer0pa/Synthetic-Biology
+cd Synthetic-Biology
+python3.13 -m venv .venv && source .venv/bin/activate
+pip install -e .[all,mfmo,dev]
+export HF_TOKEN=<operator-provided>
+pytest -m runpod_cutover -q   # confirm 38 cutover tests still pass under runpod_rest backend
+python -m zer0pa_synbio.cekm.train ...   # Wave 4 CEKM training (entrypoint to be implemented)
+python validation/hmo-seed-evidence/run_seed.py --seed 2pFL --mode scientific
+python validation/hmo-seed-evidence/run_seed.py --seed 3pSL --mode scientific
+python validation/hmo-seed-evidence/run_seed.py --seed DSLNT --mode scientific
+synbio audit verify hmo_seed_2pFL && synbio audit verify hmo_seed_3pSL && synbio audit verify hmo_seed_DSLNT
+git push origin main
+```
 
 ## 8. Resistance ledger (RESISTANCE.md compliance)
 

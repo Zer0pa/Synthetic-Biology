@@ -1,0 +1,6 @@
+{
+  "bottleneck_step": "step_3",
+  "expected_falsifier": "f003_mdf_infeasibility",
+  "expected_triggered": true,
+  "mdf_kj_mol": -3.2
+}

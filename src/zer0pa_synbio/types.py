@@ -134,7 +134,16 @@ class ValidationSequence(BaseModel):
     model_config = ConfigDict(extra="forbid")
     schema_version: Literal["synbio.validation_sequence.v0.1"] = "synbio.validation_sequence.v0.1"
     ordered_experiments: list[ValidationExperiment]
-    go_cbed_objective: Literal["max_titer", "max_yield", "min_burden", "balanced"]
+    # PRD §6.8 names two additional info-gain objectives beyond the
+    # KPI-direct ones for research mode and closed-loop mode.
+    go_cbed_objective: Literal[
+        "max_titer",
+        "max_yield",
+        "min_burden",
+        "balanced",
+        "max_information_gain_about_uncertainty_contributors",
+        "max_information_gain_about_top_pareto_candidate",
+    ]
     posterior_uncertainty_kl_reduction_target: float
 
 
@@ -205,7 +214,11 @@ class CodonOptimization(BaseModel):
 
 
 class RbsPrediction(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    # extra="allow" so adapters can attach tool-specific sub-fields
+    # (sub_energies_kj_mol from OSTIR, RBS_distance_bp from Salis, etc.)
+    # without a schema bump. The required fields below are the
+    # cross-tool contract.
+    model_config = ConfigDict(extra="allow")
     tool: Literal["rbs_calculator_v1_0_gpl_subprocess", "ostir", "denovodna_v2_commercial"]
     initiation_rate_au: float
     confidence: float

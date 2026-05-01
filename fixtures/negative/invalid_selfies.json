@@ -1,0 +1,5 @@
+{
+  "expected_falsifier": "f001_invalid_selfies",
+  "expected_triggered": true,
+  "selfies": "[NOT_A_VALID_SELFIES_TOKEN]["
+}

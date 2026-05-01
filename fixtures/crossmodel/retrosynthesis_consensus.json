@@ -1,0 +1,27 @@
+{
+  "envelope_id": "sha256:fixture",
+  "expected_status": "pass",
+  "routes_by_tool": {
+    "bionavi": [
+      "r1",
+      "r2",
+      "r3"
+    ],
+    "deepretro": [
+      "r1",
+      "r2",
+      "r3"
+    ],
+    "novostoic2": [
+      "r1",
+      "r2",
+      "r3"
+    ],
+    "retropath3": [
+      "r1",
+      "r2",
+      "r3"
+    ]
+  },
+  "target_inchi_key": "GFXBRIYRYYFCIA-LWNAIEPUSA-N"
+}

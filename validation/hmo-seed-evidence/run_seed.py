@@ -65,8 +65,15 @@ from zer0pa_synbio.adapters.l6_build_cellfree_txtl import L6BuildCellFreeStubAda
 from zer0pa_synbio.adapters.l6_host_engineering import L6HostEngineeringAdapter
 from zer0pa_synbio.adapters.l7_dossier import L7DossierAdapter
 from zer0pa_synbio.audit import AuditWriter
-from zer0pa_synbio.envelope import Domain
+from zer0pa_synbio.disagreement import (
+    build_fba_disagreement,
+    build_kinetics_disagreement,
+    build_retrosynthesis_disagreement,
+)
+from zer0pa_synbio.envelope import Domain, RunMode
 from zer0pa_synbio.kg import KGWriter
+from zer0pa_synbio.pathgym import append_reasoner_tuple, make_reasoner_tuple
+from zer0pa_synbio.tda import compute_early_warning, simulate_fermentation_timeseries
 from zer0pa_synbio.boundary import BOUNDARY_BLOCK, BOUNDARY_SHA256
 
 
@@ -183,20 +190,64 @@ def run(seed: str) -> dict[str, Any]:
     kg.add_node(l3_5.envelope_id, "Envelope", layer="L3_5")
     layer_envelopes["l3_5"] = l3_5
 
-    # L4 deep evaluation: FBA ensemble + thermodynamics + kinetics ensemble (gpu_rest_stub).
-    l4_envs = []
-    for cls in (L4COBRApyAdapter, L4GECKOAdapter, L4ECMpyAdapter, L4ETFLAdapter, L4EQuilibratorAdapter):
-        env = cls().run(
+    # L4 deep evaluation: FBA ensemble (real iML1515 for COBRApy) +
+    # thermodynamics (real eQuilibrator) + kinetics ensemble (gpu_rest_stub
+    # canned values; real on Runpod cutover). Cross-model disagreement
+    # records emitted into the audit chain per PRD §5.2.
+    fba_envs: dict[str, Any] = {}
+    for cls, name in (
+        (L4COBRApyAdapter, "COBRApy"),
+        (L4GECKOAdapter, "GECKO"),
+        (L4ECMpyAdapter, "ECMpy"),
+        (L4ETFLAdapter, "ETFL"),
+    ):
+        # COBRApy adapter solves real FBA when fixtures/gem/iML1515.json is present.
+        env = cls(run_mode=RunMode.scientific if name == "COBRApy" else RunMode.engineering_stub).run(
             campaign_id=campaign_id,
             domain=Domain.hmo,
             organism=562,
             gem_id="iML1515",
-            input_payload={"steps": [{"delta_g_kj_mol": -23.4}]},
+            input_payload={},
             run_id=run_id,
         )
         aw.write_envelope(env)
-        l4_envs.append(env)
-    for cls in (L4DLKcatAdapter, L4CatPredAdapter, L4TurNuPAdapter, L4CEKMAdapter):
+        fba_envs[name] = env
+    biomass_key = "BIOMASS_Ec_iML1515_core_75p37M"
+    fba_values = {
+        name: float(env.outputs.payload.get("flux_dict", {}).get(biomass_key, 0.0))
+        for name, env in fba_envs.items()
+    }
+    fba_disagreement = build_fba_disagreement(
+        envelope_id=fba_envs["COBRApy"].envelope_id,
+        reaction_id=biomass_key,
+        values_by_model=fba_values,
+    )
+    aw.write_disagreement(fba_disagreement)
+    layer_envelopes["l4"] = fba_envs["COBRApy"]
+    # Real eQuilibrator MDF on representative glycolytic steps.
+    thermo_env = L4EQuilibratorAdapter(run_mode=RunMode.scientific).run(
+        campaign_id=campaign_id,
+        domain=Domain.hmo,
+        organism=562,
+        gem_id="iML1515",
+        input_payload={
+            "steps": [{"delta_g_kj_mol": 0}],
+            "eq_reactions": [
+                "bigg.metabolite:g6p = bigg.metabolite:f6p",
+                "bigg.metabolite:dhap = bigg.metabolite:g3p",
+            ],
+        },
+        run_id=run_id,
+    )
+    aw.write_envelope(thermo_env)
+    # Kinetics ensemble (all gpu_rest_stub).
+    kin_envs: dict[str, Any] = {}
+    for cls, name in (
+        (L4DLKcatAdapter, "DLKcat"),
+        (L4CatPredAdapter, "CatPred"),
+        (L4TurNuPAdapter, "TurNuP"),
+        (L4CEKMAdapter, "CEKM"),
+    ):
         env = cls().run(
             campaign_id=campaign_id,
             domain=Domain.hmo,
@@ -206,8 +257,31 @@ def run(seed: str) -> dict[str, Any]:
             run_id=run_id,
         )
         aw.write_envelope(env)
-        l4_envs.append(env)
-    layer_envelopes["l4"] = l4_envs[0]
+        kin_envs[name] = env
+    kinetics_kcat = {
+        name: float(env.outputs.payload.get("kcat_per_s", 0.0))
+        for name, env in kin_envs.items()
+    }
+    kinetics_disagreement = build_kinetics_disagreement(
+        envelope_id=kin_envs["CEKM"].envelope_id,
+        enzyme_uniprot_id=spec["enzyme_uniprot_id"],
+        quantity="kcat_per_s",
+        values_by_model=kinetics_kcat,
+    )
+    aw.write_disagreement(kinetics_disagreement)
+    # Retrosynthesis disagreement.
+    routes_by_tool = {
+        env.backend.tool: [
+            c.get("pathway_id", "?") for c in env.outputs.payload.get("candidates", [])
+        ]
+        for env in l3_envs
+    }
+    retrosynth_disagreement = build_retrosynthesis_disagreement(
+        envelope_id=l3_envs[0].envelope_id,
+        target_inchi_key=spec["target_inchi_key"],
+        routes_by_tool=routes_by_tool,
+    )
+    aw.write_disagreement(retrosynth_disagreement)
 
     # L4.5 unknown-enzyme — only run for novelty_class != known_reaction.
     l4_5_envelope_id = None
@@ -306,7 +380,7 @@ def run(seed: str) -> dict[str, Any]:
             "l2_envelope_id": l2.envelope_id,
             "l3_envelope_id": l3_envs[0].envelope_id,
             "l3_5_envelope_id": l3_5.envelope_id,
-            "l4_envelope_id": l4_envs[0].envelope_id,
+            "l4_envelope_id": fba_envs["COBRApy"].envelope_id,
             "l4_5_envelope_id": l4_5_envelope_id,
             "l5_envelope_id": l5.envelope_id,
             "l5_oed_envelope_id": l5_oed.envelope_id,
@@ -316,7 +390,67 @@ def run(seed: str) -> dict[str, Any]:
         run_id=run_id,
     )
     aw.write_envelope(l7)
+    # Also persist the dossier via AuditWriter.write_dossier() so the
+    # conformance verifier (synbio audit verify) finds it.
+    from zer0pa_synbio.types import Dossier as _Dossier
+
+    aw.write_dossier(_Dossier.model_validate(l7.outputs.payload["dossier"]))
     layer_envelopes["l7"] = l7
+
+    # TDA early-warning on a synthetic fermentation trajectory (CPU-only).
+    # Demonstrates Wave 5 TDA piece end-to-end: simulate a normal trace and
+    # an oxygen-transfer-collapse trace, compute persistence-based warning,
+    # write EarlyWarningSignal.
+    tda_normal = compute_early_warning(
+        trace=simulate_fermentation_timeseries(duration_min=720, regime_change=None, seed=hash(seed) & 0xFFFF),
+        source_envelope_id=l7.envelope_id,
+        domain="industrial_scale_simulated",
+    )
+    aw.write_early_warning(tda_normal)
+    tda_collapse = compute_early_warning(
+        trace=simulate_fermentation_timeseries(
+            duration_min=720,
+            regime_change="oxygen_transfer_collapse",
+            regime_change_at_min=300.0,
+            seed=hash(seed) & 0xFFFF,
+        ),
+        source_envelope_id=l7.envelope_id,
+        domain="industrial_scale_simulated",
+    )
+    aw.write_early_warning(tda_collapse)
+
+    # PathGym ledger seed (Tier-3 public for the HMO validation triple
+    # per PRD §10).
+    rt = make_reasoner_tuple(
+        campaign_id=campaign_id,
+        problem_context=f"HMO scientific validation triple: {seed}",
+        input_spec_envelope_id=layer_envelopes["l1"].envelope_id,
+        tool_plan={
+            "L1": "L1ZPEAdapter",
+            "L2": "L2LIRCAdapter (real Rhea slice)",
+            "L3": "RetroPath3+novoStoic2+BioNavi+DeepRetro",
+            "L4_FBA": "COBRApy(real iML1515)+GECKO+ECMpy+ETFL",
+            "L4_thermo": "eQuilibrator (real)",
+            "L4_kinetics": "DLKcat+CatPred+TurNuP+CEKM (gpu_rest_stub)",
+            "L4_5": "RFdiffusion3+MACE-OFF+ESMFold (gpu_rest_stub)" if l4_5_envelope_id else None,
+            "L5": "MFMO scipy fallback",
+            "L5_OED": "GO-CBED stub",
+            "L6": "OSTIR (real)+SBOL3-attested",
+            "L6_BUILD": "CellFreeStubAdapter",
+            "L7": "Dossier (sha256 hash chain)",
+        },
+        raw_result_envelope_id=l7.envelope_id,
+        falsifier_result_ids=[],  # populated when full numerical run produces real triggers
+        disagreement_record_ids=[
+            fba_disagreement.record_id,
+            kinetics_disagreement.record_id,
+            retrosynth_disagreement.record_id,
+        ],
+        outcome_label="inconclusive",  # stub-mode runs cannot pass scientific_valid=True
+        rights_label="tier_3_public",
+        next_action="Wave 4 CEKM training + Wave 5 GPU inference; rerun under scientific_valid=True",
+    )
+    append_reasoner_tuple(REPO_ROOT, rt)
 
     # Persist dossier to validation/hmo-seed-evidence/<seed>/dossier.json
     seed_dir = REPO_ROOT / "validation" / "hmo-seed-evidence" / seed

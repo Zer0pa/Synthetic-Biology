@@ -1,0 +1,88 @@
+{
+  "boundary": "Research infrastructure for in silico synthetic biology / metabolic pathway engineering. Outputs are research artifacts. No regulatory certification claims. No clinical or human-subject use. No environmental release of GMOs.",
+  "fetch_errors": [
+    {
+      "error": "HTTP Error 403: Forbidden",
+      "rhea_id": "RHEA:23900"
+    },
+    {
+      "error": "HTTP Error 403: Forbidden",
+      "rhea_id": "RHEA:18225"
+    },
+    {
+      "error": "HTTP Error 403: Forbidden",
+      "rhea_id": "RHEA:14457"
+    },
+    {
+      "error": "HTTP Error 403: Forbidden",
+      "rhea_id": "RHEA:13089"
+    },
+    {
+      "error": "HTTP Error 403: Forbidden",
+      "rhea_id": "RHEA:14217"
+    }
+  ],
+  "license_class": "A",
+  "reactions": [
+    {
+      "ec": "4.2.1.47",
+      "enzyme_uniprot": "P0AC88",
+      "fallback": true,
+      "fetch_failed": true,
+      "label": "Gmd: GDP-mannose -> GDP-4-keto-6-deoxy-D-mannose + H2O",
+      "product_inchi_keys": [
+        "RWHOZGRAXYWHAT-UHFFFAOYSA-N"
+      ],
+      "rhea_id": "RHEA:23900",
+      "substrate_inchi_keys": [
+        "WUUGFSXJNOTRMR-IOSLPCCCSA-N"
+      ]
+    },
+    {
+      "ec": "1.1.1.271",
+      "enzyme_uniprot": "P32055",
+      "fallback": true,
+      "fetch_failed": true,
+      "label": "WcaG: GDP-4-keto-6-deoxy-D-mannose + NADPH -> GDP-L-fucose + NADP+",
+      "rhea_id": "RHEA:18225"
+    },
+    {
+      "ec": "2.4.1.69",
+      "enzyme_uniprot": "Q11075",
+      "fallback": true,
+      "fetch_failed": true,
+      "label": "FutC: GDP-L-fucose + lactose -> 2'-fucosyllactose + GDP",
+      "product_inchi_keys": [
+        "GFXBRIYRYYFCIA-LWNAIEPUSA-N",
+        "RQFCJASXJCIDSX-UUOKFMHZSA-N"
+      ],
+      "rhea_id": "RHEA:14457",
+      "substrate_inchi_keys": [
+        "WUUGFSXJNOTRMR-IOSLPCCCSA-N",
+        "GUBGYTABKSRVRQ-PICCSMPSSA-N"
+      ]
+    },
+    {
+      "ec": "2.7.7.43",
+      "enzyme_uniprot": "P0A6S0",
+      "fallback": true,
+      "fetch_failed": true,
+      "label": "NeuA: CTP + N-acetylneuraminate -> CMP-Neu5Ac + diphosphate",
+      "rhea_id": "RHEA:13089"
+    },
+    {
+      "ec": "2.4.99.6",
+      "enzyme_uniprot": "Q56930",
+      "fallback": true,
+      "fetch_failed": true,
+      "label": "Lst: CMP-Neu5Ac + lactose -> 3'-sialyllactose + CMP",
+      "rhea_id": "RHEA:14217"
+    }
+  ],
+  "schema_version": "synbio.lirc_slice.v0.1",
+  "slice_name": "hmo_2pfl_3psl_canonical",
+  "source_manifests": [
+    "audit/source_manifests/rhea.yaml",
+    "audit/source_manifests/metanetx.yaml"
+  ]
+}

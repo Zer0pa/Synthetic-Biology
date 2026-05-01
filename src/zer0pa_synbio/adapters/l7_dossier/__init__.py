@@ -113,11 +113,21 @@ class L7DossierAdapter(LayerAdapter):
             "advisory_only": input_payload.get("advisory_only", True),
             "consumer_recommendation": input_payload.get("consumer_recommendation", "human_cro"),
         }
-        # Append the dossier's own canonical hash to the chain for self-anchor.
-        dossier_dump = dict(dossier)
-        dossier_dump["sha256_hash_chain"] = chain  # exclude self for hashing
-        dossier_self_hash = hashlib.sha256(canonical_json({**dossier, "sha256_hash_chain": chain})).hexdigest()
-        dossier["sha256_hash_chain"].append(f"dossier:{dossier_self_hash}")
+        # Self-anchor the chain. Validate the dossier dict through the
+        # Pydantic Dossier model first so the on-disk shape matches what
+        # the verifier reconstructs. Hash the canonical JSON of the
+        # serialised model with the chain *without* the self-hash, then
+        # append.
+        from zer0pa_synbio.types import Dossier
+
+        validated = Dossier.model_validate(dossier)
+        canonical_pre_self = canonical_json(validated.model_dump(mode="json"))
+        dossier_self_hash = hashlib.sha256(canonical_pre_self).hexdigest()
+        chain.append(f"dossier:{dossier_self_hash}")
+        validated = validated.model_copy(update={"sha256_hash_chain": chain})
+        # Replace the dict copy that gets embedded in the envelope output
+        # with the validated dump for byte-stable reconstruction.
+        dossier = validated.model_dump(mode="json")
 
         return self._make_envelope(
             campaign_id=campaign_id,

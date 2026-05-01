@@ -1,0 +1,21 @@
+{
+  "envelope_id": "sha256:fixture",
+  "expected_action": "escalate_to_unknown_enzyme",
+  "expected_status": "fail",
+  "rationale": "DSLNT is fully novel; tools propose disjoint routes; escalate to L4.5.",
+  "routes_by_tool": {
+    "bionavi": [
+      "r3"
+    ],
+    "deepretro": [
+      "r4"
+    ],
+    "novostoic2": [
+      "r2"
+    ],
+    "retropath3": [
+      "r1"
+    ]
+  },
+  "target_inchi_key": "DSLNT-PLACEHOLDER"
+}

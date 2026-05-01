@@ -2,9 +2,15 @@ schema_version: synbio.source_manifest.v0.1
 source_id: unikp_PARKED
 uri: https://github.com/HanselYu/UniKP
 retrieval_method: git
-retrieved_at: "2026-05-01T00:00:00Z"
-license_spdx_or_text: "GitHub repo reports no license metadata and no top-level LICENSE file (per PRD §22 deep-research lookup, 2026-04-30)."
-license_class: D  # unverified; conservative until LICENSE file is committed
+retrieved_at: "2026-05-01T14:00:00Z"
+license_spdx_or_text: |
+  GitHub repo `HanselYu/UniKP` reports no license metadata. Re-verified
+  via `gh api repos/HanselYu/UniKP --jq '.license'` on 2026-05-01:
+  returned null. No SPDX identifier. No top-level LICENSE file is exposed
+  via the GitHub REST API. The repo's README does not declare a licence.
+  EF-UniKP did not surface as a public repository in the GitHub search
+  on the same date.
+license_class: D  # unverified; conservative until LICENSE file is committed in upstream
 allowed_use: unknown
 geography_restrictions: null
 checksum: "sha256:never-pulled"

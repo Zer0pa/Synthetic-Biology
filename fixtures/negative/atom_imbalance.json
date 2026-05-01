@@ -1,0 +1,12 @@
+{
+  "expected_falsifier": "f002_mass_balance_violation",
+  "expected_triggered": true,
+  "product_atoms": {
+    "C": 6,
+    "O": 5
+  },
+  "substrate_atoms": {
+    "C": 6,
+    "O": 6
+  }
+}

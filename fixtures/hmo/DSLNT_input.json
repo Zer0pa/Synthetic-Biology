@@ -1,0 +1,14 @@
+{
+  "enzyme_uniprot_id": "P15467",
+  "host_organism": {
+    "gem_id": "iML1515",
+    "refseq_genome_accession": "NC_000913.3",
+    "taxonomy_id": 562
+  },
+  "novelty_class": "fully_novel",
+  "target_compound": {
+    "inchi_key": "DSLNT-PLACEHOLDER",
+    "name": "Disialyllacto-N-tetraose (clinical NEC interest; novel target)",
+    "selfies": "[O][C][C@H1][O][C@@H1][Branch2][Ring1][Branch1][O][C][C@H1][O][C@H1][Branch1][C][O][C@H1][Branch1][C][O][C@@H1][Branch1][C][O][C@@H1][Ring1][=Branch2][O][C@H1][Branch1][C][O][C@@H1][Branch1][C][O][C@@H1][Ring2][Ring1][Ring2][O]"
+  }
+}

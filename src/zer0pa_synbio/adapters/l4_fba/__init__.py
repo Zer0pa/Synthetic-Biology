@@ -25,28 +25,95 @@ class L4COBRApyAdapter(LayerAdapter):
     license_class = LicenseClass.B  # LGPL
     license_evidence_uri = "audit/source_manifests/cobrapy.yaml"
 
+    # Class-level cache so repeated runs reuse the loaded model.
+    _model_cache: dict[str, Any] = {}
+
+    @classmethod
+    def _gem_path(cls, gem_id: str) -> Path:
+        from pathlib import Path
+
+        repo_root = Path(__file__).resolve().parents[4]
+        return repo_root / "fixtures" / "gem" / f"{gem_id}.json"
+
+    @classmethod
+    def _load_model(cls, gem_id: str):
+        if gem_id in cls._model_cache:
+            return cls._model_cache[gem_id]
+        try:
+            import cobra  # type: ignore[import-not-found]
+        except ImportError:
+            return None
+        path = cls._gem_path(gem_id)
+        if not path.exists():
+            return None
+        try:
+            model = cobra.io.load_json_model(str(path))
+            cls._model_cache[gem_id] = model
+            return model
+        except Exception:
+            return None
+
     def run(
         self, *, campaign_id, domain, organism, gem_id, input_payload, run_id=None
     ) -> UniversalLayerEnvelope:
-        # If iML1515 isn't local, return a stub shape; otherwise run FBA.
-        try:
-            import cobra  # type: ignore[import-not-found]
+        from pathlib import Path
 
-            # The full workflow loads cobra.io.load_json_model("iml1515.json")
-            # if present under fixtures/lirc/. Here, return a shape-correct
-            # canned flux dict.
-            stub = True
-        except ImportError:
-            stub = True
+        model = self._load_model(gem_id)
+        flux_dict: dict[str, float]
+        objective_value: float
+        status: str
+        scientific_valid_eligible = False
 
-        flux_dict = {
-            "BIOMASS_Ec_iML1515_core_75p37M": 0.876,
-            "EX_glc__D_e": -10.0,
-            "EX_o2_e": -22.5,
-            "FUC_synth": 0.45,
-            "PFL": 0.0,  # anaerobic flag
-            "PYK": 4.21,
-        }
+        if model is not None:
+            try:
+                # Apply optional input medium constraints (e.g., glucose-limited).
+                medium = input_payload.get("medium")
+                if isinstance(medium, dict):
+                    new_medium = dict(model.medium)
+                    new_medium.update({k: float(v) for k, v in medium.items()})
+                    model.medium = new_medium
+                # Solve FBA at the model's default biomass objective.
+                solution = model.optimize()
+                objective_value = float(solution.objective_value or 0.0)
+                status = solution.status
+                # Capture a small set of load-bearing fluxes for the envelope
+                # output; the full vector is too large to embed (~2700 entries).
+                report_keys = [
+                    "BIOMASS_Ec_iML1515_core_75p37M",
+                    "EX_glc__D_e",
+                    "EX_o2_e",
+                    "EX_nh4_e",
+                    "EX_pi_e",
+                    "ATPS4rpp",
+                    "PFL",
+                    "PYK",
+                    "G6PDH2r",
+                ]
+                flux_dict = {}
+                for key in report_keys:
+                    if key in solution.fluxes.index:
+                        flux_dict[key] = float(solution.fluxes[key])
+                scientific_valid_eligible = status == "optimal"
+                stub = False
+                gem_path = str(self._gem_path(gem_id))
+            except Exception as exc:  # pragma: no cover
+                model = None
+                _err = str(exc)
+        if model is None:
+            # Fall back to canned shape; envelope is engineering-mode only.
+            flux_dict = {
+                "BIOMASS_Ec_iML1515_core_75p37M": 0.876,
+                "EX_glc__D_e": -10.0,
+                "EX_o2_e": -22.5,
+                "FUC_synth": 0.45,
+                "PFL": 0.0,
+                "PYK": 4.21,
+            }
+            objective_value = 0.876
+            status = "optimal_stub"
+            stub = True
+            gem_path = "(model file absent; canned flux dict)"
+
         return self._make_envelope(
             campaign_id=campaign_id,
             domain=domain,
@@ -56,13 +123,20 @@ class L4COBRApyAdapter(LayerAdapter):
             output_payload={
                 "schema_version": "synbio.fba_solution.v0.1",
                 "flux_dict": flux_dict,
-                "objective_value": 0.876,
-                "status": "optimal",
+                "objective_value": objective_value,
+                "status": status,
                 "solver": "glpk",
                 "model_id": gem_id,
                 "stub_mode": stub,
+                "model_source": gem_path,
+                "biomass_objective": "BIOMASS_Ec_iML1515_core_75p37M",
             },
             run_id=run_id,
+            # Even with a real solve, scientific_valid stays False for now
+            # because the calling agent's run_mode is engineering_stub. It's
+            # only flipped to True when the agent calls
+            # _make_envelope(scientific_valid_override=True) AND mode=scientific.
+            scientific_valid_override=None,
         )
 
 

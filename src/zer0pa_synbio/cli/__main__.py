@@ -86,18 +86,17 @@ def audit() -> None:
 
 @audit.command("verify")
 @click.argument("campaign_id")
-def audit_verify(campaign_id: str) -> None:
-    """Stub of the conformance verifier."""
-    runtime = REPO_ROOT / "audit" / "runtime" / campaign_id
-    if not runtime.exists():
-        click.echo(f"No audit runtime at {runtime}", err=True)
-        sys.exit(1)
-    envelopes_jsonl = runtime / "envelopes.jsonl"
-    if not envelopes_jsonl.exists():
-        click.echo(f"No envelopes at {envelopes_jsonl}", err=True)
-        sys.exit(1)
-    n = sum(1 for _ in envelopes_jsonl.read_text(encoding="utf-8").splitlines())
-    click.echo(f"Campaign {campaign_id}: {n} envelopes recorded.")
+@click.option("--json", "as_json", is_flag=True, help="Emit JSON instead of human-readable summary.")
+def audit_verify(campaign_id: str, as_json: bool) -> None:
+    """Conformance verifier per docs/synbio-audit-trail-v0.1-spec.md § 10."""
+    from zer0pa_synbio.audit.verify import verify_campaign
+
+    report = verify_campaign(REPO_ROOT, campaign_id)
+    if as_json:
+        click.echo(json.dumps(report.to_dict(), indent=2, sort_keys=True))
+    else:
+        click.echo(report.summary())
+    sys.exit(0 if report.passed else 1)
 
 
 def main() -> None:  # pragma: no cover

@@ -1,0 +1,14 @@
+{
+  "enzyme_uniprot_id": "Q56930",
+  "host_organism": {
+    "gem_id": "iML1515",
+    "refseq_genome_accession": "NC_000913.3",
+    "taxonomy_id": 562
+  },
+  "novelty_class": "reaction_class_known",
+  "target_compound": {
+    "inchi_key": "COFLCBMXHRDGMP-AHXISFCHSA-N",
+    "name": "3'-sialyllactose",
+    "selfies": "[O][C][C@H1][O][C@@H1][Branch2][Ring1][Branch1][O][C][C@H1][O][C@H1][Branch1][C][O][C@H1][Branch1][C][O][C@@H1][Branch1][C][O][C@@H1][Ring1][=Branch2][O][C@H1][Branch1][C][O][C@@H1][Branch1][C][O][C@@H1][Ring2][Ring1][Ring2][O]"
+  }
+}

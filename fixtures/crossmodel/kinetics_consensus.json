@@ -1,0 +1,12 @@
+{
+  "envelope_id": "sha256:fixture",
+  "enzyme_uniprot_id": "Q11075",
+  "expected_status": "pass",
+  "quantity": "kcat_per_s",
+  "values_by_model": {
+    "CEKM": 12.5,
+    "CatPred": 12.7,
+    "DLKcat": 12.4,
+    "TurNuP": 13.1
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "expected_falsifier": "f018_license_drift",
+  "expected_triggered": true,
+  "license_class": "E",
+  "license_grant_present": true,
+  "offending_source_uri": "https://bkms-react.tu-bs.de/api/v2/reactions",
+  "rationale": "BKMS-react is hard-blocked even with pretextual license_grant_present=True per PRD \u00a722."
+}
