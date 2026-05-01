@@ -9,7 +9,7 @@ envelope_chain_complete: true
 envelope_count: 11
 next_action: Runpod cutover Wave 4 (CEKM training) + Wave 5 (L4.5 inference) + Wave
   9 (full numerical run)
-pre_registered_acceptance_yaml: /workspace/synbio-run/repo/validation/hmo-seed-evidence/3pSL/acceptance.yaml
+pre_registered_acceptance_yaml: /Users/zer0palab/Synthetic Biology Pipeline/.claude/worktrees/hopeful-roentgen-e3c78e/validation/hmo-seed-evidence/3pSL/acceptance.yaml
 sbol_attestation_present: true
 scientific_valid_eligible: false
 seed_id: 3pSL

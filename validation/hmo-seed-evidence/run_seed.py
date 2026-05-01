@@ -85,6 +85,15 @@ SEED_INPUTS: dict[str, dict[str, Any]] = {
         "target_genes": ["FutC", "GalE", "ManB", "ManC", "Per", "Gmd", "WcaG"],
         "enzyme_uniprot_id": "Q11075",  # FutC alpha-1,2-fucosyltransferase
         "novelty_class": "known_reaction",
+        # GDP-fucose precursor pathway (BiGG-resolvable subset; final
+        # transferase step not in BiGG cache).
+        "eq_reactions": [
+            "bigg.metabolite:g6p = bigg.metabolite:f6p",       # PGI (shared)
+            "bigg.metabolite:f6p = bigg.metabolite:man6p",     # ManA (PMI)
+            "bigg.metabolite:man6p = bigg.metabolite:man1p",   # ManB (PMM)
+            "bigg.metabolite:utp + bigg.metabolite:g1p = bigg.metabolite:udpg + bigg.metabolite:ppi",  # UDP-Glc formation
+            "bigg.metabolite:udpg = bigg.metabolite:udpgal",   # GalE
+        ],
     },
     "3pSL": {
         "selfies_smiles": "OC[C@H]1O[C@@H](OC[C@H]2O[C@H](O)[C@H](O)[C@@H](O)[C@@H]2O)[C@H](O)[C@@H](O)[C@@H]1O",
@@ -93,6 +102,15 @@ SEED_INPUTS: dict[str, dict[str, Any]] = {
         "target_genes": ["NeuB", "NeuC", "NeuA", "Lst", "GalE"],  # CMP-Neu5Ac module + α-2,3-sialyltransferase
         "enzyme_uniprot_id": "Q56930",  # α-2,3-sialyltransferase reference
         "novelty_class": "reaction_class_known",
+        # Sialic-acid pathway upstream + UDP-Gal arm; NeuAc activation
+        # step (CMP-Neu5Ac) and final transferase not in BiGG cache.
+        "eq_reactions": [
+            "bigg.metabolite:g6p = bigg.metabolite:f6p",        # PGI (shared)
+            "bigg.metabolite:3pg = bigg.metabolite:2pg",        # PGAM
+            "bigg.metabolite:2pg = bigg.metabolite:pep + bigg.metabolite:h2o",  # ENO
+            "bigg.metabolite:utp + bigg.metabolite:g1p = bigg.metabolite:udpg + bigg.metabolite:ppi",
+            "bigg.metabolite:udpg = bigg.metabolite:udpgal",    # GalE
+        ],
     },
     "DSLNT": {
         "selfies_smiles": "OC[C@H]1O[C@@H](OC[C@H]2O[C@H](O)[C@H](O)[C@@H](O)[C@@H]2O)[C@H](O)[C@@H](O)[C@@H]1O",
@@ -101,6 +119,16 @@ SEED_INPUTS: dict[str, dict[str, Any]] = {
         "target_genes": ["Lst", "Sialy26", "GalT", "GnbG", "GalE"],
         "enzyme_uniprot_id": "P15467",  # α-2,6-sialyltransferase reference (placeholder)
         "novelty_class": "fully_novel",
+        # Same upstream as 3'-SL; DSLNT is a tetraose extension whose
+        # terminal transferase steps are not in BiGG cache.
+        "eq_reactions": [
+            "bigg.metabolite:g6p = bigg.metabolite:f6p",
+            "bigg.metabolite:f6p = bigg.metabolite:man6p",
+            "bigg.metabolite:3pg = bigg.metabolite:2pg",
+            "bigg.metabolite:2pg = bigg.metabolite:pep + bigg.metabolite:h2o",
+            "bigg.metabolite:utp + bigg.metabolite:g1p = bigg.metabolite:udpg + bigg.metabolite:ppi",
+            "bigg.metabolite:udpg = bigg.metabolite:udpgal",
+        ],
     },
 }
 
@@ -224,7 +252,10 @@ def run(seed: str) -> dict[str, Any]:
     )
     aw.write_disagreement(fba_disagreement)
     layer_envelopes["l4"] = fba_envs["COBRApy"]
-    # Real eQuilibrator MDF on representative glycolytic steps.
+    # Real eQuilibrator MDF on the seed-specific HMO precursor pathway.
+    # Uses the BiGG-resolvable subset of the seed's biosynthetic chain;
+    # terminal transferase steps (e.g. FutC, α-2,3-Lst) are not in the
+    # BiGG/eQuilibrator cache and are scored separately by L4 kinetics.
     thermo_env = L4EQuilibratorAdapter(run_mode=RunMode.scientific).run(
         campaign_id=campaign_id,
         domain=Domain.hmo,
@@ -232,10 +263,11 @@ def run(seed: str) -> dict[str, Any]:
         gem_id="iML1515",
         input_payload={
             "steps": [{"delta_g_kj_mol": 0}],
-            "eq_reactions": [
-                "bigg.metabolite:g6p = bigg.metabolite:f6p",
-                "bigg.metabolite:dhap = bigg.metabolite:g3p",
-            ],
+            "eq_reactions": spec["eq_reactions"],
+            "pathway_scope": (
+                "central_carbon + nucleotide-sugar precursor steps "
+                "(BiGG-resolvable subset of seed-specific pathway)"
+            ),
         },
         run_id=run_id,
     )
