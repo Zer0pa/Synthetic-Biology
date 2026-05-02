@@ -221,3 +221,50 @@ Items A–H from `HANDOFF-CPU-CONTINUATION.md` are now complete.
 - **fp-NULLasout** resisted: the macOS-x86_64 + Python-3.13 torch wheel gap was solved with a split-venv subprocess, not by declaring item A unfeasible.
 - **fp-flatteryasfreedom** resisted: split-venv architecture is honest about the platform constraint and documented; provisioning script committed.
 - **fp-efficiency-as-corner-cutting** resisted: TDA detector calibration was attempted iteratively, then deferred with explicit acknowledgement in code comments and tests rather than silently shipping a too-sensitive detector.
+
+---
+
+## 10. Lane status — Lab Front Door first-ten spine alignment (2026-05-02)
+
+Issue actioned: [#1](https://github.com/Zer0pa/Synthetic-Biology/issues/1) "Lab Front Door review note: restore first-ten README spine".
+
+**Receipts (post-push, GitHub main):**
+
+| Field | Value |
+|---|---|
+| HEAD SHA | `ee2e8f2de68079b8ad42fc51e9fb445fb3107f47` |
+| README blob SHA | `5a91e59eeb730d9243a45698c40587c1bfb739e1` |
+| README size | 13,377 bytes |
+| Visibility | INTERNAL (unchanged; operator-controlled) |
+
+**First-ten `##` headings on GitHub main (matches required spine):**
+
+1. `What This Is`
+2. `Pipeline Mechanics`
+3. `Key Metrics`
+4. `Repo Identity`
+5. `Readiness`
+6. `What We Prove`
+7. `What We Don't Claim`
+8. `Verification Status`
+9. `Proof Anchors`
+10. `Repo Shape`
+
+**Acceptance gates:**
+
+- ✓ First-ten headings exactly match the Lab Front Door workstream profile.
+- ✓ Lead is 20 words (≤30).
+- ✓ Key Metrics has exactly 4 data rows.
+- ✓ Proof Anchors has 6 anchors, each path resolves on GitHub main (verified via `gh api repos/Zer0pa/Synthetic-Biology/contents/<path>`).
+- ✓ No `Commercial Readiness` / `Tests and Verification` aliases.
+- ✓ Boundary block preserved verbatim and moved to a support section after `Repo Shape`.
+- ✓ Visibility unchanged.
+
+**Anchors verified on GitHub main:**
+
+- `PRD.md` — OK
+- `audit/falsifiers.yaml` — OK
+- `validation/hmo-seed-evidence` — OK
+- `docs/synbio-audit-trail-v0.1-spec.md` — OK
+- `src/zer0pa_synbio/cekm/train.py` — OK
+- `scripts/runpod` — OK
