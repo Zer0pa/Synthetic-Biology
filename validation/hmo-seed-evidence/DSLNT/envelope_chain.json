@@ -1,19 +1,19 @@
 {
   "campaign_id": "hmo_seed_DSLNT",
   "envelope_ids": [
-    "sha256:d791cf5c27cf2d3a775b09840ba919c5f2262620f0f8fb762d26def70fd140eb",
-    "sha256:7dba541f9147f68472ca760c99a5b9f157c0bc6a757b6849c36262641860f7ec",
-    "sha256:7873e23cdb2783689b3f28015d1121345a9d2c0f561dcc690cc904b11d76e26a",
-    "sha256:762f2ace0adbe0e2456c01abd66f1e3fd9f53a0ea7cecd2d3f0caf5aeda82697",
-    "sha256:5cf539e4773bd7bc130606d75f45efe9aa4c38beb39cc9efc7a52c1f1501b08d",
-    "sha256:7a0fb9628443dfb67b973e56b55e42af20c39dbb30c1dd776d13bbac1216a05f",
-    "sha256:ab5cd0cadeb3680a61b4470c8c63894156b606896ca4bcd9c41f1e32cbe0f00e",
-    "sha256:e305f67964a03f33c50b1026c68010a8bd75dc8b6830bf54438954ca01f2ae32",
-    "sha256:253a34f3a6fc98eaee88489315b2253253d14838a2cfa647cbd65d92ada863a2",
-    "sha256:81394ad1c217993910f289fdebecd91ccae240bd86233223d1e1f7a824b2cb9c",
-    "sha256:2fdf2f375e1b7537e7d3900bc030d7a158b2ed42a37eee278cf37a4683215ee2"
+    "sha256:4734f034aeb086d33eafb736fa23d1d7392b4052b387e85c615745337cdd57c1",
+    "sha256:7eb663a9c973e82c58557e631df41308cfc2c96e6fe436ac7fd7caa494dbd0c1",
+    "sha256:5b5137d6bdbb08c00ee779749e44a5716d6ff68e2acb75273560e3e08b0fd5ab",
+    "sha256:636625a7bc8a6de6b059d7e92a783b2be065abddb58572de794a8656d086787f",
+    "sha256:1cf2ec524d9d02a7275f01f3c2e96461bcd989db2ca759e6998e078f6086022c",
+    "sha256:bedc7dfd44a15e17b63c29de33dba80140938ecf0f4d118462305d25b5100bcc",
+    "sha256:9c102253f43c56ebc985b61c679567dea8b97535c377dd386e95661d5fbc72c4",
+    "sha256:fa273ea75be778d85b6f61f65bef8ef49a88ed0462f6bae3e85e162d7241d17c",
+    "sha256:18362a3dd5c671f6bbcbea36dde95becab241f8ebc44616048026f731660c609",
+    "sha256:0c0802e8537558b18aecb61187485b71dff24dc2f7bbba5c04540068b2dd2cdd",
+    "sha256:c5a952e1bec79d0b6f1197ebc04503e2896b37c8f19e9c27fb5c2467bf5b8956"
   ],
-  "sbol3_uri": "/Users/zer0palab/Synthetic Biology Pipeline/.claude/worktrees/hopeful-roentgen-e3c78e/audit/runtime/hmo_seed_DSLNT/sbol/gms_DSLNT_canonical.sbol3.xml",
+  "sbol3_uri": "/workspace/Synthetic-Biology/audit/runtime/hmo_seed_DSLNT/sbol/gms_DSLNT_canonical.sbol3.xml",
   "sbol_sha256": "71419739ec4b820a3cb935f7337808fb9caca5534099f1fbffd992bcf6557aad",
   "seed": "DSLNT"
 }

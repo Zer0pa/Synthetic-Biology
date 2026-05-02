@@ -3,7 +3,7 @@
   "boundary": "Research infrastructure for in silico synthetic biology / metabolic pathway engineering. Outputs are research artifacts \u2014 predicted pathways, predicted KPIs, candidate genetic modification specifications. No regulatory certification claims. No clinical or human-subject use. No environmental release of GMOs. No biocontainment-level claims (the pipeline does not commission BSL-2/3 work). No human gene drive or eugenic application. Defence / weapons / dual-use bio applications excluded under operator policy.",
   "campaign_id": "hmo_seed_DSLNT",
   "cftxtl_observation_envelope_ids": [
-    "sha256:81394ad1c217993910f289fdebecd91ccae240bd86233223d1e1f7a824b2cb9c"
+    "sha256:0c0802e8537558b18aecb61187485b71dff24dc2f7bbba5c04540068b2dd2cdd"
   ],
   "consumer_recommendation": "human_cro",
   "cross_model_disagreement_summary": [],
@@ -12,7 +12,7 @@
   "dossier_id": "dossier_DSLNT_round_0",
   "early_warning_summary": [],
   "falsifier_summary": [],
-  "gms_envelope_id": "sha256:253a34f3a6fc98eaee88489315b2253253d14838a2cfa647cbd65d92ada863a2",
+  "gms_envelope_id": "sha256:18362a3dd5c671f6bbcbea36dde95becab241f8ebc44616048026f731660c609",
   "host_organism": {
     "gem_id": "iML1515",
     "refseq_genome_accession": "NC_000913.3",
@@ -38,23 +38,23 @@
   ],
   "literature_refs": [],
   "prov_o_chain_uri": "",
-  "ranked_pathway_set_envelope_id": "sha256:ab5cd0cadeb3680a61b4470c8c63894156b606896ca4bcd9c41f1e32cbe0f00e",
-  "sbol_attestation_uri": "/Users/zer0palab/Synthetic Biology Pipeline/.claude/worktrees/hopeful-roentgen-e3c78e/audit/runtime/hmo_seed_DSLNT/sbol/gms_DSLNT_canonical.sbol3.xml",
+  "ranked_pathway_set_envelope_id": "sha256:9c102253f43c56ebc985b61c679567dea8b97535c377dd386e95661d5fbc72c4",
+  "sbol_attestation_uri": "/workspace/Synthetic-Biology/audit/runtime/hmo_seed_DSLNT/sbol/gms_DSLNT_canonical.sbol3.xml",
   "schema_version": "synbio.dossier.v0.1",
   "sha256_hash_chain": [
-    "sha256:d791cf5c27cf2d3a775b09840ba919c5f2262620f0f8fb762d26def70fd140eb",
-    "sha256:7dba541f9147f68472ca760c99a5b9f157c0bc6a757b6849c36262641860f7ec",
-    "sha256:7873e23cdb2783689b3f28015d1121345a9d2c0f561dcc690cc904b11d76e26a",
-    "sha256:762f2ace0adbe0e2456c01abd66f1e3fd9f53a0ea7cecd2d3f0caf5aeda82697",
-    "sha256:5cf539e4773bd7bc130606d75f45efe9aa4c38beb39cc9efc7a52c1f1501b08d",
-    "sha256:7a0fb9628443dfb67b973e56b55e42af20c39dbb30c1dd776d13bbac1216a05f",
-    "sha256:ab5cd0cadeb3680a61b4470c8c63894156b606896ca4bcd9c41f1e32cbe0f00e",
-    "sha256:e305f67964a03f33c50b1026c68010a8bd75dc8b6830bf54438954ca01f2ae32",
-    "sha256:253a34f3a6fc98eaee88489315b2253253d14838a2cfa647cbd65d92ada863a2",
-    "sha256:81394ad1c217993910f289fdebecd91ccae240bd86233223d1e1f7a824b2cb9c",
+    "sha256:4734f034aeb086d33eafb736fa23d1d7392b4052b387e85c615745337cdd57c1",
+    "sha256:7eb663a9c973e82c58557e631df41308cfc2c96e6fe436ac7fd7caa494dbd0c1",
+    "sha256:5b5137d6bdbb08c00ee779749e44a5716d6ff68e2acb75273560e3e08b0fd5ab",
+    "sha256:636625a7bc8a6de6b059d7e92a783b2be065abddb58572de794a8656d086787f",
+    "sha256:1cf2ec524d9d02a7275f01f3c2e96461bcd989db2ca759e6998e078f6086022c",
+    "sha256:bedc7dfd44a15e17b63c29de33dba80140938ecf0f4d118462305d25b5100bcc",
+    "sha256:9c102253f43c56ebc985b61c679567dea8b97535c377dd386e95661d5fbc72c4",
+    "sha256:fa273ea75be778d85b6f61f65bef8ef49a88ed0462f6bae3e85e162d7241d17c",
+    "sha256:18362a3dd5c671f6bbcbea36dde95becab241f8ebc44616048026f731660c609",
+    "sha256:0c0802e8537558b18aecb61187485b71dff24dc2f7bbba5c04540068b2dd2cdd",
     "sbol3:71419739ec4b820a3cb935f7337808fb9caca5534099f1fbffd992bcf6557aad",
     "prov:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "dossier:3a31c3a1ac35755bf35808416b868cc42123f19e5e13adcf5a8b2b1be79c4a2a"
+    "dossier:cc2575f29be300d936fbeab00d93a83e3652ea7b522ffe38feebacea5e289125"
   ],
   "target_compound_inchi_key": "DSLNT-PLACEHOLDER-INCHIKEY",
   "validation_sequence": {
@@ -70,7 +70,7 @@
           "knockin_genes": [
             "FutC"
           ],
-          "pathway_id": "p_2pfl_canonical",
+          "pathway_id": "p_2pfl_alt_3step",
           "promoter": "Ptrc"
         }
       },

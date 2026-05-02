@@ -3,7 +3,7 @@
   "boundary": "Research infrastructure for in silico synthetic biology / metabolic pathway engineering. Outputs are research artifacts \u2014 predicted pathways, predicted KPIs, candidate genetic modification specifications. No regulatory certification claims. No clinical or human-subject use. No environmental release of GMOs. No biocontainment-level claims (the pipeline does not commission BSL-2/3 work). No human gene drive or eugenic application. Defence / weapons / dual-use bio applications excluded under operator policy.",
   "campaign_id": "hmo_seed_2pFL",
   "cftxtl_observation_envelope_ids": [
-    "sha256:b79884de39d8c2c5d297a9e1da82a5db3c36bf6ae51005fa5ae79fe5eff9940f"
+    "sha256:03ab4b83744b88c3a5ba714b8e5ded63957df800cc1a2b36e1ffd842a445f58c"
   ],
   "consumer_recommendation": "human_cro",
   "cross_model_disagreement_summary": [],
@@ -12,7 +12,7 @@
   "dossier_id": "dossier_2pFL_round_0",
   "early_warning_summary": [],
   "falsifier_summary": [],
-  "gms_envelope_id": "sha256:245662a09e4f5463bc434d9491fe955cfac8e32d9d79390459da75b0b97029f4",
+  "gms_envelope_id": "sha256:8df0ef8739ac286054d546822b7d94254488b3286c001d4a231a7ff0efa0c0db",
   "host_organism": {
     "gem_id": "iML1515",
     "refseq_genome_accession": "NC_000913.3",
@@ -38,22 +38,22 @@
   ],
   "literature_refs": [],
   "prov_o_chain_uri": "",
-  "ranked_pathway_set_envelope_id": "sha256:434a24df69fe342d9bec0660e0cdc77d2be3caa37dcc7d57d816be4cbb7ab710",
-  "sbol_attestation_uri": "/Users/zer0palab/Synthetic Biology Pipeline/.claude/worktrees/hopeful-roentgen-e3c78e/audit/runtime/hmo_seed_2pFL/sbol/gms_2pFL_canonical.sbol3.xml",
+  "ranked_pathway_set_envelope_id": "sha256:3ae2c9ab48941c660dab5029cdacc7fca8456eae84956138b49383d00951b620",
+  "sbol_attestation_uri": "/workspace/Synthetic-Biology/audit/runtime/hmo_seed_2pFL/sbol/gms_2pFL_canonical.sbol3.xml",
   "schema_version": "synbio.dossier.v0.1",
   "sha256_hash_chain": [
-    "sha256:27c72d55253b92f2e021bcfe940de7ac787572afa1112482d6f4ca83d19d43b3",
-    "sha256:296342814b50e120470f6e08b75db4d654ad7d560e2185a7e5b0c16210c926e7",
-    "sha256:ed27b48ca692b8150948ce8b735314fd0cf982f1719dca0c57d84b947d6d686d",
-    "sha256:75601e1d22c6c12100b862f2edb655fbe05313510f2f02ceb74ba27b1a8343d3",
-    "sha256:ec6a86d4bbbbbf3766486eb0dc97e88e5f60d3a1789ec6ebf189656f48ed0951",
-    "sha256:434a24df69fe342d9bec0660e0cdc77d2be3caa37dcc7d57d816be4cbb7ab710",
-    "sha256:c5a0d452fd0512b157e1485a08df1003c4d89ea78c0722b57c70f1d69ce1f8cb",
-    "sha256:245662a09e4f5463bc434d9491fe955cfac8e32d9d79390459da75b0b97029f4",
-    "sha256:b79884de39d8c2c5d297a9e1da82a5db3c36bf6ae51005fa5ae79fe5eff9940f",
+    "sha256:c6bcbff2b6254f451e1bd2167616f4733ed7472c4bcef0668a0b0deab1b184b4",
+    "sha256:5612738a8ddf95f77f8431489a3b941c8d4d47fd6438d9eac8e6a8d0fdab3e9a",
+    "sha256:fc42735cbe553b9effe5a763bcf9b0a85588cb8f513810748025465a51aef7dc",
+    "sha256:b968559a5474a045be0aa88892504f8afa1681e129c57688f438a50c482ed15c",
+    "sha256:ab23d555987fa4b8cbc7158db99e76535682ba65d0f43a6bb11f1e611be24fc7",
+    "sha256:3ae2c9ab48941c660dab5029cdacc7fca8456eae84956138b49383d00951b620",
+    "sha256:2e6d6c0327815be85735650ae958b5016a097c2d2509bf8f463ea3159ea8cf17",
+    "sha256:8df0ef8739ac286054d546822b7d94254488b3286c001d4a231a7ff0efa0c0db",
+    "sha256:03ab4b83744b88c3a5ba714b8e5ded63957df800cc1a2b36e1ffd842a445f58c",
     "sbol3:621a411f337763e00dc287ff7af1b5a7d30f7a8b3f274ffbf56dd9a12de03d27",
     "prov:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "dossier:78327b8256bedfa9b7207c9c75df371c7d15c3c5a7d968655146340292a4a72f"
+    "dossier:96d918b9ede061546b29450122e8df21e887a10c3933f9448b591349e2ec27c4"
   ],
   "target_compound_inchi_key": "GFXBRIYRYYFCIA-LWNAIEPUSA-N",
   "validation_sequence": {
@@ -69,7 +69,7 @@
           "knockin_genes": [
             "FutC"
           ],
-          "pathway_id": "p_2pfl_canonical",
+          "pathway_id": "p_2pfl_alt_3step",
           "promoter": "Ptrc"
         }
       },
