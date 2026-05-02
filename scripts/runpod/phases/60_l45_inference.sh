@@ -97,49 +97,19 @@ PY
 
 run_mace_off_binding() {
     local seed="$1" uniprot="$2" substrate_smiles="$3" out_dir="$4"
-    log "MACE-OFF binding: seed=$seed uniprot=$uniprot substrate=$substrate_smiles"
-    python - <<PY 2>&1 | tee -a "$out_dir/mace_${uniprot}.log"
-# Real MACE-OFF binding ΔG = E(complex) - E(protein) - E(substrate)
-# Per-run geometry optimization on H100. v0.1 uses a small protein
-# fragment around the active site; full-protein MACE-OFF is too costly.
-import os, json, pathlib
-try:
-    from mace.calculators import MACECalculator
-    from ase import Atoms
-    from ase.optimize import BFGS
-    print("mace + ase imported")
-except Exception as e:
-    print(f"WARNING: mace/ase not available: {e}; emitting placeholder.")
-    out = pathlib.Path("$out_dir")
-    (out / "mace_${uniprot}_placeholder.json").write_text(json.dumps({
-        "uniprot_id": "$uniprot", "seed": "$seed",
-        "substrate_smiles": "$substrate_smiles",
-        "binding_dg_kj_mol": None,
-        "tool": "mace_off (UNAVAILABLE)",
-        "warning": "mace-torch import failed",
-    }, indent=2, sort_keys=True))
-    raise SystemExit(0)
-
-# Placeholder: emit a structurally-correct envelope. Full MACE-OFF
-# wiring (load .pdb + ligand, build Atoms, optimize, compute energies)
-# is the next sub-step in this script — the operator can swap in the
-# real implementation once the test geometry is curated.
-out = pathlib.Path("$out_dir")
-out.mkdir(parents=True, exist_ok=True)
-(out / "mace_${uniprot}.json").write_text(json.dumps({
-    "uniprot_id": "$uniprot", "seed": "$seed",
-    "substrate_smiles": "$substrate_smiles",
-    "tool": "mace_off",
-    "status": "skeleton; geometry curation needed",
-    "binding_dg_kj_mol": None,
-}, indent=2, sort_keys=True))
-print("MACE-OFF placeholder written")
-PY
+    local pdb="$out_dir/${uniprot}.pdb"
+    if [[ ! -f "$pdb" ]]; then
+        log "MACE-OFF skip $uniprot: PDB not present (ESMFold likely failed)"
+        return 0
+    fi
+    log "MACE-OFF binding (real 3-run reference subtraction): seed=$seed uniprot=$uniprot"
+    python -m zer0pa_synbio.runpod_inference.mace_off_binding \
+        "$pdb" "$substrate_smiles" "$out_dir" "$seed" 2>&1 | tee -a "$out_dir/mace_${uniprot}.log"
 }
 
 run_rfdiffusion2() {
     local seed="$1" out_dir="$2"
-    log "RFdiffusion2 scaffolding for $seed (public weights from files.ipd.uw.edu)…"
+    log "RFdiffusion2 inference for $seed (public weights from files.ipd.uw.edu)…"
 
     local RF_DIR="/workspace/models/rfdiffusion2"
     if [[ ! -d "$RF_DIR/repo" ]]; then
@@ -160,28 +130,12 @@ run_rfdiffusion2() {
         log "Downloaded $(du -h "$RF_DIR/RF_structure_prediction_weights.pt" | awk '{print $1}')."
     fi
 
-    # The RFdiffusion2 inference invocation is non-trivial (requires
-    # SE3-Transformer + dgl + hydra config layering). For v0.1 we
-    # record that weights + repo are in place and emit a structured
-    # status so phase 70 / the operator can run the scaffolding step
-    # standalone via the upstream `scripts/run_inference.py`.
-    python - <<PY 2>&1 | tee -a "$out_dir/rfdiffusion2.log"
-import json, pathlib, os
-out = pathlib.Path("$out_dir")
-out.mkdir(parents=True, exist_ok=True)
-weights = pathlib.Path("$RF_DIR/RF_structure_prediction_weights.pt")
-(out / "rfdiffusion2_status.json").write_text(json.dumps({
-    "seed": "$seed",
-    "tool": "rfdiffusion2",
-    "license": "BSD-3-Clause",
-    "weights_path": str(weights) if weights.exists() else None,
-    "weights_size_bytes": weights.stat().st_size if weights.exists() else None,
-    "repo_path": "$RF_DIR/repo",
-    "status": "weights+repo staged; inference invocation pending operator-curated motif spec",
-    "next_step": "cd $RF_DIR/repo && ./scripts/run_inference.py +contigs=...",
-}, indent=2, sort_keys=True))
-print("RFdiffusion2 status emitted (weights staged; full inference is a curated step)")
-PY
+    # Real invocation via the runpod_inference module. Generates 3
+    # unconditional 100-residue scaffolds per seed (proof-of-life that
+    # real RFdiffusion2 inference ran). Curated motif-conditional
+    # designs for catalytic active sites are downstream of v0.1.
+    python -m zer0pa_synbio.runpod_inference.rfdiffusion2_design \
+        "$seed" "$out_dir" 3 "100" 2>&1 | tee -a "$out_dir/rfdiffusion2.log"
 }
 
 # ─── per-seed loop ───────────────────────────────────────────────────────
