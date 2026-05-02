@@ -314,9 +314,27 @@ def checkpoint_state_from_dict(d: dict[str, Any]) -> CheckpointState:
 
 
 def _latest_checkpoint(checkpoint_dir: Path) -> Path | None:
-    """Return the metadata JSON for the most recent checkpoint, or None."""
-    meta_files = sorted(checkpoint_dir.glob("ckpt_step*.meta.json"))
-    return meta_files[-1] if meta_files else None
+    """Return the metadata JSON for the most recent VALID checkpoint, or None.
+
+    Skips zero-byte meta files (interrupted save under mfs quota / network
+    drop) and meta files whose .pt sibling is missing or truncated. Both
+    indicate a corrupted partial save that would crash json.loads on resume.
+    """
+    meta_files = sorted(checkpoint_dir.glob("ckpt_step*.meta.json"), reverse=True)
+    for m in meta_files:
+        try:
+            if m.stat().st_size == 0:
+                log.warning("Skipping zero-byte (interrupted) checkpoint meta: %s", m)
+                continue
+            pt = m.parent / m.name.replace(".meta.json", ".pt")
+            if not pt.exists() or pt.stat().st_size < 100_000_000:
+                log.warning("Skipping checkpoint with missing/truncated .pt: %s (pt_size=%s)", m, pt.stat().st_size if pt.exists() else "missing")
+                continue
+            return m
+        except OSError as e:
+            log.warning("Skipping unreadable checkpoint meta %s: %s", m, e)
+            continue
+    return None
 
 
 def save_checkpoint(
