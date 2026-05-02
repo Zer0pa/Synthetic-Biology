@@ -56,14 +56,19 @@ esac
 log "Attempt #$ATTEMPT — using batch_size=$BS gradient_accumulation_steps=$GA"
 
 CFG_THIS_ATTEMPT="$REPO_DIR/audit/runtime/runpod/wave4_attempt_${ATTEMPT}.yaml"
-python - <<PY
-import yaml
-cfg = yaml.safe_load(open('$CFG_ACTIVE'))
-cfg['batch_size'] = $BS
-cfg['gradient_accumulation_steps'] = $GA
-yaml.safe_dump(cfg, open('$CFG_THIS_ATTEMPT', 'w'), sort_keys=False)
-print('wrote', '$CFG_THIS_ATTEMPT')
-PY
+# Use cp + sed for the per-attempt config — Python heredoc stdout-to-file
+# was producing 0-byte files under transient mfs quota pressure on the
+# 2026-05-02 H100 pod run, which then loaded as TrainingConfig defaults
+# (campaign=cekm_v0, max_steps=20000, no corpus paths) and silently
+# bypassed real training.
+cp "$CFG_ACTIVE" "$CFG_THIS_ATTEMPT"
+sed -i "s/^batch_size:.*/batch_size: $BS/" "$CFG_THIS_ATTEMPT"
+sed -i "s/^gradient_accumulation_steps:.*/gradient_accumulation_steps: $GA/" "$CFG_THIS_ATTEMPT"
+if [[ ! -s "$CFG_THIS_ATTEMPT" ]]; then
+    log "FATAL: per-attempt config $CFG_THIS_ATTEMPT empty after write (disk/quota pressure?)"
+    exit 35
+fi
+log "wrote $CFG_THIS_ATTEMPT ($(stat -c %s "$CFG_THIS_ATTEMPT") bytes)"
 
 log "Launching synbio cekm train…"
 log "GPU snapshot before training:"
