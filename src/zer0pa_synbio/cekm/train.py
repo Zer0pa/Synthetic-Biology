@@ -494,11 +494,15 @@ def build_model(cfg: TrainingConfig) -> Any:
     try:
         import torch
         model = CEKMModel(cfg)
-        if cfg.use_bf16:
-            try:
-                model = model.to(torch.bfloat16)
-            except Exception:
-                pass  # bfloat16 may not be supported on this device
+        # Note: do NOT cast model.to(bfloat16) here even when cfg.use_bf16
+        # is true. The training loop wraps forward in
+        # `torch.autocast(device_type="cuda", dtype=bfloat16)` which
+        # handles per-op casting correctly. Pre-casting the weights to
+        # bf16 collides with autocast's casts at the op boundaries
+        # (specifically: freshly-allocated float32 tensors inside a
+        # bf16 model trigger "mat1 and mat2 must have the same dtype"
+        # on every step). Confirmed empirically on the 2026-05-02 H100
+        # pod run — see HANDOFF for the trace.
         log.info(
             "build_model(): CEKMModel instantiated (esm2_real=%s, substrate_mode=%s).",
             model._using_real_esm2,
@@ -1712,14 +1716,53 @@ def cekm_eval(config_path: Path, checkpoint_path: Path) -> None:
     ckpt_state = load_checkpoint(Path(checkpoint_path))
     click.echo(f"Loaded checkpoint at step {ckpt_state.step}")
 
-    # TODO(wave4): load real model, build real corpus, run calibration_audit().
-    slices: list[CorpusSlice] = []
+    # Real-corpus path: load slices the same way `cekm_train` does so the
+    # held-out partition + adversarial negatives match what was trained on.
+    from zer0pa_synbio.cekm.loaders import load_corpus_slices_from_config
+
+    slices: list[CorpusSlice] = load_corpus_slices_from_config(cfg)
+    if slices:
+        for s in slices:
+            click.echo(
+                f"Loaded {s.source}: {len(s.rows)} rows (license_class={s.license_class})"
+            )
+    else:
+        click.echo(
+            "WARNING: cekm_eval ran with no real-corpus paths in config — "
+            "calibration audit will return None. Set brenda_tsv_path / "
+            "enzyextract_tsv_path / gotenzymes2_jsonl_path / proteingym_csv_path."
+        )
     rows, split = build_corpus_and_split(cfg, slices)
     decoy_pool = build_decoy_pool(cfg, rows)
     in_corpus_rows = [r for r in rows if r.row_id in split.in_corpus_row_ids]
     negatives = sample_adversarial_negatives(in_corpus_rows, decoy_pool, seed=cfg.seed)
 
-    model = None  # TODO(wave4): load from ckpt_state.model_state_path
+    # Load the trained model from the checkpoint's referenced .pt file.
+    model = build_model(cfg)
+    if model is not None:
+        try:
+            import torch  # type: ignore
+            from pathlib import Path as _P
+
+            pt_path = _P(ckpt_state.model_state_path) if ckpt_state.model_state_path else (
+                Path(checkpoint_path).with_suffix("").parent /
+                f"ckpt_step{ckpt_state.step:08d}.pt"
+            )
+            if pt_path.exists():
+                state = torch.load(pt_path, map_location="cpu", weights_only=False)
+                if isinstance(state, dict) and "model_state_dict" in state:
+                    model.load_state_dict(state["model_state_dict"], strict=False)
+                else:
+                    model.load_state_dict(state, strict=False)
+                click.echo(f"Loaded model state from {pt_path}")
+                if torch.cuda.is_available():
+                    model = model.to("cuda")
+                model.eval()
+            else:
+                click.echo(f"WARNING: .pt file not found at {pt_path}; calibration with random init")
+        except Exception as exc:
+            click.echo(f"WARNING: failed to load model state ({exc}); calibration with random init")
+
     report = calibration_audit(model, rows, negatives, split, cfg)
     click.echo(json.dumps(report.to_dict(), indent=2))
     if not calibration_passed(report):

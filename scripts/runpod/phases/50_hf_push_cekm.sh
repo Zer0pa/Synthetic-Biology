@@ -24,9 +24,15 @@ import yaml; cfg = yaml.safe_load(open('$CFG_ACTIVE')); print(cfg.get('checkpoin
 log "Pushing CEKM artifacts to HF repo: $HF_REPO"
 
 # Push the directory; HF CLI handles deltas + retries internally.
+# `hf upload --include` accepts ONE pattern per flag — pass each
+# pattern as its own --include rather than space-separated args
+# (which the CLI rejects as "unexpected extra arguments").
 hf upload "$HF_REPO" "$CKPT_DIR" "." \
     --commit-message "Pod-autonomous CEKM checkpoint push at $(ts)" \
-    --include "ckpt_step*" "cekm_training_audit.jsonl" "*.meta.json" "README.md" \
+    --include "ckpt_step*" \
+    --include "*.meta.json" \
+    --include "cekm_training_audit.jsonl" \
+    --include "README.md" \
     2>&1 | tee "$REPO_DIR/audit/runtime/runpod/cekm_hf_push.log"
 
 # Verify by querying HF that the latest checkpoint is present.
