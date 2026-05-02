@@ -47,9 +47,13 @@ download_from_hf_or_direct() {
     fi
     if [[ "$hf_dataset_exists" == "1" ]]; then
         log "Pulling $source from HF dataset…"
+        # hf download places file at <local-dir>/<path-in-repo>; the
+        # caller's $out_path already includes the source subdir, so we
+        # must point --local-dir at $DATA_ROOT (one level up) so the
+        # path-in-repo subdir lands as $out_path.
         if hf download "$HF_CORPUS_REPO" "$hf_path" --repo-type dataset \
-            --local-dir "$(dirname "$out_path")" >/dev/null 2>&1; then
-            return 0
+            --local-dir "$DATA_ROOT" >/dev/null 2>&1; then
+            [[ -f "$out_path" ]] && return 0
         fi
         log "HF dataset pull failed for $source; trying direct."
     fi
@@ -72,7 +76,7 @@ if [[ -f "$BRENDA_TSV" ]]; then
 elif [[ "$hf_dataset_exists" == "1" ]]; then
     log "Pulling BRENDA from HF dataset…"
     hf download "$HF_CORPUS_REPO" "brenda/brenda_data.tsv" --repo-type dataset \
-        --local-dir "$DATA_ROOT/brenda" >/dev/null 2>&1 || \
+        --local-dir "$DATA_ROOT" >/dev/null 2>&1 || \
         log "WARNING: BRENDA not on HF dataset. CEKM will train without BRENDA core (EnzyExtract + GotEnzymes2 + ProteinGym only)."
 else
     log "WARNING: BRENDA not pre-staged. Operator must run scripts/runpod/stage_corpora_to_hf.sh before next pod."
@@ -84,7 +88,7 @@ if [[ ! -f "$ENZYEXTRACT_PARQUET" ]]; then
     if [[ "$hf_dataset_exists" == "1" ]]; then
         log "Pulling EnzyExtract parquet from HF dataset…"
         hf download "$HF_CORPUS_REPO" "enzyextract/EnzyExtractDB_176463.parquet" --repo-type dataset \
-            --local-dir "$DATA_ROOT/enzyextract" >/dev/null 2>&1
+            --local-dir "$DATA_ROOT" >/dev/null 2>&1
     fi
     if [[ ! -f "$ENZYEXTRACT_PARQUET" ]]; then
         log "Direct download EnzyExtract parquet from ChemBioHTP/EnzyExtract…"
@@ -99,7 +103,7 @@ GOTENZYMES2_JSONL="$DATA_ROOT/gotenzymes2/gotenzymes2_bulk.jsonl"
 if [[ ! -f "$GOTENZYMES2_JSONL" ]]; then
     if [[ "$hf_dataset_exists" == "1" ]]; then
         hf download "$HF_CORPUS_REPO" "gotenzymes2/gotenzymes2_bulk.jsonl" --repo-type dataset \
-            --local-dir "$DATA_ROOT/gotenzymes2" >/dev/null 2>&1 || \
+            --local-dir "$DATA_ROOT" >/dev/null 2>&1 || \
             log "WARNING: GotEnzymes2 not on HF dataset; bulk pull from gotenzymes.io would go here."
     else
         log "WARNING: GotEnzymes2 not pre-staged."
@@ -111,7 +115,7 @@ PROTEINGYM_CSV="$DATA_ROOT/proteingym/DMS_substitutions.csv"
 if [[ ! -f "$PROTEINGYM_CSV" ]]; then
     if [[ "$hf_dataset_exists" == "1" ]]; then
         hf download "$HF_CORPUS_REPO" "proteingym/DMS_substitutions.csv" --repo-type dataset \
-            --local-dir "$DATA_ROOT/proteingym" >/dev/null 2>&1
+            --local-dir "$DATA_ROOT" >/dev/null 2>&1
     fi
     if [[ ! -f "$PROTEINGYM_CSV" ]]; then
         log "Direct download ProteinGym DMS_substitutions.csv from OATML-Markslab/ProteinGym…"

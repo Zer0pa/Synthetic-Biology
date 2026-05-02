@@ -19,12 +19,20 @@ log "Active Python: $(which python) ($(python --version))"
 
 pip install --quiet --upgrade pip wheel setuptools
 
+# Pin numpy<2 first — RDKit wheels are compiled against NumPy 1.x ABI;
+# numpy 2.x triggers AttributeError: _ARRAY_API not found at import.
+# Must precede the editable install so any deep-learning install pulling
+# in numpy>=2 gets capped here.
+pip install --quiet "numpy<2"
+
 # ─── Editable install of synbio + its declared extras ─────────────────────
 log "Installing zer0pa-synbio editable + extras…"
 pip install --quiet -e ".[all,mfmo,dev]" 2>&1 | tail -5 || {
     log "Editable install with extras failed; falling back to base install."
     pip install --quiet -e .
 }
+# Some extras may upgrade numpy; reinstall to keep the cap.
+pip install --quiet "numpy<2" 2>&1 | tail -2
 
 # ─── Torch + CUDA (must match pod's CUDA driver) ─────────────────────────
 if ! python -c "import torch; assert torch.cuda.is_available()" 2>/dev/null; then
