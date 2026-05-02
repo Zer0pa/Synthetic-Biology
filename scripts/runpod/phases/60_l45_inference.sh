@@ -130,12 +130,13 @@ run_rfdiffusion2() {
         log "Downloaded $(du -h "$RF_DIR/RF_structure_prediction_weights.pt" | awk '{print $1}')."
     fi
 
-    # Real invocation via the runpod_inference module. Generates 3
-    # unconditional 100-residue scaffolds per seed (proof-of-life that
-    # real RFdiffusion2 inference ran). Curated motif-conditional
-    # designs for catalytic active sites are downstream of v0.1.
+    # Real invocation via the runpod_inference module. v0.1 generates
+    # 1 unconditional 100-residue scaffold per seed (proof-of-life on
+    # GPU; tighter than the 3-per-seed target so phase 60 fits inside
+    # the autonomous-run pod budget). Curated motif-conditional designs
+    # for catalytic active sites are downstream of v0.1.
     python -m zer0pa_synbio.runpod_inference.rfdiffusion2_design \
-        "$seed" "$out_dir" 3 "100" 2>&1 | tee -a "$out_dir/rfdiffusion2.log"
+        "$seed" "$out_dir" 1 "100" 2>&1 | tee -a "$out_dir/rfdiffusion2.log"
 }
 
 # ─── per-seed loop ───────────────────────────────────────────────────────
