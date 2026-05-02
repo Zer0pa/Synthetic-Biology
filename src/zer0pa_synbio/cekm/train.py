@@ -368,7 +368,9 @@ def save_checkpoint(
         if optimiser_obj is not None and hasattr(optimiser_obj, "state_dict"):
             payload["optimiser"] = optimiser_obj.state_dict()
         if payload:
-            _torch.save(payload, pt_path)
+            tmp_pt = pt_path.with_name(pt_path.name + ".tmp")
+            _torch.save(payload, tmp_pt)
+            tmp_pt.replace(pt_path)
         else:
             # Nothing to save; write an empty marker file so the path exists.
             pt_path.touch()
@@ -380,10 +382,17 @@ def save_checkpoint(
         pt_path.touch()
 
     state = dataclasses.replace(state, model_state_path=str(pt_path))
-    meta_path.write_text(
+    # Atomic write: tmp then rename, so partial writes never appear at meta_path.
+    # Without this, mfs network blips can leave 0-byte meta.json on disk and
+    # crash the next resume. The defensive _latest_checkpoint catches this on
+    # the LOAD side, but eliminating the corruption at source means we don't
+    # silently lose checkpoint cadence to repeated crash-restart cycles.
+    tmp_meta = meta_path.with_name(meta_path.name + ".tmp")
+    tmp_meta.write_text(
         json.dumps(checkpoint_state_to_dict(state), indent=2),
         encoding="utf-8",
     )
+    tmp_meta.replace(meta_path)
     log.info("Checkpoint saved: %s", meta_path)
     return meta_path
 
