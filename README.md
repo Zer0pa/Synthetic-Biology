@@ -24,10 +24,6 @@ is the validation triple. Pre-registered acceptance thresholds
 binding numerical gates; structural envelope-chain conformance passes
 3/3 today.
 
-## Boundary
-
-Research infrastructure for in silico synthetic biology / metabolic pathway engineering. Outputs are research artifacts — predicted pathways, predicted KPIs, candidate genetic modification specifications. No regulatory certification claims. No clinical or human-subject use. No environmental release of GMOs. No biocontainment-level claims (the pipeline does not commission BSL-2/3 work). No human gene drive or eugenic application. Defence / weapons / dual-use bio applications excluded under operator policy.
-
 ## Pipeline Mechanics
 
 | Field | Value |
@@ -94,6 +90,26 @@ CEKM v0.1 is a real-corpus smoke checkpoint mid-training (target step 20000; cur
 - The L4.5 unknown-enzyme path emits Tier-1 / Tier-2 / Tier-3 advisories per PRD §6.6; these are research suggestions, not enzyme designs warranting downstream synthesis without independent verification.
 - No environmental release of GMOs. No human gene drive or eugenic application. Defence / weapons / dual-use bio applications excluded under operator policy.
 
+## Verification Status
+
+| Surface | Status | Evidence |
+| --- | --- | --- |
+| Test suite | 256 passing, 59 GPU-skipped | `pytest tests/` clean on Python 3.13 / macOS x86_64; CPU continuation A-H 0 regressions |
+| Falsifier registry | 23 falsifiers across Tiers A/B/C, registry loads at module import | `audit/falsifiers.yaml` + `src/zer0pa_synbio/falsifiers/checks.py` (one CPU implementation per registry entry; deliberate-trigger test per falsifier) |
+| HMO triple conformance | 3/3 PASS under `synbio audit verify` | `validation/hmo-seed-evidence/{2pFL,3pSL,DSLNT}/RESULT.md` + envelope chains 21/24/24 envelopes per seed |
+| CEKM checkpoint custody | Live on Hugging Face; ckpt + audit JSONL + meta sha256-recorded | https://huggingface.co/Architect-Prime/synbio-cekm-v0.1 (model repo) |
+| Cutover invariance | 38 plug-replaceability / cutover-invariance tests | `httpx.MockTransport` golden-fixture suite forked from sibling-workstream Energy Wave 4 |
+| Boundary discipline | Boundary block sha256-checked on every envelope; falsifier `f000_boundary_violation` enforces | `src/zer0pa_synbio/boundary.py` + `BOUNDARY.md` |
+
+## Proof Anchors
+
+- [PRD.md](PRD.md) — locked v1.0 spec; controlling decisions, layer contracts, falsifier registry, license discipline.
+- [audit/falsifiers.yaml](audit/falsifiers.yaml) — 23-falsifier registry with `id`, `tier`, `severity`, `gate_action`.
+- [validation/hmo-seed-evidence/](validation/hmo-seed-evidence/) — pre-registered acceptance thresholds + envelope chains + dossiers + audit-verify reports for the 2'-FL / 3'-SL / DSLNT validation triple.
+- [docs/synbio-audit-trail-v0.1-spec.md](docs/synbio-audit-trail-v0.1-spec.md) — Zer0pa-published Synbio Audit-Trail Spec v0.1 (CC BY 4.0): SBOL3 + PROV-O + sha256 hash chain + license-class enforcement + GPL subprocess isolation.
+- [src/zer0pa_synbio/cekm/train.py](src/zer0pa_synbio/cekm/train.py) — CEKM training entrypoint (real corpus path, adversarial-negatives sampler, calibration audit, checkpoint resume).
+- [scripts/runpod/](scripts/runpod/) — autonomous H100 SXM 10-phase chain (bootstrap, orchestrator, heartbeat, watchdog, MACE-OFF binding ΔG, RFdiffusion2 inference).
+
 ## Repo Shape
 
 - `src/zer0pa_synbio/` — adapters L1-L7, envelope, falsifiers, CEKM model + train + loaders, KG writer, audit writer, TDA simulator, runpod_inference, CLI
@@ -105,6 +121,10 @@ CEKM v0.1 is a real-corpus smoke checkpoint mid-training (target step 20000; cur
 - `scripts/runpod/` — autonomous H100 SXM chain (bootstrap, orchestrator, heartbeat, watchdog, 10 phase scripts) + Mac-side wake-up watcher + corpus stager
 - `configs/` — wave4 real-corpus CEKM training + runpod orchestrator phase config
 - `fixtures/` — LIRC slice + CEKM mini-fixtures + per-source manifests
+
+## Boundary
+
+Research infrastructure for in silico synthetic biology / metabolic pathway engineering. Outputs are research artifacts — predicted pathways, predicted KPIs, candidate genetic modification specifications. No regulatory certification claims. No clinical or human-subject use. No environmental release of GMOs. No biocontainment-level claims (the pipeline does not commission BSL-2/3 work). No human gene drive or eugenic application. Defence / weapons / dual-use bio applications excluded under operator policy.
 
 ## Read Order (for next agents)
 
