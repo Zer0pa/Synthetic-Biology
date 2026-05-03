@@ -1,0 +1,31 @@
+{
+  "title": "Zer0pa Synthetic Biology Pipeline (zer0pa-synbio) v0.1.0",
+  "description": "In silico metabolic-pathway-engineering pipeline (L1 to L7 plus L4.5 and L5_OED) producing predicted pathways, KPIs, and SBOL3-attested genetic-modification specs as research artifacts. Trains a Conditional Enzyme Kinetics Model (CEKM) on real corpora; runs the four-tool L4 kinetics ensemble plus eQuilibrator MDF / COBRApy FBA / FluxGAT essentiality; scaffolds the L4.5 unknown-enzyme path with RFdiffusion2 + MACE-OFF + ESMFold. Validation triple: Human Milk Oligosaccharide (HMO) seeds 2'-fucosyllactose / 3'-sialyllactose / disialyllacto-N-tetraose in E. coli iML1515 (3/3 PASS under synbio audit verify). Licensed under Zer0pa Source-Available License v7.1 (LicenseRef-Zer0pa-SAL-7.1).",
+  "creators": [
+    {
+      "name": "Zer0pa",
+      "affiliation": "Zer0pa (Pty) Ltd"
+    }
+  ],
+  "upload_type": "software",
+  "access_right": "open",
+  "license": "other-open",
+  "keywords": [
+    "synthetic-biology",
+    "metabolic-pathway-engineering",
+    "in-silico-research",
+    "falsification",
+    "cekm",
+    "hmo",
+    "sbol3",
+    "python"
+  ],
+  "notes": "Licensed under the Zer0pa Source-Available License v7.1 (LicenseRef-Zer0pa-SAL-7.1). See LICENSE file and https://github.com/Zer0pa/ZPE-License-Commercial for full terms. Research artifacts only — no regulatory certification claims, no clinical use.",
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/Zer0pa/Synthetic-Biology",
+      "relation": "isSupplementTo",
+      "resource_type": "software"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata below."
+title: "Zer0pa Synthetic Biology Pipeline (zer0pa-synbio)"
+abstract: "In silico metabolic-pathway-engineering pipeline (L1 to L7 plus L4.5
+  and L5_OED) producing predicted pathways, KPIs, and SBOL3-attested
+  genetic-modification specs as research artifacts."
+version: 0.1.0
+date-released: "2026-05-03"
+license: "LicenseRef-Zer0pa-SAL-7.1"
+repository-code: "https://github.com/Zer0pa/Synthetic-Biology"
+url: "https://github.com/Zer0pa/Synthetic-Biology"
+authors:
+  - name: "Zer0pa"
+    email: "architects@zer0pa.ai"
+keywords:
+  - synthetic-biology
+  - metabolic-pathway-engineering
+  - in-silico-research
+  - falsification
+  - cekm
+  - hmo
+  - sbol3
+type: software
