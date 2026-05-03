@@ -268,3 +268,47 @@ Issue actioned: [#1](https://github.com/Zer0pa/Synthetic-Biology/issues/1) "Lab 
 - `docs/synbio-audit-trail-v0.1-spec.md` — OK
 - `src/zer0pa_synbio/cekm/train.py` — OK
 - `scripts/runpod` — OK
+
+## 11. Front Door update — chain-complete state (2026-05-03)
+
+**Trigger:** Operator authorization "I need u to update the front door readme - in accordance with /Users/zer0palab/ZER0PA_LANE_AGENT_FRONT_DOOR_GUIDANCE_2026-05-02.md be meticulous follow the rules" — after Pod 1hx4ctwg1mpmxr autonomous chain reached 10/10 phase sentinels at 03:52:34Z.
+
+**HEAD before:** `3b9744e` (Autonomous run COMPLETE: FINAL-REPORT-RUNPOD-AUTONOMOUS.md)
+**HEAD after:**  `ce06f82` (README: update front door for chain-complete state)
+**README blob on origin/main:** `ae0c727cd50670917469e98ae623c1549cf2dcdb`
+
+**Spine compliance after update (verified line-by-line on origin/main):**
+
+- ✓ First-ten headings exactly match the Lab Front Door workstream profile (What This Is → Pipeline Mechanics → Key Metrics → Repo Identity → Readiness → What We Prove → What We Don't Claim → Verification Status → Proof Anchors → Repo Shape).
+- ✓ First public lead = 18 words (≤30).
+- ✓ Pipeline Mechanics is Zone 02; no `System Mechanics` / `Method Mechanics` mis-substitution.
+- ✓ Key Metrics has exactly 4 data rows.
+- ✓ Proof Anchors has exactly 6 anchors; each path resolves on origin/main:
+  - `PRD.md` — blob `2ee51a6d`
+  - `audit/falsifiers.yaml` — blob `0cc1e577`
+  - `validation/hmo-seed-evidence` — tree `beb9d24e`
+  - `docs/synbio-audit-trail-v0.1-spec.md` — blob `8e98eda5`
+  - `src/zer0pa_synbio/cekm/train.py` — blob `78ec24ee`
+  - `FINAL-REPORT-RUNPOD-AUTONOMOUS.md` — blob `11907d25` (replaced `scripts/runpod/` from prior 6-anchor set; coverage preserved by Repo Shape entry + chain receipts inside the FINAL-REPORT).
+- ✓ Boundary block preserved verbatim and remains in support section after Repo Shape.
+- ✓ Honest Blocker section preserved + expanded (RFD2 wrapper-path layout drift, Phase 40 calibration-gate non-blocking discipline).
+- ✓ Visibility unchanged (INTERNAL).
+- ✓ No `Commercial Readiness` / `Tests and Verification` aliases.
+- ✓ Workstream-specific guidance honored: "Preserve deferred Runpod/next-wave boundary; do not overstate final operational status." — used "v0.1 first full-budget H100 chain end-to-end complete" framing; "v0.1 research checkpoint, not a calibrated affinity predictor"; PathGym DBTL holdout calibration still flagged as deferred.
+
+**Concrete data updated to reflect chain-complete state:**
+
+- Pipeline Mechanics → Compute Status: 20K steps complete + HMO triple + L4.5 inference + 19.2 GB CEKM HF push in same chain (was: "loss 6.93→3.72 over 2000 fp32 steps; max_steps=20000 in-progress").
+- Key Metrics → CEKM_REAL_CORPUS_LOSS: `6.93 → ~3.0 (steps 0 → 20000; best 2.73 at step-19850)` (was 6.93 → 3.72 over 2000 steps).
+- Key Metrics → AUTONOMOUS_CHAIN_PHASES: `10 / 10 complete` (was `10 / 10 covered`); appended `Pod 1hx4ctwg1mpmxr 2026-05-03 → 3b9744e` lineage.
+- Key Metrics → HMO_TRIPLE_AUDIT_VERIFY: appended DSLNT round-0 dossier `envelope_count=11`.
+- Readiness → Custody boundary: 3 ckpts (step 1500/18000/19000, 19.2 GB) on HF + L4.5 PDBs + MACE-OFF JSONs in git.
+- Readiness → Authority: appended `3b9744e` chain-receipts pointer.
+- Honest Blocker: ckpt list updated; RFD2 `run_inference.py not found` upstream-layout-drift error documented; Phase 40 sentinel-touch discipline documented.
+- What We Prove: CEKM bullet rewritten to full v0.1 budget + atomic-save/resume patches; new bullet for autonomous-chain end-to-end with phase 50–90 timing.
+- What We Don't Claim → CEKM bullet: full-budget but still not calibrated; tier α/β/γ AUC=None reasoning surfaced.
+- Verification Status → CEKM ckpt custody row: 3-ckpt push receipts (48s @ 3.43 GB/s, 2026-05-03T03:46Z).
+- Provenance: appended `a08ee50` (defensive _latest_checkpoint), `0aeafb3` (atomic save), `3b9744e` (chain complete).
+
+**External-exposure readiness:** front door now matches the Lab Front Door first-ten spine and reports current chain-complete state honestly. Website team can resync from origin/main (commit `ce06f82`, README blob `ae0c727c`). The "v0.1" qualifier and the Honest Blocker block continue to scope the operational claim correctly per workstream guidance.
+
