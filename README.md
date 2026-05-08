@@ -33,7 +33,7 @@ binding numerical gates; structural envelope-chain conformance passes
 | Execution | Mac CPU + H100 SXM 80 GB (autonomous orchestrator on Runpod, 10-phase chain with resume sentinels) |
 | Toolchain | torch 2.2/cu130 + transformers (ESM-2 650M / ESMFold) + RFdiffusion2 (BSD-3) + MACE-OFF (medium) + equilibrator-pathway (MDF LP) + COBRApy + ripser/persim (TDA) + BoTorch (Hamming kernel + qLogNEHVI) + selfies + RDKit |
 | Discipline | 23 falsifiers across 3 tiers (Tier-A fast / Tier-B medium / Tier-C heavy) + cross-model disagreement first-class + GPL-subprocess isolation (Salis RBS Calculator v1.0) + RESISTANCE.md anti-corruption protocol |
-| Compute Status | v0.1 H100 chain end-to-end complete on Pod 1hx4ctwg1mpmxr 2026-05-03 (CEKM 20,000 fp32 steps; loss 6.93 → ~3.0, best 2.73 at step-19850; HMO triple + L4.5 inference + 19.2 GB CEKM push to HF emitted in same chain) |
+| Compute Status | v0.1 H100 chain runs end-to-end at the **structural-audit layer** on Pod 1hx4ctwg1mpmxr 2026-05-03 (CEKM 20,000 fp32 steps; loss 6.93 → ~3.0, best 2.73 at step-19850; HMO triple + L4.5 inference + 19.2 GB CEKM push to HF emitted in same chain). Committed HMO evidence packets at `validation/hmo-seed-evidence/{2pFL,3pSL,DSLNT}/RESULT.md` report `scientific_valid: False`; **scientific HMO validation is not claimed at v0.1** and is in claim-surface repair. |
 
 ## Key Metrics
 
@@ -41,7 +41,7 @@ binding numerical gates; structural envelope-chain conformance passes
 | --- | --- | --- |
 | CEKM_REAL_CORPUS_LOSS | 6.93 → ~3.0 (steps 0 → 20000; best 2.73 at step-19850) | total: 33,851 in-corpus rows + 5,961 held-out + 101,553 adversarial Tier α/β/γ negatives |
 | AUTONOMOUS_CHAIN_PHASES | 10 / 10 complete | preflight → install → stage → CEKM train → eval → HF push → L4.5 inference → HMO triple → audit verify → finalize (Pod 1hx4ctwg1mpmxr 2026-05-03 → `3b9744e`) |
-| HMO_TRIPLE_AUDIT_VERIFY | 3/3 PASS | conformance verifier per docs/synbio-audit-trail-v0.1-spec.md §10; DSLNT round-0 dossier envelope_count=11 from 2026-05-03 chain |
+| HMO_TRIPLE_AUDIT_VERIFY (structural) | 3/3 PASS | **structural** conformance only (envelope-schema valid, boundary-sha256 canonical, SBOL3 attestation present, license-class enforcement, falsifier registry loaded) per docs/synbio-audit-trail-v0.1-spec.md §10; DSLNT round-0 dossier envelope_count=11 from 2026-05-03 chain. Scientific-validity gates in `validation/hmo-seed-evidence/{seed}/RESULT.md` report `scientific_valid: False` (stub mode); not equivalent to scientific HMO validation. |
 | CPU_PIPELINE_TESTS | 256 passing, 59 GPU-skipped | 0 regressions across CPU continuation A-H |
 
 > Source: PRD.md, FINAL-REPORT.md, FINAL-REPORT-RUNPOD.md, FINAL-REPORT-RUNPOD-AUTONOMOUS.md, validation/hmo-seed-evidence/, audit/runtime/runpod/.
@@ -53,7 +53,7 @@ binding numerical gates; structural envelope-chain conformance passes
 | Identifier | Synthetic-Biology |
 | Repository | https://github.com/Zer0pa/Synthetic-Biology |
 | Portfolio | Bio-Engineering |
-| Visibility | INTERNAL |
+| Visibility | PUBLIC |
 | Default Branch | main |
 | Authority Source | PRD.md (locked v1.0 decisions) |
 | License | repository license file |
@@ -62,7 +62,7 @@ binding numerical gates; structural envelope-chain conformance passes
 
 | Field | Value |
 | --- | --- |
-| Evidence posture | v0.1 first full-budget H100 chain end-to-end complete; not a productized service |
+| Evidence posture | v0.1 first full-budget H100 chain runs end-to-end at the **structural-audit layer**; scientific HMO validation is **not claimed** (committed evidence packets report `scientific_valid: False`); not a productized service |
 | Checks | 256 passing tests + 23 falsifiers + 3/3 HMO seed audit-verify PASS |
 | Custody boundary | 3 CEKM ckpts (step 1500 / 18000 / 19000, 19.2 GB total + audit JSONL) on HF [Architect-Prime/synbio-cekm-v0.1](https://huggingface.co/Architect-Prime/synbio-cekm-v0.1); envelope chains + dossiers + L4.5 ESMFold PDBs + MACE-OFF binding ΔG JSONs in git |
 | Confidence | scoped by Tier-A/B/C falsifier hierarchy; PathGym DBTL-holdout calibration deferred; CEKM calibration gate non-blocking by design (no BRENDA holdout in v0.1 corpus) |
@@ -70,7 +70,7 @@ binding numerical gates; structural envelope-chain conformance passes
 
 ### Honest Blocker
 
-CEKM v0.1 reached its 20,000-step target with checkpoints at step 1500 / 18000 / 19000 pushed to HF; this is a v0.1 research checkpoint, not a calibrated affinity predictor. Wet-lab Phase 2 dispatch is triple-gated and never on the cutover path. PathGym DBTL holdout calibration of TDA `warning_score` thresholds and L5 surrogate calibration scores is deferred to held-out post-experiment data. Real RFdiffusion2 motif-conditional designs require curated TS-mimetic geometry, downstream of v0.1; the v0.1 RFD2 wrapper additionally errored on `run_inference.py not found` (upstream layout drift across the 3 candidate paths the wrapper probes — non-blocking since ESMFold + MACE-OFF outputs landed for all 3 HMO seeds). BRENDA bulk download requires registration; v0.1 trains on EnzyExtract dark-matter + GotEnzymes2 + ProteinGym subsets, not full BRENDA core. CEKM Phase 40 calibration gate is non-blocking by design (sentinel-touched after eval ran cleanly against step-19000 ckpt; tier α/β/γ AUCs return None because no BRENDA holdout exists in this corpus).
+The HMO triple **passes structural audit conformance only**; the committed HMO evidence packets at `validation/hmo-seed-evidence/{2pFL,3pSL,DSLNT}/RESULT.md` report `scientific_valid: False` and stub mode for downstream scientific predictions. **Scientific HMO validation is not claimed at v0.1** and remains in claim-surface repair; the `HMO_TRIPLE_AUDIT_VERIFY 3/3 PASS` claim attests structural conformance only, not scientific validity. CEKM v0.1 reached its 20,000-step target with checkpoints at step 1500 / 18000 / 19000 pushed to HF; this is a v0.1 research checkpoint, not a calibrated affinity predictor. Wet-lab Phase 2 dispatch is triple-gated and never on the cutover path. PathGym DBTL holdout calibration of TDA `warning_score` thresholds and L5 surrogate calibration scores is deferred to held-out post-experiment data. Real RFdiffusion2 motif-conditional designs require curated TS-mimetic geometry, downstream of v0.1; the v0.1 RFD2 wrapper additionally errored on `run_inference.py not found` (upstream layout drift across the 3 candidate paths the wrapper probes — non-blocking since ESMFold + MACE-OFF outputs landed for all 3 HMO seeds). BRENDA bulk download requires registration; v0.1 trains on EnzyExtract dark-matter + GotEnzymes2 + ProteinGym subsets, not full BRENDA core. CEKM Phase 40 calibration gate is non-blocking by design (sentinel-touched after eval ran cleanly against step-19000 ckpt; tier α/β/γ AUCs return None because no BRENDA holdout exists in this corpus).
 
 ## What We Prove
 
