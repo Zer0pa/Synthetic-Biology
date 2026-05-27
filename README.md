@@ -52,7 +52,7 @@
 <table width="100%">
 <tr>
 <td width="50%" valign="top">
-<div><b>03 · VALUE</b></div>
+<div><b>03 · VALUE OF MARKET</b></div>
       <div>DESIGN<span>QA</span></div>
       <div>Hash-bound design packets with <b>SBOL3 attestation and a scientific-validity flag that travels with every HMO target.</b></div>
 </td>
