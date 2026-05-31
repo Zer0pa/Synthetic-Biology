@@ -18,7 +18,7 @@ For full install, smoke, source, and developer commands, [click here](#install-d
 <tr>
 <td width="100%" valign="top">
 <div><span><b>00 · SYNTHETIC-BIOLOGY</b> · INSILICO · METABOLIC PATHWAYS</span> <span>RESEARCH-READY · WET-LAB OPEN</span></div>
-      <h1>Structural HMO checks and <span>synthbio design packets.</span></h1>
+      <h1>Engineering Life <span>From First Principles</span></h1>
       <p>Synthetic-Biology &middot; <code>zer0pa-synbio</code> 0.1.0 &middot; github.com/Zer0pa/Synthetic-Biology</p>
       <p>An in-silico pipeline for engineering human-milk oligosaccharide biosynthesis in <em>E. coli</em>. Three HMO targets &mdash; <strong>2'-FL, 3'-SL, and DSLNT</strong> &mdash; flow through a seven-stage design stack and exit as SBOL3-attested packets a wet lab can pick up. Every packet carries an explicit <strong><code>scientific_valid: False</code></strong> flag. The design dossier is real and inspectable; the biology has not been confirmed at the bench, and the page does not claim it has.</p>
 </td>
